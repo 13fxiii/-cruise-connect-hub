@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { SessionProvider } from "@/components/layout/SessionProvider";
-import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Cruise & Connect Hub〽️",
@@ -17,18 +15,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const session = await auth();
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`bg-cch-black text-white min-h-screen`}>
-        <SessionProvider session={session}>
-          {children}
-        </SessionProvider>
+    <html lang="en">
+      <body className="bg-brand-black text-white min-h-screen">
+        {children}
       </body>
     </html>
   );

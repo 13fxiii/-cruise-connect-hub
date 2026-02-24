@@ -1,23 +1,21 @@
-import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { updateSession } from "@/lib/supabase/middleware";
 
 const PROTECTED_ROUTES = ["/profile", "/admin"];
 
-export default auth((req) => {
-  const { pathname } = req.nextUrl;
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
   const isProtected = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
 
-  if (isProtected && !req.auth) {
-    const signinUrl = new URL("/auth/signin", req.url);
-    signinUrl.searchParams.set("callbackUrl", pathname);
-    return NextResponse.redirect(signinUrl);
+  if (isProtected) {
+    const response = await updateSession(request);
+    return response;
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };

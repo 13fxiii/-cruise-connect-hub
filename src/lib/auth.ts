@@ -1,55 +1,43 @@
-import NextAuth from "next-auth";
-import Twitter from "next-auth/providers/twitter";
-import Resend from "next-auth/providers/resend";
-import { SupabaseAdapter } from "@auth/supabase-adapter";
+// Pure Supabase SSR auth - no NextAuth dependency
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: SupabaseAdapter({
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    secret: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  }),
-  providers: [
-    Twitter({
-      clientId: process.env.TWITTER_CLIENT_ID!,
-      clientSecret: process.env.TWITTER_CLIENT_SECRET!,
-    }),
-    Resend({
-      apiKey: process.env.RESEND_API_KEY!,
-      from: process.env.EMAIL_FROM || "noreply@cruiseconnecthub.com",
-    }),
-  ],
-  session: {
-    strategy: "jwt",
-  },
-  pages: {
-    signIn: "/auth/signin",
-    error: "/auth/error",
-  },
-  callbacks: {
-    async jwt({ token, account, profile, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = (user as any).role || "member";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://xiyjgcoeljquryixmfut.supabase.co';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeWpnY29lbGpxdXJ5aXhtZnV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1NTMzNjAsImV4cCI6MjA4NTEyOTM2MH0.BnVAwvmor0JnjmFn0t4t5lTZU_fIoE3FNl1RYOK1_Hk';
+
+export async function auth() {
+  try {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet: any[]) {
+          try { cookiesToSet.forEach(({ name, value, options }: any) => cookieStore.set(name, value, options)); } catch {}
+        },
+      },
+    });
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return null;
+    return {
+      user: {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+        image: session.user.user_metadata?.avatar_url,
+        role: session.user.user_metadata?.role || 'member',
+        twitterHandle: session.user.user_metadata?.preferred_username,
       }
-      if (account?.provider === "twitter") {
-        token.twitterHandle = (profile as any)?.screen_name;
-        token.twitterId = account.providerAccountId;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        (session.user as any).role = token.role;
-        (session.user as any).twitterHandle = token.twitterHandle;
-      }
-      return session;
-    },
-  },
-  events: {
-    async createUser({ user }) {
-      // Auto-assign member role on creation
-      console.log("New user created:", user.email);
-    },
-  },
-});
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function signIn() {}
+export async function signOut() {}
+
+// Stub handlers for API route compatibility
+export const handlers = {
+  GET: async () => new Response('{}', { status: 200 }),
+  POST: async () => new Response('{}', { status: 200 }),
+};
