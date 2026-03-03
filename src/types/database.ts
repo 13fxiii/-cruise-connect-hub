@@ -166,3 +166,74 @@ export interface Database {
     CompositeTypes: Record<string, never>;
   };
 }
+
+// ── SPACES ─────────────────────────────────────────────────
+export type SpaceStatus = "scheduled" | "live" | "ended";
+
+export type Space = {
+  id: string;
+  host_id: string;
+  title: string;
+  description: string | null;
+  status: SpaceStatus;
+  listener_count: number;
+  max_listeners: number;
+  tags: string[];
+  twitter_space_url: string | null;
+  scheduled_at: string | null;
+  started_at: string | null;
+  ended_at: string | null;
+  created_at: string;
+};
+
+export type SpaceWithHost = Space & { profiles: Profile | null };
+
+// ── GAMES ──────────────────────────────────────────────────
+export type GameType = "trivia" | "truth_dare" | "polls" | "tournament" | "ludo";
+export type GameStatus = "upcoming" | "active" | "ended";
+
+export type Game = {
+  id: string;
+  title: string;
+  type: GameType;
+  status: GameStatus;
+  entry_fee: number;
+  prize_pool: number;
+  max_players: number;
+  player_count: number;
+  starts_at: string;
+  ended_at: string | null;
+  winner_id: string | null;
+  created_at: string;
+};
+
+export type LeaderboardEntry = {
+  rank: number;
+  profile: Profile;
+  points: number;
+  wins: number;
+  games_played: number;
+};
+
+// ── WALLET ─────────────────────────────────────────────────
+export type TxType = "gift_sent" | "gift_received" | "tournament_win" | "referral" | "withdrawal" | "deposit" | "ad_payment";
+
+export type Transaction = {
+  id: string;
+  user_id: string;
+  type: TxType;
+  amount: number;
+  description: string;
+  reference: string | null;
+  status: "pending" | "completed" | "failed";
+  created_at: string;
+};
+
+export type Wallet = {
+  id: string;
+  user_id: string;
+  balance: number;
+  total_earned: number;
+  total_spent: number;
+  updated_at: string;
+};
