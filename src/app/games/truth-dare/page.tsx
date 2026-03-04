@@ -1,14 +1,13 @@
 "use client";
 import { useState, useCallback } from "react";
-import { Flame, Users, Shuffle, ThumbsUp, ThumbsDown, Crown, ArrowLeft } from "lucide-react";
+import { Flame, Users, Shuffle, Home, RefreshCw } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Link from "next/link";
 
-type Mode = "truth"|"dare";
 type Category = "mild"|"spicy"|"savage";
 
-const TRUTHS: Record<Category, string[]> = {
-  mild: [
+const TRUTHS: Record<Category,string[]> = {
+  mild:[
     "What's your most embarrassing moment this year?",
     "Have you ever lied to get out of plans?",
     "What's the most childish thing you still do?",
@@ -19,256 +18,266 @@ const TRUTHS: Record<Category, string[]> = {
     "What's your most unpopular opinion?",
     "When was the last time you cried and why?",
     "What's something you're embarrassed to admit you enjoy?",
+    "What's the most recent lie you told?",
+    "What's something you've never told your best friend?",
+    "What's the last thing you searched on Google?",
+    "Have you ever talked bad about someone and got caught?",
+    "What's your most embarrassing childhood memory?",
   ],
-  spicy: [
+  spicy:[
     "Who was your first celebrity crush?",
     "Have you ever had feelings for someone in this group?",
     "What's the most daring thing you've done for love?",
     "Have you ever slid into someone's DMs and got left on read?",
-    "What's the most romantic thing you've ever done?",
-    "Have you ever cheated on a test or exam?",
     "What's the worst date you've ever been on?",
-    "Who here do you think is secretly in love with someone?",
-    "Have you ever been caught lying to a partner?",
-    "What's the most embarrassing text you've sent to the wrong person?",
+    "Have you ever cheated on a test or exam?",
+    "What's the most money you've wasted on something stupid?",
+    "Have you ever broken up with someone via text?",
+    "What's something you pretend to like to impress someone?",
+    "Who is your secret crush right now?",
+    "Have you ever stalked an ex on social media in the last month?",
+    "What's the most embarrassing thing you've done for attention?",
+    "Have you ever catfished someone online? Even a little bit?",
+    "What's your biggest insecurity you never talk about?",
+    "Have you ever told someone you loved them just to keep them?",
   ],
-  savage: [
-    "Who in this group do you think will be single forever?",
-    "Rate everyone in this room from most to least attractive — be honest!",
-    "Have you ever talked badly about someone in this group to someone else?",
-    "Who here do you think is the most overrated?",
-    "What's the pettiest thing you've ever done to an ex?",
-    "Have you ever pretended to like someone's cooking to be nice?",
-    "Who in this group needs a glow-up the most?",
-    "What's the most savage thing you've ever texted someone?",
-    "Have you ever ghosted someone you still see regularly?",
-    "What's your most controversial opinion about the people in this group?",
-  ],
+  savage:[
+    "Who in your contact list would you delete and never miss?",
+    "What's the pettiest reason you've ended a friendship?",
+    "Rate everyone in this chat by attractiveness out of 10 — GO!",
+    "What's something you've done that would disappoint your parents?",
+    "Have you ever liked someone's photo from years ago to get their attention?",
+    "What's the most savage thing you've said to someone and never apologized?",
+    "Who was the last person you deep-stalked on Instagram?",
+    "Have you ever pretended to be busy to avoid someone and got caught?",
+    "What's the most questionable thing on your phone right now?",
+    "If you could erase one thing you've done from history, what is it?",
+    "Who do you talk to less than you should because they annoy you?",
+    "What's the messiest drama you've been involved in?",
+    "Be honest: how many people are you currently leading on?",
+    "What's your most illegal thing you've ever done?",
+    "What's something you've lied about consistently for years?",
+  ]
 };
 
-const DARES: Record<Category, string[]> = {
-  mild: [
-    "Do your best celebrity impression for 30 seconds",
-    "Text your mom 'I've been lying to you' — screenshot it",
-    "Speak in a British accent for the next 3 rounds",
-    "Do 10 push-ups right now",
-    "Call someone in your contacts and sing Happy Birthday",
-    "Post a throwback embarrassing photo to your IG story for 5 minutes",
-    "Let someone in the group read your last 5 WhatsApp messages",
-    "Do your best runway walk across the room",
-    "Say something nice about everyone here — genuinely!",
-    "Do your worst dance move for 15 seconds",
+const DARES: Record<Category,string[]> = {
+  mild:[
+    "Do your best dance move for 15 seconds 🕺",
+    "Send a funny selfie in this group chat 🤳",
+    "Call someone and sing Happy Birthday even if it's not their birthday 🎂",
+    "Speak in an accent for the next 3 rounds 🗣️",
+    "Do 10 jumping jacks right now 💪",
+    "Show the last photo in your camera roll 📸",
+    "Text your mum 'Are you proud of me?' right now 😂",
+    "Change your X profile picture to something funny for 1 hour 😅",
+    "Do your best cooking impression without speaking 🍳",
+    "Eat a spoonful of the hottest condiment in reach 🌶️",
+    "Walk around like a penguin for 1 full minute 🐧",
+    "Try to lick your elbow for 30 seconds 😂",
+    "Do your best robot dance for 20 seconds 🤖",
+    "Speak in a whisper for the next 2 rounds 🤫",
+    "Send a text to your last contact saying 'We need to talk' 👀",
   ],
-  spicy: [
-    "DM your crush right now saying 'I've been thinking about you'",
-    "Change your X bio to whatever the group decides for 1 hour",
-    "Let the group pick your next profile picture",
-    "Text your ex 'I miss our conversations' — no context",
-    "Post a thirst trap photo to your closest friends for 10 minutes",
-    "Let someone go through your camera roll for 30 seconds",
-    "Send a voice note to someone in your contacts saying 'we need to talk'",
-    "Change your status to 'I'm ready to mingle' for 30 minutes",
-    "DM your work colleague a random food emoji — no explanation",
-    "Call your last 3 contacts and say 'just checking you're okay' — no context",
+  spicy:[
+    "Send a voice note singing Burna Boy 'Ye' to this chat 🎤",
+    "Post a throwback photo from 5+ years ago on your story 😭",
+    "DM your ex 'thinking of you 🙂' and show us 📱",
+    "Put three ice cubes in your shirt and keep them there 🧊",
+    "Text your most recent ex just a 👀 and show the reaction 😂",
+    "Change your X bio to 'I talk too much' for 24 hours 😭",
+    "Call someone you like and say 'I've been thinking about you' 😳",
+    "Post 'this person [tag someone] is my hero' on your story 😂",
+    "Send your most embarrassing voice note to this chat 😅",
+    "Reply to the last 5 people who messaged you with just '👀' 😭",
+    "Take a photo making the ugliest face you can and post it 🤮",
+    "Text your dad a compliment right now ❤️",
+    "Do your best impression of a Nigerian politician giving speech 🎭",
+    "Show us your most unread notification 😂",
+    "Call a random number in your contacts and say 'I miss you' 📞",
   ],
-  savage: [
-    "Let the group post one tweet from your account — they choose what",
-    "Confess your biggest secret to the group — for real",
-    "Call your most recent ex and say 'I've been thinking about us'",
-    "Post a roast of yourself on your story for 15 minutes",
-    "Let someone read your DM requests out loud",
-    "Send a 'I just wanted to say I'm sorry' message to someone you've wronged",
-    "Let the group pick a TikTok sound — you have to make the video right now",
-    "Give a full honest rating of your own personality: strengths and flaws",
-    "Send a voice note to your best friend saying your real opinion of their partner",
-    "Post your screen time stats to your story right now",
-  ],
+  savage:[
+    "Post 'I have something to confess 👀' as your X status for 2 hours and don't explain 😭",
+    "Send a voice note in this chat confessing your most embarrassing secret 🔊",
+    "Tag 5 people on your story with: 'Y'all need to be on C&C Hub ASAP 🚌'",
+    "Call the person you have the most drama with right now 😬",
+    "Post the most embarrassing photo from your phone as your story 📱",
+    "Read out the most embarrassing text you've sent in the last 7 days 💀",
+    "Write 'I am the main character' on your arm and show everyone 😂",
+    "Do a full minute of continuous compliments about the person you argue with most 😭",
+    "Post 'I've been lying about something. DM me.' on your X and leave it for 2 hours 👀",
+    "Screenshot your screen time and show everyone in this chat 📊",
+    "Dramatically re-enact your most embarrassing moment this year 🎭",
+    "Show the group your most embarrassing text conversation 😅",
+    "Post on your story: 'I have a confession — I'm joining C&C Hub 🚌' and tag @CCHub_",
+    "Send a heartfelt apology to someone you've wronged — in this chat 💙",
+    "Show us your most liked post and most embarrassing post side by side 😂",
+  ]
 };
-
-const CATEGORY_COLORS: Record<Category, string> = {
-  mild: "text-green-400 bg-green-400/10 border-green-400/30",
-  spicy: "text-orange-400 bg-orange-400/10 border-orange-400/30",
-  savage: "text-red-400 bg-red-400/10 border-red-400/30",
-};
-
-const CATEGORY_EMOJI: Record<Category, string> = { mild: "😊", spicy: "🌶️", savage: "💀" };
 
 export default function TruthDarePage() {
-  const [mode, setMode] = useState<Mode>("truth");
+  const [mode, setMode] = useState<"truth"|"dare">("truth");
   const [category, setCategory] = useState<Category>("mild");
-  const [current, setCurrent] = useState<string | null>(null);
-  const [history, setHistory] = useState<{text:string; mode:Mode; category:Category}[]>([]);
-  const [players, setPlayers] = useState<string[]>(["Player 1", "Player 2", "Player 3"]);
+  const [currentCard, setCurrentCard] = useState<string|null>(null);
+  const [cardHistory, setCardHistory] = useState<{mode:string;text:string}[]>([]);
+  const [flipping, setFlipping] = useState(false);
+  const [players, setPlayers] = useState(["Player 1","Player 2"]);
   const [currentPlayer, setCurrentPlayer] = useState(0);
-  const [newPlayer, setNewPlayer] = useState("");
-  const [reactions, setReactions] = useState<Record<number, {up:number;down:number}>>({});
-  const [phase, setPhase] = useState<"setup"|"game">("setup");
+  const [addingPlayer, setAddingPlayer] = useState(false);
+  const [newPlayerName, setNewPlayerName] = useState("");
 
-  const spin = useCallback(() => {
-    const pool = mode === "truth" ? TRUTHS[category] : DARES[category];
-    const unused = pool.filter(q => !history.map(h => h.text).includes(q));
-    const pick = unused.length > 0 ? unused : pool;
-    const card = pick[Math.floor(Math.random() * pick.length)];
-    setCurrent(card);
-    setHistory(h => [...h, { text: card, mode, category }]);
-  }, [mode, category, history]);
+  const draw = useCallback(()=>{
+    setFlipping(true);
+    setTimeout(()=>{
+      const pool = mode==="truth"?TRUTHS[category]:DARES[category];
+      const card = pool[Math.floor(Math.random()*pool.length)];
+      setCurrentCard(card);
+      setCardHistory(h=>[{mode,text:card},...h].slice(0,10));
+      setFlipping(false);
+    },300);
+  },[mode,category]);
 
   const nextPlayer = () => {
-    setCurrentPlayer(p => (p + 1) % players.length);
-    setCurrent(null);
+    setCurrentPlayer(p=>(p+1)%players.length);
+    setCurrentCard(null);
   };
 
   const addPlayer = () => {
-    if (newPlayer.trim() && players.length < 8) {
-      setPlayers(p => [...p, newPlayer.trim()]);
-      setNewPlayer("");
+    if(newPlayerName.trim()&&players.length<8){
+      setPlayers(p=>[...p,newPlayerName.trim()]);
+      setNewPlayerName("");
+      setAddingPlayer(false);
     }
   };
 
-  const react = (idx: number, type: "up"|"down") => {
-    setReactions(r => ({
-      ...r,
-      [idx]: { up: (r[idx]?.up||0) + (type==="up"?1:0), down: (r[idx]?.down||0) + (type==="down"?1:0) }
-    }));
+  const catColors: Record<Category,string> = {
+    mild:"border-blue-500 bg-blue-500/10 text-blue-400",
+    spicy:"border-orange-500 bg-orange-500/10 text-orange-400",
+    savage:"border-red-600 bg-red-600/10 text-red-400",
   };
+
+  const modeGradient = mode==="truth"
+    ?"from-blue-600/20 to-purple-600/20 border-blue-500/30"
+    :"from-red-600/20 to-orange-600/20 border-red-500/30";
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
-      <main className="max-w-2xl mx-auto px-4 py-8">
-
-        <div className="flex items-center gap-3 mb-6">
-          <Link href="/games" className="text-zinc-500 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
-          <div>
-            <h1 className="text-2xl font-black text-white flex items-center gap-2"><Flame className="text-orange-400 w-6 h-6" /> Truth or Dare</h1>
-            <p className="text-zinc-400 text-sm">Community edition · 18+ Savage Mode available</p>
-          </div>
+      <Navbar/>
+      <main className="max-w-lg mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/games" className="text-zinc-400 hover:text-white text-sm">← Games</Link>
+          <h1 className="text-xl font-black text-white flex items-center gap-2"><Flame className="w-5 h-5 text-orange-400"/>Truth or Dare</h1>
+          <div className="w-16"/>
         </div>
 
-        {/* SETUP */}
-        {phase === "setup" && (
-          <div className="space-y-6">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
-              <h3 className="font-bold text-white mb-3 flex items-center gap-2"><Users className="w-4 h-4 text-yellow-400" /> Players ({players.length}/8)</h3>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {players.map((p, i) => (
-                  <div key={i} className="flex items-center gap-1 bg-zinc-800 rounded-full px-3 py-1.5">
-                    <span className="text-sm text-zinc-200">{p}</span>
-                    <button onClick={() => setPlayers(ps => ps.filter((_,j) => j !== i))} className="text-zinc-500 hover:text-red-400 ml-1 text-xs">×</button>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input value={newPlayer} onChange={e => setNewPlayer(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && addPlayer()}
-                  placeholder="Add player name..." maxLength={20}
-                  className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-yellow-500 placeholder:text-zinc-600" />
-                <button onClick={addPlayer} className="bg-yellow-400 text-black font-bold px-4 py-2.5 rounded-xl hover:bg-yellow-300 transition-colors text-sm">Add</button>
-              </div>
-            </div>
-
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
-              <h3 className="font-bold text-white mb-3">Intensity Level</h3>
-              <div className="grid grid-cols-3 gap-3">
-                {(["mild","spicy","savage"] as Category[]).map(c => (
-                  <button key={c} onClick={() => setCategory(c)}
-                    className={`border rounded-xl p-4 text-center transition-all capitalize ${category === c ? CATEGORY_COLORS[c] : "border-zinc-700 text-zinc-400 hover:border-zinc-500"}`}>
-                    <div className="text-2xl mb-1">{CATEGORY_EMOJI[c]}</div>
-                    <div className="font-bold text-sm capitalize">{c}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button onClick={() => setPhase("game")} disabled={players.length < 2}
-              className="w-full bg-yellow-400 text-black font-black py-4 rounded-full hover:bg-yellow-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg">
-              Start Game 🔥
+        {/* Mode Select */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {(["truth","dare"] as const).map(m=>(
+            <button key={m} onClick={()=>{setMode(m);setCurrentCard(null);}}
+              className={`py-3 rounded-xl font-black text-sm transition-all border-2 ${mode===m
+                ?(m==="truth"?"bg-blue-500/20 border-blue-500 text-blue-400":"bg-red-500/20 border-red-500 text-red-400")
+                :"border-zinc-800 text-zinc-500 hover:border-zinc-700"}`}>
+              {m==="truth"?"🧠 TRUTH":"🔥 DARE"}
             </button>
-          </div>
-        )}
+          ))}
+        </div>
 
-        {/* GAME */}
-        {phase === "game" && (
-          <div>
-            {/* Player & Turn */}
-            <div className="bg-zinc-900 border border-yellow-500/30 rounded-2xl p-4 mb-6 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Crown className="w-5 h-5 text-yellow-400" />
-                <div>
-                  <div className="font-black text-white">{players[currentPlayer]}'s Turn</div>
-                  <div className="text-xs text-zinc-400">Player {currentPlayer+1} of {players.length}</div>
-                </div>
-              </div>
-              <span className={`text-xs font-bold px-2 py-1 rounded-full border ${CATEGORY_COLORS[category]}`}>
-                {CATEGORY_EMOJI[category]} {category}
+        {/* Category */}
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+          {(["mild","spicy","savage"] as const).map(c=>(
+            <button key={c} onClick={()=>{setCategory(c);setCurrentCard(null);}}
+              className={`px-4 py-2 rounded-full text-sm font-bold border-2 transition-all whitespace-nowrap ${category===c?catColors[c]:"border-zinc-800 text-zinc-500"}`}>
+              {c==="mild"?"😊 Mild":c==="spicy"?"🌶️ Spicy":"💀 Savage"}
+            </button>
+          ))}
+        </div>
+
+        {/* Players */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-zinc-400"/>
+              <span className="text-zinc-300 font-bold text-sm">Players ({players.length})</span>
+            </div>
+            {players.length<8&&(
+              <button onClick={()=>setAddingPlayer(true)} className="text-yellow-400 text-xs font-bold hover:text-yellow-300">+ Add Player</button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {players.map((p,i)=>(
+              <span key={i} className={`px-3 py-1 rounded-full text-sm font-bold transition-all ${i===currentPlayer?"bg-yellow-400 text-black":"bg-zinc-800 text-zinc-300"}`}>
+                {i===currentPlayer?"▶ ":""}{p}
+              </span>
+            ))}
+          </div>
+          {addingPlayer&&(
+            <div className="mt-3 flex gap-2">
+              <input value={newPlayerName} onChange={e=>setNewPlayerName(e.target.value)}
+                onKeyDown={e=>e.key==="Enter"&&addPlayer()}
+                placeholder="Player name..." autoFocus
+                className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-yellow-400"/>
+              <button onClick={addPlayer} className="bg-yellow-400 text-black px-3 py-2 rounded-lg font-bold text-sm">Add</button>
+              <button onClick={()=>setAddingPlayer(false)} className="text-zinc-500 px-2">✕</button>
+            </div>
+          )}
+        </div>
+
+        {/* Current Player */}
+        <div className="text-center mb-4">
+          <span className="bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 px-4 py-2 rounded-full text-sm font-bold">
+            🎯 {players[currentPlayer]}'s Turn
+          </span>
+        </div>
+
+        {/* Card */}
+        <div className={`bg-gradient-to-br ${modeGradient} border rounded-3xl p-8 mb-5 min-h-[200px] flex items-center justify-center transition-all duration-300 ${flipping?"opacity-0 scale-95":"opacity-100 scale-100"}`}>
+          {currentCard?(
+            <div className="text-center space-y-4">
+              <div className="text-4xl">{mode==="truth"?"🧠":"🔥"}</div>
+              <p className="text-white text-xl font-bold leading-relaxed">{currentCard}</p>
+              <span className={`text-xs font-bold px-3 py-1 rounded-full ${catColors[category]}`}>
+                {category.charAt(0).toUpperCase()+category.slice(1)} {mode.charAt(0).toUpperCase()+mode.slice(1)}
               </span>
             </div>
-
-            {/* Mode selector */}
-            <div className="flex gap-3 mb-6">
-              <button onClick={() => setMode("truth")}
-                className={`flex-1 py-4 rounded-2xl font-black text-lg transition-all ${mode === "truth" ? "bg-blue-500 text-white" : "bg-zinc-900 border border-zinc-700 text-zinc-400 hover:border-blue-500/50"}`}>
-                🤔 TRUTH
-              </button>
-              <button onClick={() => setMode("dare")}
-                className={`flex-1 py-4 rounded-2xl font-black text-lg transition-all ${mode === "dare" ? "bg-orange-500 text-white" : "bg-zinc-900 border border-zinc-700 text-zinc-400 hover:border-orange-500/50"}`}>
-                💪 DARE
-              </button>
+          ):(
+            <div className="text-center space-y-3">
+              <div className="text-5xl">{mode==="truth"?"🧠":"🔥"}</div>
+              <p className="text-zinc-400">Tap the button below to get your {mode}!</p>
             </div>
+          )}
+        </div>
 
-            {/* Card */}
-            {!current ? (
-              <div className="bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-2xl p-12 text-center mb-6">
-                <p className="text-zinc-500 text-lg">Press spin to get a card!</p>
-              </div>
-            ) : (
-              <div className={`border-2 rounded-2xl p-8 text-center mb-6 transition-all ${mode === "truth" ? "bg-blue-500/10 border-blue-500/40" : "bg-orange-500/10 border-orange-500/40"}`}>
-                <div className="text-4xl mb-4">{mode === "truth" ? "🤔" : "💪"}</div>
-                <p className="text-white text-xl font-bold leading-relaxed">{current}</p>
-                <div className="flex items-center justify-center gap-4 mt-6">
-                  <button onClick={() => react(history.length-1, "up")} className="flex items-center gap-1.5 text-zinc-400 hover:text-green-400 transition-colors">
-                    <ThumbsUp className="w-5 h-5" /> <span className="text-sm">{reactions[history.length-1]?.up || 0}</span>
-                  </button>
-                  <button onClick={() => react(history.length-1, "down")} className="flex items-center gap-1.5 text-zinc-400 hover:text-red-400 transition-colors">
-                    <ThumbsDown className="w-5 h-5" /> <span className="text-sm">{reactions[history.length-1]?.down || 0}</span>
-                  </button>
+        {/* Buttons */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <button onClick={draw}
+            className={`py-4 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2 ${mode==="truth"?"bg-blue-600 hover:bg-blue-500 text-white":"bg-red-600 hover:bg-red-500 text-white"}`}>
+            <RefreshCw className="w-4 h-4"/>{currentCard?"New Card":"Draw Card"}
+          </button>
+          <button onClick={nextPlayer} disabled={players.length<2}
+            className="py-4 bg-zinc-800 hover:bg-zinc-700 text-white rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+            Next Player →
+          </button>
+        </div>
+
+        {/* History */}
+        {cardHistory.length>0&&(
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+            <h3 className="text-zinc-400 text-xs font-bold uppercase tracking-wide mb-3">Recent Cards</h3>
+            <div className="space-y-2">
+              {cardHistory.slice(0,5).map((c,i)=>(
+                <div key={i} className="flex items-start gap-2 p-2 bg-zinc-800 rounded-xl">
+                  <span className="text-sm flex-shrink-0">{c.mode==="truth"?"🧠":"🔥"}</span>
+                  <p className="text-zinc-400 text-xs leading-relaxed">{c.text}</p>
                 </div>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex gap-3 mb-6">
-              <button onClick={spin}
-                className="flex-1 bg-yellow-400 text-black font-black py-4 rounded-full hover:bg-yellow-300 transition-all hover:scale-105 flex items-center justify-center gap-2 text-lg">
-                <Shuffle className="w-5 h-5" /> {current ? "New Card" : "Spin!"}
-              </button>
-              <button onClick={nextPlayer}
-                className="flex-1 bg-zinc-800 text-white font-bold py-4 rounded-full hover:bg-zinc-700 transition-colors">
-                Next Player →
-              </button>
-            </div>
-
-            {/* History */}
-            {history.length > 0 && (
-              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                <h3 className="text-xs font-bold text-zinc-500 uppercase mb-3">Round History ({history.length} cards)</h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {[...history].reverse().slice(0,10).map((h, i) => (
-                    <div key={i} className="flex items-start gap-2 text-xs text-zinc-400">
-                      <span>{h.mode === "truth" ? "🤔" : "💪"}</span>
-                      <span className="truncate">{h.text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="mt-4 flex gap-2">
-              <button onClick={() => { setPhase("setup"); setCurrent(null); setHistory([]); }}
-                className="text-xs text-zinc-500 hover:text-white transition-colors">← Reset Game</button>
+              ))}
             </div>
           </div>
         )}
+
+        <div className="mt-4 flex justify-center">
+          <Link href="/games" className="text-zinc-500 text-sm hover:text-zinc-300 flex items-center gap-1">
+            <Home className="w-4 h-4"/> Back to Games
+          </Link>
+        </div>
       </main>
     </div>
   );
