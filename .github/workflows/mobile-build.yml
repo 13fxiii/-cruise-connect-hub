@@ -1,0 +1,90 @@
+name: Mobile Build (iOS · Android)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  # ── ANDROID APK / AAB ────────────────────────────────────────
+  android:
+    runs-on: ubuntu-latest
+    name: Android Build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install deps & build Next.js static
+        run: |
+          npm ci
+          npm run build:static
+
+      - name: Capacitor sync Android
+        run: npx cap sync android
+
+      - name: Build APK (debug)
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Build AAB (release — for Play Store)
+        working-directory: android
+        run: ./gradlew bundleRelease
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: cc-hub-android
+          path: |
+            android/app/build/outputs/apk/**/*.apk
+            android/app/build/outputs/bundle/**/*.aab
+          retention-days: 30
+
+  # ── iOS IPA ─────────────────────────────────────────────────
+  # NOTE: Requires Apple Developer account & certificates
+  ios:
+    runs-on: macos-latest
+    name: iOS Build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Capacitor sync iOS
+        run: npx cap sync ios
+
+      - name: Install CocoaPods
+        working-directory: ios/App
+        run: pod install
+
+      - name: Build iOS (unsigned — for testing)
+        run: |
+          xcodebuild \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            ONLY_ACTIVE_ARCH=NO \
+            build
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: cc-hub-ios
+          path: build/**/*.ipa
+          retention-days: 30
