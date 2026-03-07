@@ -2,76 +2,143 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Google Fonts ─────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
 @layer base {
-  :root { --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  body { font-family: var(--font-sans); }
   :root {
-    --cch-gold: #F5B800;
-    --cch-gold-light: #FFD23F;
-    --cch-black: #0A0A0A;
-    --cch-surface: #141414;
-    --cch-surface-2: #1E1E1E;
-    --cch-border: #2A2A2A;
-    --cch-text-muted: #888888;
+    --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --cch-gold:       #EAB308;
+    --cch-gold-light: #FDE047;
+    --cch-black:      #0A0A0A;
+    --cch-surface:    #111111;
+    --cch-surface-2:  #1A1A1A;
+    --cch-border:     #272727;
+    --cch-text-muted: #777777;
+    /* Safe area insets */
+    --sat: env(safe-area-inset-top);
+    --sar: env(safe-area-inset-right);
+    --sab: env(safe-area-inset-bottom);
+    --sal: env(safe-area-inset-left);
   }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    /* Tighter base font size for all screens */
+    font-size: 14px;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  @media (min-width: 768px) { html { font-size: 15px; } }
+  @media (min-width: 1280px) { html { font-size: 16px; } }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--cch-black);
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    /* iOS momentum scroll */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent pull-to-refresh on iOS when scrolled to top */
+  body { overscroll-behavior-y: none; }
+
+  /* Remove tap highlight on mobile */
+  * { -webkit-tap-highlight-color: transparent; }
+
+  /* Better touch targets */
+  button, a { touch-action: manipulation; }
+
+  /* Smooth scroll */
+  html { scroll-behavior: smooth; }
+
+  /* Selection color */
+  ::selection { background: rgba(234, 179, 8, 0.3); color: #fff; }
 }
 
 @layer utilities {
-  .bg-cch-black { background-color: var(--cch-black); }
-  .bg-cch-surface { background-color: var(--cch-surface); }
-  .bg-cch-surface-2 { background-color: var(--cch-surface-2); }
-  .text-cch-gold { color: var(--cch-gold); }
+  .bg-cch-black    { background-color: var(--cch-black); }
+  .bg-cch-surface  { background-color: var(--cch-surface); }
+  .bg-cch-surface-2{ background-color: var(--cch-surface-2); }
+  .text-cch-gold   { color: var(--cch-gold); }
   .border-cch-gold { border-color: var(--cch-gold); }
-  .border-cch { border-color: var(--cch-border); }
-  .text-cch-muted { color: var(--cch-text-muted); }
+  .border-cch      { border-color: var(--cch-border); }
+  .text-cch-muted  { color: var(--cch-text-muted); }
 
+  /* Reduced-size buttons */
   .btn-gold {
-    @apply bg-[#F5B800] text-black font-bold px-6 py-2.5 rounded-lg hover:bg-[#FFD23F] transition-colors duration-200 active:scale-95;
+    @apply bg-yellow-400 text-black font-bold text-sm px-4 py-2 rounded-xl
+           hover:bg-yellow-300 transition-colors duration-150 active:scale-95;
   }
-
   .btn-outline {
-    @apply border border-[#F5B800] text-[#F5B800] font-semibold px-6 py-2.5 rounded-lg hover:bg-[#F5B800] hover:text-black transition-all duration-200;
+    @apply border border-yellow-400 text-yellow-400 font-semibold text-sm px-4 py-2 rounded-xl
+           hover:bg-yellow-400 hover:text-black transition-all duration-150;
   }
+  .card       { @apply bg-zinc-900 border border-zinc-800 rounded-xl p-3; }
+  .glass-card { @apply bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl; }
 
-  .card {
-    @apply bg-cch-surface border border-cch rounded-xl p-4;
-  }
-
-  .glass-card {
-    @apply bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl;
-  }
-
-  .gold-gradient {
-    background: linear-gradient(135deg, #F5B800 0%, #FFD23F 50%, #B8860B 100%);
-  }
+  .gold-gradient { background: linear-gradient(135deg, #EAB308 0%, #FDE047 50%, #CA8A04 100%); }
 
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  /* Safe area padding utilities */
+  .pt-safe  { padding-top: max(env(safe-area-inset-top), 0px); }
+  .pb-safe  { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+  .pl-safe  { padding-left: max(env(safe-area-inset-left), 0px); }
+  .pr-safe  { padding-right: max(env(safe-area-inset-right), 0px); }
+
+  /* Naija-style pulsing animation */
+  @keyframes pulse-gold {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(234,179,8,0.4); }
+    50%       { box-shadow: 0 0 0 8px rgba(234,179,8,0); }
+  }
+  .pulse-gold { animation: pulse-gold 2s infinite; }
 }
 
 /* Glow effects */
-.gold-glow { box-shadow: 0 0 20px rgba(245, 184, 0, 0.3); }
-.gold-glow-sm { box-shadow: 0 0 10px rgba(245, 184, 0, 0.2); }
+.gold-glow    { box-shadow: 0 0 16px rgba(234, 179, 8, 0.25); }
+.gold-glow-sm { box-shadow: 0 0 8px  rgba(234, 179, 8, 0.15); }
 
-/* Animated gradient text */
+/* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #F5B800, #FFD23F, #F5B800);
+  background: linear-gradient(135deg, #EAB308, #FDE047, #EAB308);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: shine 3s linear infinite;
 }
-
-@keyframes shine {
-  to { background-position: 200% center; }
-}
+@keyframes shine { to { background-position: 200% center; } }
 
 /* Custom scrollbar */
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar       { width: 3px; height: 3px; }
 ::-webkit-scrollbar-track { background: var(--cch-black); }
-::-webkit-scrollbar-thumb { background: var(--cch-border); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--cch-gold); }
+
+/* iOS standalone PWA status bar space */
+@media all and (display-mode: standalone) {
+  body { padding-top: env(safe-area-inset-top); }
+}
+
+/* Android PWA nav bar space */
+@media all and (display-mode: standalone) {
+  .mobile-bottom-nav { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
