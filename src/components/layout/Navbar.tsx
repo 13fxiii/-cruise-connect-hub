@@ -3,7 +3,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Menu, X, Rss, Megaphone, Mic, Gamepad2, Wallet, User, Music, Film, ShoppingBag, Briefcase, ChevronDown, Bell, Trophy, Star } from "lucide-react";
+import {
+  Menu, X, Rss, Megaphone, Mic, Gamepad2, Wallet, User,
+  Music, Film, ShoppingBag, Briefcase, ChevronDown, Bell,
+  Trophy, Star, LayoutDashboard
+} from "lucide-react";
 
 const PRIMARY_LINKS = [
   { href: "/feed",   label: "Feed",   icon: Rss },
@@ -13,19 +17,19 @@ const PRIMARY_LINKS = [
 ];
 
 const MORE_LINKS = [
-  { href: "/games/tournament", label: "Tournaments",  icon: Trophy },
-  { href: "/music",            label: "Music Hub",    icon: Music },
-  { href: "/movies",           label: "Movie Hub",    icon: Film },
-  { href: "/shop",             label: "C&C Shop",     icon: ShoppingBag },
-  { href: "/jobs",             label: "Jobs Board",   icon: Briefcase },
-  { href: "/ads",              label: "PR/ADS",       icon: Megaphone },
-  { href: "/community-id",     label: "Community ID", icon: Star },
+  { href: "/games/tournament", label: "Tournaments",   icon: Trophy },
+  { href: "/music",            label: "Music Hub",     icon: Music },
+  { href: "/movies",           label: "Movie Hub",     icon: Film },
+  { href: "/shop",             label: "C&C Shop",      icon: ShoppingBag },
+  { href: "/jobs",             label: "Jobs Board",    icon: Briefcase },
+  { href: "/ads",              label: "PR/ADS",        icon: Megaphone },
+  { href: "/community-id",     label: "Community ID",  icon: Star },
 ];
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen]         = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
-  const [unread, setUnread] = useState(0);
+  const [unread, setUnread]     = useState(0);
   const path = usePathname();
 
   useEffect(() => {
@@ -41,6 +45,9 @@ export default function Navbar() {
     return () => { cancelled = true; clearInterval(timer); };
   }, []);
 
+  const isActive = (href: string) =>
+    href === "/" ? path === "/" : path === href || path.startsWith(href + "/");
+
   return (
     <nav className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-zinc-800">
       <div className="max-w-5xl mx-auto px-3 h-14 flex items-center justify-between">
@@ -48,14 +55,7 @@ export default function Navbar() {
         {/* LOGO */}
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
           <div className="relative w-8 h-8 rounded-xl overflow-hidden flex-shrink-0">
-            <Image
-              src="/logo.jpeg"
-              alt="Cruise Connect Hub"
-              fill
-              sizes="32px"
-              className="object-cover"
-              priority
-            />
+            <Image src="/logo.jpeg" alt="Cruise Connect Hub" fill sizes="32px" className="object-cover" priority />
           </div>
           <span className="font-black text-xs hidden sm:inline leading-tight">
             <span className="text-white">Cruise Connect</span>
@@ -68,9 +68,7 @@ export default function Navbar() {
           {PRIMARY_LINKS.map(({ href, label, icon: Icon }) => (
             <Link key={href} href={href}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                path === href
-                  ? "bg-yellow-400/10 text-yellow-400"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                isActive(href) ? "bg-yellow-400/10 text-yellow-400" : "text-zinc-400 hover:text-white hover:bg-zinc-800"
               }`}>
               <Icon size={13} /> {label}
             </Link>
@@ -80,7 +78,7 @@ export default function Navbar() {
           <div className="relative">
             <button onClick={() => setMoreOpen(!moreOpen)}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                MORE_LINKS.some(l => l.href === path)
+                MORE_LINKS.some(l => isActive(l.href))
                   ? "bg-yellow-400/10 text-yellow-400"
                   : "text-zinc-400 hover:text-white hover:bg-zinc-800"
               }`}>
@@ -93,7 +91,7 @@ export default function Navbar() {
                   {MORE_LINKS.map(({ href, label, icon: Icon }) => (
                     <Link key={href} href={href} onClick={() => setMoreOpen(false)}
                       className={`flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium transition-colors border-b border-zinc-800/50 last:border-0 ${
-                        path === href ? "text-yellow-400 bg-yellow-400/5" : "text-zinc-300 hover:text-white hover:bg-zinc-900"
+                        isActive(href) ? "text-yellow-400 bg-yellow-400/5" : "text-zinc-300 hover:text-white hover:bg-zinc-900"
                       }`}>
                       <Icon size={13} /> {label}
                     </Link>
@@ -106,14 +104,23 @@ export default function Navbar() {
 
         {/* DESKTOP RIGHT */}
         <div className="hidden md:flex items-center gap-1.5">
+          {/* Notifications */}
           <Link href="/notifications"
             className="relative text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-zinc-800 transition-colors">
             <Bell size={16} />
             {unread > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-yellow-400 text-black text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center leading-none">
+              <span className="absolute -top-0.5 -right-0.5 bg-yellow-400 text-black text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">
                 {unread > 9 ? "9+" : unread}
               </span>
             )}
+          </Link>
+          {/* Admin shortcut */}
+          <Link href="/admin"
+            className={`p-1.5 rounded-lg transition-colors ${
+              isActive("/admin") ? "text-yellow-400 bg-yellow-400/10" : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+            }`}
+            title="Admin Panel">
+            <LayoutDashboard size={16} />
           </Link>
           <Link href="/profile"
             className="text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-zinc-800 transition-colors">
@@ -137,7 +144,7 @@ export default function Navbar() {
           {[...PRIMARY_LINKS, ...MORE_LINKS].map(({ href, label, icon: Icon }) => (
             <Link key={href} href={href} onClick={() => setOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium ${
-                path === href ? "bg-yellow-400/10 text-yellow-400" : "text-zinc-300 hover:text-white hover:bg-zinc-900"
+                isActive(href) ? "bg-yellow-400/10 text-yellow-400" : "text-zinc-300 hover:text-white hover:bg-zinc-900"
               }`}>
               <Icon size={15} /> {label}
             </Link>
@@ -148,6 +155,13 @@ export default function Navbar() {
             {unread > 0 && (
               <span className="ml-auto bg-yellow-400 text-black text-[10px] font-black px-1.5 py-0.5 rounded-full">{unread}</span>
             )}
+          </Link>
+          {/* Admin link in mobile drawer */}
+          <Link href="/admin" onClick={() => setOpen(false)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium ${
+              isActive("/admin") ? "bg-yellow-400/10 text-yellow-400" : "text-zinc-300 hover:text-white hover:bg-zinc-900"
+            }`}>
+            <LayoutDashboard size={15} /> Admin Panel
           </Link>
           <div className="border-t border-zinc-800 mt-2 pt-2.5 space-y-2">
             <Link href="/profile" onClick={() => setOpen(false)}
