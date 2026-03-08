@@ -1,339 +1,414 @@
 "use client";
-import { useState } from "react";
-import { Music, Play, Pause, Heart, Share2, Mic2, Radio, Upload, ExternalLink, Headphones, Star, Search } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Navbar from "@/components/layout/Navbar";
+import {
+  Play, Pause, SkipForward, SkipBack, Volume2, VolumeX,
+  Radio, Music2, Headphones, Heart, ExternalLink, Upload,
+  ListMusic, Shuffle, Repeat, ChevronUp, ChevronDown, Star, Mic2
+} from "lucide-react";
 
-const PLATFORMS = [
-  { key:"spotify", label:"Spotify", emoji:"🎵", color:"bg-green-500/15 border-green-500/40 hover:bg-green-500/25", textColor:"text-green-400", icon:"🟢" },
-  { key:"apple", label:"Apple Music", emoji:"🍎", color:"bg-red-500/15 border-red-500/40 hover:bg-red-500/25", textColor:"text-red-400", icon:"🔴" },
-  { key:"youtube", label:"YouTube Music", emoji:"▶️", color:"bg-red-700/15 border-red-700/40 hover:bg-red-700/25", textColor:"text-red-500", icon:"🔴" },
-  { key:"audiomack", label:"Audiomack", emoji:"🎧", color:"bg-orange-500/15 border-orange-500/40 hover:bg-orange-500/25", textColor:"text-orange-400", icon:"🟠" },
-];
-
-type Track = {
-  id:string; title:string; artist:string; artist_handle:string; genre:string;
-  plays:number; likes:number; duration:string; featured:boolean; cover:string; label:string;
-  spotify_url:string; apple_url:string; youtube_url:string; audiomack_url:string; linktree:string;
-};
-
-const TRACKS: Track[] = [
-  {
-    id:"1", title:"HARDINARY", artist:"Lil Miss Thrill Seeker", artist_handle:"@ThrillSeekaEnt",
-    genre:"Afrobeats", plays:12400, likes:892, duration:"3:24", featured:true, cover:"🎵", label:"ThrillSeeka Ent",
-    spotify_url:"https://linktr.ee/ThrillSeekerEnt",
-    apple_url:"https://linktr.ee/ThrillSeekerEnt",
-    youtube_url:"https://linktr.ee/ThrillSeekerEnt",
-    audiomack_url:"https://linktr.ee/ThrillSeekerEnt",
-    linktree:"https://linktr.ee/ThrillSeekerEnt",
-  },
-  {
-    id:"2", title:"JUMP ROPE", artist:"Lil Miss Thrill Seeker", artist_handle:"@ThrillSeekaEnt",
-    genre:"Afropop", plays:9800, likes:674, duration:"2:58", featured:true, cover:"🎤", label:"ThrillSeeka Ent",
-    spotify_url:"https://linktr.ee/ThrillSeekerEnt",
-    apple_url:"https://linktr.ee/ThrillSeekerEnt",
-    youtube_url:"https://linktr.ee/ThrillSeekerEnt",
-    audiomack_url:"https://linktr.ee/ThrillSeekerEnt",
-    linktree:"https://linktr.ee/ThrillSeekerEnt",
-  },
-  {
-    id:"3", title:"SPEAKEASY", artist:"Lil Miss Thrill Seeker", artist_handle:"@ThrillSeekaEnt",
-    genre:"R&B", plays:7200, likes:543, duration:"4:02", featured:true, cover:"🎸", label:"ThrillSeeka Ent",
-    spotify_url:"https://linktr.ee/ThrillSeekerEnt",
-    apple_url:"https://linktr.ee/ThrillSeekerEnt",
-    youtube_url:"https://linktr.ee/ThrillSeekerEnt",
-    audiomack_url:"https://linktr.ee/ThrillSeekerEnt",
-    linktree:"https://linktr.ee/ThrillSeekerEnt",
-  },
-  {
-    id:"4", title:"Lagos Nights (Mix)", artist:"DJ ConnectPlug", artist_handle:"@connectplug",
-    genre:"Mix", plays:5600, likes:321, duration:"45:00", featured:false, cover:"🎧", label:"Independent",
-    spotify_url:"#", apple_url:"#", youtube_url:"#", audiomack_url:"#", linktree:"#",
-  },
-  {
-    id:"5", title:"No Wahala", artist:"Wavey Sosa", artist_handle:"@waveysosa",
-    genre:"Afropop", plays:4300, likes:287, duration:"3:15", featured:false, cover:"🌊", label:"Independent",
-    spotify_url:"#", apple_url:"#", youtube_url:"#", audiomack_url:"#", linktree:"#",
-  },
-];
-
+/* ── Station data ────────────────────────────────────────────── */
 const STATIONS = [
-  { id:"s1", name:"Afrobeats 24/7 🔥", host:"@connectplug", listeners:847, genre:"Afrobeats", live:true, x_space:"https://twitter.com/i/spaces" },
-  { id:"s2", name:"Naija R&B Vibes ✨", host:"@ThrillSeekaEnt", listeners:312, genre:"R&B", live:true, x_space:"https://twitter.com/i/spaces" },
-  { id:"s3", name:"Underground Artists 🎙️", host:"@13fxiii", listeners:189, genre:"Mixed", live:false, x_space:"https://twitter.com/i/spaces" },
+  { id: "afrobeats", label: "Afrobeats 🔥",     color: "from-orange-500 to-red-600",    bg: "bg-orange-400/10", border: "border-orange-400/30", textColor: "text-orange-400" },
+  { id: "amapiano",  label: "Amapiano 🎹",       color: "from-blue-500 to-purple-600",   bg: "bg-blue-400/10",   border: "border-blue-400/30",   textColor: "text-blue-400"   },
+  { id: "naija",     label: "Old Skool Naija 🇳🇬", color: "from-green-500 to-emerald-600", bg: "bg-green-400/10",  border: "border-green-400/30",  textColor: "text-green-400"  },
+  { id: "afropop",   label: "Afropop Vibes ✨",   color: "from-pink-500 to-rose-600",     bg: "bg-pink-400/10",   border: "border-pink-400/30",   textColor: "text-pink-400"   },
+  { id: "ccradio",   label: "CC Hub Radio 🚌",   color: "from-yellow-500 to-amber-600",  bg: "bg-yellow-400/10", border: "border-yellow-400/30", textColor: "text-yellow-400" },
 ];
 
-const GENRES = ["All","Afrobeats","Afropop","R&B","Hip-Hop","Mix","Amapiano","Highlife"];
+/* 
+  TRACKS — YouTube video IDs for popular Naija tracks
+  Admin: update videoId values in /admin panel with correct YouTube IDs
+  Format: youtube.com/watch?v=VIDEO_ID
+*/
+const TRACKS = [
+  // CC Hub Community Artists (featured first)
+  { id:"t1",  title:"HARDINARY",          artist:"Lil Miss Thrill Seeker", station:"ccradio",  videoId:"dQw4w9WgXcQ", duration:"3:24", featured:true,  cover:"🎵", genre:"Afrobeats",  artistLink:"https://linktr.ee/ThrillSeekerEnt" },
+  { id:"t2",  title:"JUMP ROPE",           artist:"Lil Miss Thrill Seeker", station:"ccradio",  videoId:"dQw4w9WgXcQ", duration:"2:58", featured:true,  cover:"🎤", genre:"Afropop",    artistLink:"https://linktr.ee/ThrillSeekerEnt" },
+  // Afrobeats Station
+  { id:"t3",  title:"Last Last",           artist:"Burna Boy",              station:"afrobeats", videoId:"5Euj9f3gdyM", duration:"3:17", featured:false, cover:"🌍", genre:"Afrobeats",  artistLink:"" },
+  { id:"t4",  title:"Essence",             artist:"Wizkid ft. Tems",        station:"afrobeats", videoId:"WcIcVapfqXw", duration:"3:38", featured:false, cover:"⭐", genre:"Afrobeats",  artistLink:"" },
+  { id:"t5",  title:"Calm Down",           artist:"Rema & Selena Gomez",    station:"afrobeats", videoId:"WcIcVapfqXw", duration:"3:20", featured:false, cover:"🕊️", genre:"Afrobeats",  artistLink:"" },
+  { id:"t6",  title:"Fall",                artist:"Davido",                  station:"afrobeats", videoId:"WcIcVapfqXw", duration:"3:48", featured:false, cover:"🌟", genre:"Afrobeats",  artistLink:"" },
+  { id:"t7",  title:"Bother Me",           artist:"Asake",                  station:"afrobeats", videoId:"WcIcVapfqXw", duration:"2:54", featured:false, cover:"🔥", genre:"Afrofusion", artistLink:"" },
+  // Amapiano Station
+  { id:"t8",  title:"John Vuli Gate",      artist:"Mapara A Jazz",          station:"amapiano",  videoId:"WcIcVapfqXw", duration:"3:02", featured:false, cover:"🎹", genre:"Amapiano",   artistLink:"" },
+  { id:"t9",  title:"Umlando",             artist:"9umba, Toss & Mdoovar",  station:"amapiano",  videoId:"WcIcVapfqXw", duration:"4:12", featured:false, cover:"🎶", genre:"Amapiano",   artistLink:"" },
+  { id:"t10", title:"Spirit",              artist:"Olamide ft. Asake",      station:"amapiano",  videoId:"WcIcVapfqXw", duration:"3:28", featured:false, cover:"👻", genre:"Afro-fusion", artistLink:"" },
+  // Old Skool Naija
+  { id:"t11", title:"One Love",            artist:"P-Square",               station:"naija",     videoId:"WcIcVapfqXw", duration:"4:45", featured:false, cover:"❤️", genre:"Afropop",    artistLink:"" },
+  { id:"t12", title:"African Queen",       artist:"2Baba",                  station:"naija",     videoId:"WcIcVapfqXw", duration:"3:59", featured:false, cover:"👑", genre:"Afropop",    artistLink:"" },
+  { id:"t13", title:"oliver twist",        artist:"D'banj",                 station:"naija",     videoId:"WcIcVapfqXw", duration:"3:41", featured:false, cover:"🎩", genre:"Afropop",    artistLink:"" },
+];
 
-function PlatformLinks({ track }: { track: Track }) {
-  return (
-    <div className="grid grid-cols-2 gap-2 mt-3">
-      {PLATFORMS.map(p => {
-        const url = p.key==="spotify"?track.spotify_url:p.key==="apple"?track.apple_url:p.key==="youtube"?track.youtube_url:track.audiomack_url;
-        const isReal = url && url !== "#";
-        return (
-          <a key={p.key} href={isReal?url:"#"} target={isReal?"_blank":"_self"} rel="noopener noreferrer"
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all text-xs font-bold
-              ${isReal?`${p.color} ${p.textColor}`:"border-zinc-800 text-zinc-600 opacity-40 cursor-not-allowed"}`}>
-            <span className="text-base">{p.emoji}</span>
-            <span>{p.label}</span>
-            {isReal && <ExternalLink className="w-3 h-3 ml-auto opacity-60" />}
-          </a>
-        );
-      })}
-    </div>
-  );
+type Track = typeof TRACKS[0];
+
+declare global {
+  interface Window { YT: any; onYouTubeIframeAPIReady: () => void; }
 }
 
 export default function MusicPage() {
-  const [tab, setTab] = useState<"discover"|"stations"|"submit">("discover");
-  const [playing, setPlaying] = useState<string|null>(null);
+  const [station, setStation] = useState("ccradio");
+  const [currentTrack, setCurrentTrack] = useState<Track>(TRACKS[0]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(80);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isShuffled, setIsShuffled] = useState(false);
   const [liked, setLiked] = useState<Set<string>>(new Set());
-  const [genre, setGenre] = useState("All");
-  const [expandedTrack, setExpandedTrack] = useState<string|null>(null);
-  const [search, setSearch] = useState("");
-  const [formData, setFormData] = useState({ artist:"",title:"",handle:"",spotify:"",apple:"",youtube:"",audiomack:"",genre:"Afrobeats",desc:"" });
-  const [submitted, setSubmitted] = useState(false);
+  const [showQueue, setShowQueue] = useState(false);
+  const [ytReady, setYtReady] = useState(false);
+  const [tab, setTab] = useState<"stations"|"discover"|"submit">("stations");
 
-  const filtered = TRACKS.filter(t=>{
-    const matchesGenre = genre==="All"||t.genre===genre;
-    const matchesSearch = !search || t.title.toLowerCase().includes(search.toLowerCase()) || t.artist.toLowerCase().includes(search.toLowerCase());
-    return matchesGenre && matchesSearch;
-  });
+  const playerRef    = useRef<any>(null);
+  const progressRef  = useRef<any>(null);
 
-  const toggleLike=(id:string)=>setLiked(prev=>{const n=new Set(prev);n.has(id)?n.delete(id):n.add(id);return n;});
-  const togglePlay=(id:string)=>setPlaying(p=>p===id?null:id);
-  const toggleExpand=(id:string)=>setExpandedTrack(p=>p===id?null:id);
+  const stationTracks = TRACKS.filter(t => t.station === station);
+  const trackIdx = stationTracks.findIndex(t => t.id === currentTrack.id);
+  const currentStation = STATIONS.find(s => s.id === station)!;
 
-  const handleSubmit=()=>{
-    if(!formData.artist||!formData.title) return;
-    setSubmitted(true);
-    setTimeout(()=>setSubmitted(false),4000);
-    setFormData({artist:"",title:"",handle:"",spotify:"",apple:"",youtube:"",audiomack:"",genre:"Afrobeats",desc:""});
+  /* ── YouTube IFrame API ─────────────────────────────────── */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.YT) { initPlayer(); return; }
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+    window.onYouTubeIframeAPIReady = () => { setYtReady(true); initPlayer(); };
+  }, []);
+
+  useEffect(() => {
+    if (ytReady) initPlayer();
+  }, [ytReady]);
+
+  const initPlayer = () => {
+    if (!window.YT?.Player) return;
+    playerRef.current = new window.YT.Player("yt-player", {
+      height: "1", width: "1",
+      videoId: currentTrack.videoId,
+      playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, rel: 0, modestbranding: 1 },
+      events: {
+        onReady: (e: any) => { e.target.setVolume(volume); },
+        onStateChange: (e: any) => {
+          setIsPlaying(e.data === window.YT.PlayerState.PLAYING);
+          if (e.data === window.YT.PlayerState.ENDED) handleNext();
+        },
+      },
+    });
   };
 
-  return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar/>
-      <main className="max-w-3xl mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-black text-white flex items-center gap-3"><Music className="text-yellow-400 w-8 h-8"/>Music Hub</h1>
-          <p className="text-zinc-400 mt-1">Discover new sounds curated by <span className="text-yellow-400 font-bold">@ThrillSeekaEnt</span></p>
-        </div>
+  /* ── Progress ticker ─────────────────────────────────────── */
+  useEffect(() => {
+    const t = setInterval(() => {
+      if (!playerRef.current?.getCurrentTime) return;
+      try {
+        const cur = playerRef.current.getCurrentTime?.() || 0;
+        const dur = playerRef.current.getDuration?.() || 1;
+        setCurrentTime(cur);
+        setDuration(dur);
+        setProgress((cur / dur) * 100);
+      } catch {}
+    }, 500);
+    return () => clearInterval(t);
+  }, []);
 
-        {/* Live Banner */}
-        <div className="bg-gradient-to-r from-green-500/10 via-zinc-900 to-transparent border border-green-500/30 rounded-2xl p-4 mb-6">
-          <div className="flex items-center gap-3">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"/>
-            <div className="flex-1">
-              <div className="text-green-400 font-bold text-sm">Afrobeats 24/7 is LIVE right now</div>
-              <div className="text-zinc-500 text-xs">847 listeners · Hosted by @connectplug</div>
-            </div>
-            <a href="https://twitter.com/i/spaces" target="_blank" rel="noopener noreferrer"
-              className="bg-green-500/20 border border-green-500/40 text-green-400 text-xs font-bold px-3 py-1.5 rounded-full hover:bg-green-500/30 transition-all flex items-center gap-1">
-              <Headphones className="w-3 h-3"/>Join Space
-            </a>
+  /* ── Controls ────────────────────────────────────────────── */
+  const playTrack = useCallback((track: Track) => {
+    setCurrentTrack(track);
+    if (playerRef.current?.loadVideoById) {
+      playerRef.current.loadVideoById(track.videoId);
+      playerRef.current.playVideo();
+      setIsPlaying(true);
+    }
+  }, []);
+
+  const togglePlay = () => {
+    if (!playerRef.current) return;
+    isPlaying ? playerRef.current.pauseVideo() : playerRef.current.playVideo();
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleNext = useCallback(() => {
+    const tracks = TRACKS.filter(t => t.station === station);
+    const idx = tracks.findIndex(t => t.id === currentTrack.id);
+    const nextIdx = isShuffled ? Math.floor(Math.random() * tracks.length) : (idx + 1) % tracks.length;
+    playTrack(tracks[nextIdx]);
+  }, [currentTrack, station, isShuffled, playTrack]);
+
+  const handlePrev = () => {
+    const tracks = TRACKS.filter(t => t.station === station);
+    const idx = tracks.findIndex(t => t.id === currentTrack.id);
+    const prevIdx = (idx - 1 + tracks.length) % tracks.length;
+    playTrack(tracks[prevIdx]);
+  };
+
+  const seek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!playerRef.current?.seekTo) return;
+    const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    playerRef.current.seekTo(pct * duration, true);
+  };
+
+  const handleVolume = (v: number) => {
+    setVolume(v);
+    playerRef.current?.setVolume?.(v);
+    setIsMuted(v === 0);
+  };
+
+  const toggleMute = () => {
+    if (isMuted) { handleVolume(volume || 80); }
+    else { playerRef.current?.mute?.(); setIsMuted(true); }
+  };
+
+  const toggleStation = (sid: string) => {
+    setStation(sid);
+    const first = TRACKS.find(t => t.station === sid);
+    if (first) setCurrentTrack(first);
+  };
+
+  const fmt = (s: number) => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] pb-36">
+      <Navbar />
+      {/* Hidden YouTube player */}
+      <div className="fixed opacity-0 pointer-events-none w-1 h-1 overflow-hidden">
+        <div id="yt-player" />
+      </div>
+
+      <main className="max-w-5xl mx-auto px-4 pt-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-xl font-black text-white flex items-center gap-2">
+              <Headphones size={20} className="text-yellow-400" /> CC Music Hub
+            </h1>
+            <p className="text-zinc-500 text-xs mt-0.5">Stream Naija music · Submit your track · Join the station</p>
+          </div>
+          <div className="flex gap-2">
+            {["stations","discover","submit"].map(t => (
+              <button key={t} onClick={() => setTab(t as any)}
+                className={`capitalize text-xs font-bold px-3 py-1.5 rounded-full transition-colors ${
+                  tab === t ? "bg-yellow-400 text-black" : "bg-zinc-900 text-zinc-400 border border-zinc-800"
+                }`}>{t}</button>
+            ))}
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6 bg-zinc-900 rounded-xl p-1 w-fit overflow-x-auto">
-          {[["discover","🎵 Discover"],["stations","📻 Stations"],["submit","🎤 Submit Track"]].map(([v,l])=>(
-            <button key={v} onClick={()=>setTab(v as any)}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${tab===v?"bg-yellow-400 text-black":"text-zinc-400 hover:text-white"}`}>{l}</button>
-          ))}
-        </div>
-
-        {tab==="discover"&&(
-          <>
-            {/* Search */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"/>
-              <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search tracks or artists..."
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-3 text-white text-sm outline-none focus:border-yellow-400 transition-colors"/>
-            </div>
-
-            {/* Genre Filter */}
-            <div className="flex gap-2 overflow-x-auto pb-2 mb-5">
-              {GENRES.map(g=>(
-                <button key={g} onClick={()=>setGenre(g)}
-                  className={`px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${genre===g?"bg-yellow-400 text-black":"bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-700"}`}>{g}</button>
+        {/* STATIONS TAB */}
+        {tab === "stations" && (
+          <div className="space-y-5">
+            {/* Station picker */}
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+              {STATIONS.map(s => (
+                <button key={s.id} onClick={() => toggleStation(s.id)}
+                  className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold border transition-all ${
+                    station === s.id
+                      ? `bg-gradient-to-r ${s.color} text-white border-transparent shadow-lg`
+                      : `${s.bg} ${s.border} ${s.textColor} hover:opacity-80`
+                  }`}>
+                  {s.label}
+                </button>
               ))}
             </div>
 
-            {/* Featured Banner */}
-            <div className="bg-gradient-to-r from-yellow-400/10 to-transparent border border-yellow-400/30 rounded-2xl p-4 mb-5">
-              <div className="flex items-center gap-2 mb-1">
-                <Star className="w-4 h-4 text-yellow-400"/>
-                <span className="text-yellow-400 font-bold text-sm">A&R Spotlight by @ThrillSeekaEnt</span>
+            {/* Track list */}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+              <div className="px-4 py-3 border-b border-zinc-800 flex items-center gap-2">
+                <Radio size={14} className="text-yellow-400" />
+                <span className="text-white font-bold text-sm">{currentStation.label}</span>
+                <span className="text-zinc-600 text-xs ml-auto">{stationTracks.length} tracks</span>
               </div>
-              <p className="text-zinc-400 text-xs">Discover HARDINARY, JUMP ROPE & SPEAKEASY — stream on all platforms 🎵</p>
-              <a href="https://linktr.ee/ThrillSeekerEnt" target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 mt-2 text-yellow-400 text-xs font-bold hover:text-yellow-300">
-                Stream Now <ExternalLink className="w-3 h-3"/>
-              </a>
-            </div>
-
-            {/* Track List */}
-            <div className="space-y-3">
-              {filtered.map(track=>(
-                <div key={track.id} className={`bg-zinc-900 border rounded-2xl overflow-hidden transition-all ${track.featured?"border-yellow-400/30":"border-zinc-800"}`}>
-                  <div className="p-4 flex items-center gap-4">
-                    {/* Cover */}
-                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${track.featured?"bg-gradient-to-br from-yellow-400/20 to-orange-500/20":"bg-zinc-800"}`}>
-                      {track.cover}
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-white font-black text-sm truncate">{track.title}</span>
-                        {track.featured&&<span className="bg-yellow-400/20 text-yellow-400 text-[10px] font-black px-2 py-0.5 rounded-full flex-shrink-0">FEATURED</span>}
+              <div className="divide-y divide-zinc-800/50">
+                {stationTracks.map((track, i) => {
+                  const isActive = track.id === currentTrack.id;
+                  return (
+                    <div key={track.id}
+                      onClick={() => playTrack(track)}
+                      className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors group ${
+                        isActive ? "bg-yellow-400/5" : "hover:bg-zinc-800/50"
+                      }`}>
+                      {/* Cover / play indicator */}
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${
+                        isActive ? "bg-yellow-400/20" : "bg-zinc-800"
+                      }`}>
+                        {isActive && isPlaying ? (
+                          <div className="flex gap-0.5 items-end h-5">
+                            {[3,5,4,6,3].map((h,i) => (
+                              <div key={i} className="w-1 bg-yellow-400 rounded-full animate-bounce"
+                                style={{height:`${h*3}px`,animationDelay:`${i*0.1}s`}} />
+                            ))}
+                          </div>
+                        ) : <span>{track.cover}</span>}
                       </div>
-                      <div className="text-zinc-400 text-xs">{track.artist}</div>
-                      <div className="flex items-center gap-3 text-zinc-600 text-xs mt-1">
-                        <span>{track.plays.toLocaleString()} plays</span>
-                        <span>{track.duration}</span>
-                        <span className="bg-zinc-800 px-2 py-0.5 rounded-full">{track.genre}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-bold text-sm truncate ${isActive ? "text-yellow-400" : "text-white"}`}>
+                          {track.title}
+                          {track.featured && <span className="ml-1.5 text-[10px] bg-yellow-400/20 text-yellow-400 px-1.5 py-0.5 rounded-full font-bold">FEATURED</span>}
+                        </p>
+                        <p className="text-zinc-500 text-xs truncate">{track.artist} · {track.genre}</p>
                       </div>
-                    </div>
-
-                    {/* Controls */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <button onClick={()=>toggleLike(track.id)} className={`p-2 rounded-full transition-all ${liked.has(track.id)?"text-red-400":"text-zinc-600 hover:text-zinc-400"}`}>
-                        <Heart className={`w-4 h-4 ${liked.has(track.id)?"fill-current":""}`}/>
-                      </button>
-                      <button onClick={()=>togglePlay(track.id)}
-                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${playing===track.id?"bg-yellow-400 text-black":"bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}>
-                        {playing===track.id?<Pause className="w-4 h-4"/>:<Play className="w-4 h-4 ml-0.5"/>}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Platform Links Toggle */}
-                  <div className="px-4 pb-3">
-                    <button onClick={()=>toggleExpand(track.id)}
-                      className={`text-xs font-bold transition-colors ${expandedTrack===track.id?"text-yellow-400":"text-zinc-500 hover:text-zinc-300"}`}>
-                      {expandedTrack===track.id?"▲ Hide platforms":"▼ Stream on Apple Music · Spotify · YouTube · Audiomack"}
-                    </button>
-
-                    {expandedTrack===track.id&&(
-                      <div className="mt-3">
-                        <PlatformLinks track={track}/>
-                        {track.linktree&&track.linktree!="#"&&(
-                          <a href={track.linktree} target="_blank" rel="noopener noreferrer"
-                            className="mt-2 w-full flex items-center justify-center gap-2 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-xs font-bold py-2 rounded-xl hover:bg-yellow-400/20 transition-all">
-                            <ExternalLink className="w-3 h-3"/>All Links (Linktree)
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button onClick={e => { e.stopPropagation(); setLiked(prev => { const n = new Set(prev); n.has(track.id) ? n.delete(track.id) : n.add(track.id); return n; }); }}
+                          className={`transition-colors ${liked.has(track.id) ? "text-red-400" : "text-zinc-600 hover:text-zinc-400"}`}>
+                          <Heart size={14} fill={liked.has(track.id) ? "currentColor" : "none"} />
+                        </button>
+                        <span className="text-zinc-600 text-xs">{track.duration}</span>
+                        {track.artistLink && (
+                          <a href={track.artistLink} target="_blank" rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="text-zinc-600 hover:text-zinc-300 transition-colors">
+                            <ExternalLink size={12} />
                           </a>
                         )}
                       </div>
-                    )}
-                  </div>
-
-                  {playing===track.id&&(
-                    <div className="px-4 pb-4">
-                      <div className="h-8 bg-zinc-800 rounded-lg flex items-center justify-center gap-1 px-3">
-                        {[...Array(20)].map((_,i)=>(
-                          <div key={i} className="w-0.5 bg-yellow-400 rounded-full animate-pulse" style={{height:`${8+Math.random()*16}px`,animationDelay:`${i*0.1}s`}}/>
-                        ))}
-                        <span className="text-yellow-400 text-xs font-bold ml-2">Playing...</span>
-                      </div>
                     </div>
-                  )}
-                </div>
-              ))}
+                  );
+                })}
+              </div>
             </div>
-          </>
+          </div>
         )}
 
-        {tab==="stations"&&(
-          <div className="space-y-4">
-            {STATIONS.map(s=>(
-              <div key={s.id} className={`bg-zinc-900 border rounded-2xl p-5 ${s.live?"border-green-500/30":"border-zinc-800"}`}>
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      {s.live&&<span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"/>}
-                      <h3 className="text-white font-black">{s.name}</h3>
-                      {s.live&&<span className="bg-green-500/20 text-green-400 text-[10px] font-black px-2 py-0.5 rounded-full">LIVE</span>}
-                    </div>
-                    <div className="text-zinc-500 text-xs">Hosted by {s.host} · {s.genre}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-white font-black">{s.listeners.toLocaleString()}</div>
-                    <div className="text-zinc-500 text-xs">listeners</div>
-                  </div>
+        {/* DISCOVER TAB */}
+        {tab === "discover" && (
+          <div className="grid sm:grid-cols-2 gap-4">
+            {[
+              { name:"Burna Boy",           handle:"@burnaboy",       genre:"Afrofusion",  streams:"2.1B", emoji:"🌍", link:"https://open.spotify.com/artist/3wcj11K77LjEY1PkEUS4Ew" },
+              { name:"Wizkid",              handle:"@wizkidayo",      genre:"Afrobeats",   streams:"1.8B", emoji:"⭐", link:"" },
+              { name:"Rema",                handle:"@heisrema",       genre:"Afropop",     streams:"980M", emoji:"🕊️", link:"" },
+              { name:"Asake",               handle:"@asakemusic",     genre:"Afrofusion",  streams:"760M", emoji:"🔥", link:"" },
+              { name:"Lil Miss Thrill Seeker",handle:"@ThrillSeekaEnt",genre:"Afrobeats", streams:"12K",  emoji:"🎵", link:"https://linktr.ee/ThrillSeekerEnt", featured:true },
+              { name:"Davido",              handle:"@davido",         genre:"Afropop",     streams:"1.4B", emoji:"🌟", link:"" },
+              { name:"Tiwa Savage",         handle:"@tiwasavage",     genre:"Afropop",     streams:"560M", emoji:"👑", link:"" },
+              { name:"Tems",                handle:"@temsbaby",       genre:"R&B/Afrobeats",streams:"890M",emoji:"✨", link:"" },
+            ].map((a: any) => (
+              <div key={a.name} className={`bg-zinc-900 border rounded-xl p-4 flex items-center gap-3 ${
+                a.featured ? "border-yellow-400/30 bg-yellow-400/5" : "border-zinc-800"
+              }`}>
+                <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-2xl flex-shrink-0">
+                  {a.emoji}
                 </div>
-                <a href={s.x_space} target="_blank" rel="noopener noreferrer"
-                  className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm transition-all ${s.live?"bg-green-500/20 border border-green-500/40 text-green-400 hover:bg-green-500/30":"bg-zinc-800 text-zinc-400 hover:bg-zinc-700"}`}>
-                  <Headphones className="w-4 h-4"/>
-                  {s.live?"Join Live Space":"Set Reminder"}
-                </a>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-white font-bold text-sm">{a.name}</p>
+                    {a.featured && <span className="text-[9px] bg-yellow-400/20 text-yellow-400 px-1.5 py-0.5 rounded-full font-black">CC ARTIST</span>}
+                  </div>
+                  <p className="text-zinc-500 text-xs">{a.genre} · {a.streams} streams</p>
+                </div>
+                {a.link ? (
+                  <a href={a.link} target="_blank" rel="noopener noreferrer"
+                    className="flex-shrink-0 bg-yellow-400 text-black text-xs font-black px-3 py-1.5 rounded-full hover:bg-yellow-300 transition-colors">
+                    Listen
+                  </a>
+                ) : (
+                  <span className="flex-shrink-0 text-zinc-600 text-xs">Spotify</span>
+                )}
               </div>
             ))}
           </div>
         )}
 
-        {tab==="submit"&&(
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-4">
-            <div>
-              <h2 className="text-white font-black text-lg">Submit Your Track 🎤</h2>
-              <p className="text-zinc-400 text-sm mt-1">Get your music featured on the C&C Hub Music Hub. Our A&R team reviews every submission.</p>
-            </div>
-
-            {submitted&&(
-              <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-green-400 font-bold text-sm">
-                ✅ Track submitted! @ThrillSeekaEnt will review your music.
+        {/* SUBMIT TAB */}
+        {tab === "submit" && (
+          <div className="max-w-md mx-auto">
+            <div className="bg-gradient-to-br from-yellow-400/10 to-transparent border border-yellow-400/20 rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Upload size={18} className="text-yellow-400" />
+                <h2 className="text-white font-black text-base">Submit Your Track</h2>
               </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-3">
-              {[{k:"artist",l:"Artist Name *",p:"Your name"},{k:"title",l:"Track Title *",p:"Song title"},{k:"handle",l:"X Handle",p:"@yourhandle"},{k:"genre",l:"Genre",p:"",select:["Afrobeats","Afropop","R&B","Hip-Hop","Amapiano","Highlife","Rap","Pop"]}].map(f=>(
-                <div key={f.k}>
-                  <label className="text-zinc-400 text-xs font-bold block mb-1">{f.l}</label>
-                  {f.select?(
-                    <select value={(formData as any)[f.k]} onChange={e=>setFormData(d=>({...d,[f.k]:e.target.value}))}
-                      className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-yellow-400">
-                      {f.select.map(o=><option key={o}>{o}</option>)}
-                    </select>
-                  ):(
-                    <input value={(formData as any)[f.k]} onChange={e=>setFormData(d=>({...d,[f.k]:e.target.value}))} placeholder={f.p}
-                      className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-yellow-400"/>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Platform Links */}
-            <div>
-              <label className="text-zinc-400 text-xs font-bold block mb-2">Streaming Links (paste where your music lives)</label>
-              <div className="space-y-2">
-                {PLATFORMS.map(p=>(
-                  <div key={p.key} className={`flex items-center gap-3 border rounded-xl px-3 py-2 ${p.color}`}>
-                    <span className="text-lg">{p.emoji}</span>
-                    <input value={(formData as any)[p.key]} onChange={e=>setFormData(d=>({...d,[p.key]:e.target.value}))}
-                      placeholder={`${p.label} URL`}
-                      className="flex-1 bg-transparent text-white text-sm outline-none placeholder-zinc-600"/>
+              <p className="text-zinc-400 text-xs mb-5 leading-relaxed">
+                Get your music featured on CC Hub Radio and reach 3,000+ Naija music lovers. 
+                We feature Afrobeats, Afropop, Amapiano, R&B, and more.
+              </p>
+              <div className="space-y-3">
+                {[
+                  { label:"Track Title", placeholder:"e.g. My Latest Banger" },
+                  { label:"Artist Name", placeholder:"Your stage name" },
+                  { label:"Genre", placeholder:"Afrobeats, Amapiano, R&B..." },
+                  { label:"Streaming Link", placeholder:"Spotify / Apple Music / Audiomack URL" },
+                  { label:"Your X / Twitter handle", placeholder:"@yourhandle" },
+                ].map(({ label, placeholder }) => (
+                  <div key={label}>
+                    <label className="text-xs text-zinc-400 mb-1 block font-medium">{label}</label>
+                    <input placeholder={placeholder}
+                      className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:border-yellow-400 focus:outline-none transition-colors" />
                   </div>
                 ))}
+                <button className="w-full bg-yellow-400 text-black font-black text-sm py-2.5 rounded-xl hover:bg-yellow-300 transition-colors flex items-center justify-center gap-2 mt-2">
+                  <Music2 size={15} /> Submit Track for Review
+                </button>
               </div>
+              <p className="text-zinc-600 text-xs mt-3 text-center">Review takes 24-48 hours. Featured tracks get a shoutout on @CCHub_</p>
             </div>
-
-            <div>
-              <label className="text-zinc-400 text-xs font-bold block mb-1">About Your Music</label>
-              <textarea value={formData.desc} onChange={e=>setFormData(d=>({...d,desc:e.target.value}))}
-                placeholder="Tell us about your track, influences, what makes it special..."
-                rows={3} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-yellow-400 resize-none"/>
-            </div>
-
-            <button onClick={handleSubmit}
-              className="w-full bg-yellow-400 text-black font-black py-3 rounded-xl hover:bg-yellow-300 transition-all">
-              Submit for Review 🎵
-            </button>
-
-            <p className="text-zinc-600 text-xs text-center">Powered by @ThrillSeekaEnt · A&R review within 48 hours</p>
           </div>
         )}
       </main>
+
+      {/* ── FIXED PLAYER BAR ─────────────────────────────────── */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800 pb-safe"
+        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 4rem)" }}>
+        {/* Progress bar */}
+        <div className="w-full h-1 bg-zinc-800 cursor-pointer group" onClick={seek}>
+          <div className="h-full bg-gradient-to-r from-yellow-400 to-amber-500 transition-all relative"
+            style={{ width: `${progress}%` }}>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+        </div>
+
+        <div className="max-w-5xl mx-auto px-4 py-2.5 flex items-center gap-3">
+          {/* Track info */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xl flex-shrink-0">
+              {currentTrack.cover}
+            </div>
+            <div className="min-w-0">
+              <p className="text-white font-bold text-xs truncate">{currentTrack.title}</p>
+              <p className="text-zinc-500 text-[11px] truncate">{currentTrack.artist}</p>
+            </div>
+            <button onClick={() => setLiked(prev => { const n = new Set(prev); n.has(currentTrack.id) ? n.delete(currentTrack.id) : n.add(currentTrack.id); return n; })}
+              className={`flex-shrink-0 transition-colors ${liked.has(currentTrack.id) ? "text-red-400" : "text-zinc-600 hover:text-zinc-400"}`}>
+              <Heart size={15} fill={liked.has(currentTrack.id) ? "currentColor" : "none"} />
+            </button>
+          </div>
+
+          {/* Controls */}
+          <div className="flex items-center gap-1">
+            <button onClick={() => setIsShuffled(!isShuffled)}
+              className={`p-2 rounded-lg transition-colors hidden sm:block ${isShuffled ? "text-yellow-400" : "text-zinc-500 hover:text-zinc-300"}`}>
+              <Shuffle size={14} />
+            </button>
+            <button onClick={handlePrev} className="p-2 rounded-lg text-zinc-400 hover:text-white transition-colors">
+              <SkipBack size={18} />
+            </button>
+            <button onClick={togglePlay}
+              className="w-10 h-10 rounded-full bg-yellow-400 text-black flex items-center justify-center hover:bg-yellow-300 transition-all hover:scale-105 flex-shrink-0">
+              {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
+            </button>
+            <button onClick={handleNext} className="p-2 rounded-lg text-zinc-400 hover:text-white transition-colors">
+              <SkipForward size={18} />
+            </button>
+            <span className="text-zinc-600 text-[10px] w-16 text-center hidden sm:block">
+              {fmt(currentTime)} / {fmt(duration)}
+            </span>
+          </div>
+
+          {/* Volume */}
+          <div className="hidden sm:flex items-center gap-2 flex-1 justify-end">
+            <button onClick={toggleMute} className="text-zinc-500 hover:text-zinc-300 transition-colors">
+              {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+            </button>
+            <input type="range" min={0} max={100} value={isMuted ? 0 : volume}
+              onChange={e => handleVolume(Number(e.target.value))}
+              className="w-20 accent-yellow-400 cursor-pointer" />
+            <button onClick={() => setShowQueue(!showQueue)} className="text-zinc-500 hover:text-zinc-300 transition-colors ml-1">
+              <ListMusic size={15} />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
