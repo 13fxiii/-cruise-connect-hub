@@ -11,7 +11,7 @@ const nextConfig = {
     unoptimized: false,
   },
   experimental: {
-    serverActions: { allowedOrigins: ["localhost:3000", "cruise-connect-hub.netlify.app"] },
+    serverActions: { allowedOrigins: ["localhost:3000", "cruise-connect-hub.netlify.app", "cruise-connect-hub.vercel.app", "*.vercel.app"] },
   },
   // Security headers
   async headers() {
