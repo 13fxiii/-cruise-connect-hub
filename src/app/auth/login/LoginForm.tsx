@@ -29,7 +29,7 @@ export default function LoginForm() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'twitter',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/feed`,
       },
     });
     if (error) {
