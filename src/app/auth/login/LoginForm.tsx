@@ -22,20 +22,9 @@ export default function LoginForm() {
   const redirectTo  = searchParams.get('redirectTo') || '/feed';
   const supabase    = createClient();
 
-  /* ── X / Twitter OAuth ────────────────────────────────────── */
-  const handleXLogin = async () => {
-    setLoading(true);
-    setError('');
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'twitter',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/feed`,
-      },
-    });
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    }
+  /* ── X OAuth — direct API route ──────────────────────────── */
+  const handleXLogin = () => {
+    window.location.href = '/api/auth/x';
   };
 
   /* ── Email / Password sign-in ─────────────────────────────── */

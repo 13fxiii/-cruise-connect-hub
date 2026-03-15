@@ -13,20 +13,9 @@ export default function SignupForm() {
   const intent       = searchParams.get('intent');
   const supabase     = createClient();
 
-  /* ── X / Twitter OAuth ────────────────────────────────────── */
-  const handleXSignup = async () => {
-    setLoading(true);
-    setError('');
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'twitter',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/feed`,
-      },
-    });
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    }
+  /* ── X OAuth — direct API route ──────────────────────────── */
+  const handleXSignup = () => {
+    window.location.href = '/api/auth/x';
   };
 
   const [form, setForm]         = useState({ email: '', password: '', username: '', displayName: '' });
