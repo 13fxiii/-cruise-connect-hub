@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
-import { Share2, Copy, Check, Star, Trophy, Music, Gamepad2, Users, Download, Twitter, Instagram } from "lucide-react";
+import { Share2, Copy, Check, Star, Trophy, Music, Gamepad2, Users, Download, Twitter, Instagram, Camera, Upload } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Link from "next/link";
 
@@ -52,6 +52,21 @@ export default function CommunityIDPage() {
   const [editMode, setEditMode] = useState(true);
   const [copied, setCopied] = useState<string|null>(null);
   const [shareTab, setShareTab] = useState<"card"|"platforms">("card");
+  const [avatarUrl, setAvatarUrl] = useState<string|null>(null);
+  const [bannerUrl, setBannerUrl] = useState<string|null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: "avatar"|"banner") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      if (type === "avatar") setAvatarUrl(ev.target?.result as string);
+      else setBannerUrl(ev.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const memberId=generateID(handle);
   const level=getLevel(points);
@@ -107,41 +122,87 @@ export default function CommunityIDPage() {
         {shareTab==="card"&&(
           <div className="space-y-6">
             {/* ID CARD */}
-            <div className="relative bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 border-2 border-yellow-400/40 rounded-3xl p-6 overflow-hidden">
-              {/* Background decoration */}
-              <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-400/5 rounded-full -translate-y-1/2 translate-x-1/2"/>
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-yellow-400/5 rounded-full translate-y-1/2 -translate-x-1/2"/>
+            <div className="relative bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 border-2 border-yellow-400/40 rounded-3xl overflow-hidden">
 
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6 relative">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
-                    <span className="text-black font-black text-xs">C&C</span>
+              {/* Banner image */}
+              <div
+                className="relative h-24 bg-gradient-to-r from-yellow-400/20 via-orange-500/10 to-yellow-400/5 cursor-pointer group"
+                onClick={() => bannerInputRef.current?.click()}
+                style={bannerUrl ? { backgroundImage: `url(${bannerUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : {}}
+              >
+                {!bannerUrl && (
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="bg-black/60 rounded-xl px-3 py-1.5 flex items-center gap-2 text-white text-xs font-bold">
+                      <Camera className="w-3 h-3" /> Add Banner
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-yellow-400 font-black text-sm">Cruise & Connect Hub</div>
-                    <div className="text-zinc-500 text-[10px]">OFFICIAL MEMBER CARD</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-zinc-500 text-[10px]">MEMBER ID</div>
-                  <div className="text-yellow-400 font-black text-sm tracking-widest">{memberId}</div>
-                </div>
+                )}
+                {bannerUrl && (
+                  <button
+                    onClick={e => { e.stopPropagation(); setBannerUrl(null); }}
+                    className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  >✕ Remove</button>
+                )}
+                <input ref={bannerInputRef} type="file" accept="image/*" className="hidden"
+                  onChange={e => handleImageUpload(e, "banner")} />
               </div>
 
-              {/* Avatar + Info */}
-              <div className="flex items-center gap-5 mb-5">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center flex-shrink-0">
-                  <span className="text-3xl font-black text-black">
-                    {displayName.charAt(0).toUpperCase()}
-                  </span>
+              <div className="p-6 -mt-10 relative">
+                {/* Background decoration */}
+                <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-400/5 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"/>
+
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4 relative">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
+                      <span className="text-black font-black text-xs">C&C</span>
+                    </div>
+                    <div>
+                      <div className="text-yellow-400 font-black text-sm">Cruise & Connect Hub</div>
+                      <div className="text-zinc-500 text-[10px]">OFFICIAL MEMBER CARD</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-zinc-500 text-[10px]">MEMBER ID</div>
+                    <div className="text-yellow-400 font-black text-sm tracking-widest">{memberId}</div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <div className="text-white font-black text-xl">{displayName}</div>
-                  <div className="text-yellow-400 font-bold text-sm">{handle}</div>
-                  <div className="text-zinc-500 text-xs mt-1">Member since {joinedMonth}</div>
+
+                {/* Avatar + Info */}
+                <div className="flex items-center gap-5 mb-5">
+                  {/* Avatar with upload */}
+                  <div className="relative flex-shrink-0 group">
+                    <div
+                      className="w-20 h-20 rounded-2xl overflow-hidden cursor-pointer ring-2 ring-yellow-400/40"
+                      onClick={() => avatarInputRef.current?.click()}
+                    >
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                          <span className="text-3xl font-black text-black">
+                            {displayName.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    {/* Upload overlay */}
+                    <div
+                      className="absolute inset-0 rounded-2xl bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                      onClick={() => avatarInputRef.current?.click()}
+                    >
+                      <Camera className="w-5 h-5 text-white" />
+                    </div>
+                    <input ref={avatarInputRef} type="file" accept="image/*" className="hidden"
+                      onChange={e => handleImageUpload(e, "avatar")} />
+                  </div>
+
+                  <div className="flex-1">
+                    <div className="text-white font-black text-xl">{displayName}</div>
+                    <div className="text-yellow-400 font-bold text-sm">{handle}</div>
+                    <div className="text-zinc-500 text-xs mt-1">Member since {joinedMonth}</div>
+                  </div>
                 </div>
-              </div>
 
               {/* Level & Points */}
               <div className="grid grid-cols-2 gap-3 mb-5">
@@ -178,9 +239,10 @@ export default function CommunityIDPage() {
               {/* Footer */}
               <div className="mt-5 pt-4 border-t border-zinc-800 flex items-center justify-between">
                 <span className="text-zinc-600 text-xs">@CCHub_ on X</span>
-                <span className="text-zinc-600 text-xs">cruise-connect-hub.netlify.app</span>
+                <span className="text-zinc-600 text-xs">cruise-connect-hub.vercel.app</span>
               </div>
             </div>
+          </div>
 
             {/* Edit Mode */}
             <button onClick={()=>setEditMode(!editMode)} className="text-yellow-400 text-sm font-bold hover:text-yellow-300 transition-colors">
@@ -190,6 +252,38 @@ export default function CommunityIDPage() {
             {editMode&&(
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-4">
                 <h3 className="text-white font-bold">Customize Your Card</h3>
+
+                {/* Image uploads */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="flex-1 flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-yellow-400/50 rounded-xl py-2.5 text-sm font-bold text-zinc-300 hover:text-white transition-all"
+                  >
+                    <Camera className="w-4 h-4" />
+                    {avatarUrl ? "Change Photo" : "Upload Photo"}
+                  </button>
+                  <button
+                    onClick={() => bannerInputRef.current?.click()}
+                    className="flex-1 flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-yellow-400/50 rounded-xl py-2.5 text-sm font-bold text-zinc-300 hover:text-white transition-all"
+                  >
+                    <Upload className="w-4 h-4" />
+                    {bannerUrl ? "Change Banner" : "Upload Banner"}
+                  </button>
+                </div>
+                {(avatarUrl || bannerUrl) && (
+                  <div className="flex gap-2 flex-wrap">
+                    {avatarUrl && (
+                      <button onClick={() => setAvatarUrl(null)} className="text-xs text-red-400 hover:text-red-300 transition-colors">
+                        ✕ Remove photo
+                      </button>
+                    )}
+                    {bannerUrl && (
+                      <button onClick={() => setBannerUrl(null)} className="text-xs text-red-400 hover:text-red-300 transition-colors ml-auto">
+                        ✕ Remove banner
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
