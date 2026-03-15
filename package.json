@@ -36,7 +36,7 @@
     "@supabase/supabase-js": "^2.97.0",
     "date-fns": "^3.6.0",
     "lucide-react": "^0.378.0",
-    "next": "14.2.0",
+    "next": "14.2.29",
     "next-auth": "^5.0.0-beta.30",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -60,7 +60,7 @@
   "build": {
     "appId": "com.cruiseconnect.hub",
     "productName": "Cruise Connect Hub",
-    "copyright": "Copyright © 2024 Cruise Connect Hub",
+    "copyright": "Copyright \u00a9 2024 Cruise Connect Hub",
     "asar": true,
     "files": [
       "electron/**/*",

@@ -18,11 +18,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://cruise-connect-hub.vercel.app'),
   title: { default: "Cruise Connect Hub〽️", template: "%s · CC Hub" },
   description: "The home of Naija culture online. Live Spaces, Games, Music, Movies, Jobs & Wallet. 3,000+ members strong.",
   applicationName: "CC Hub",
   keywords: ["Naija community", "Cruise Connect", "live spaces", "Nigerian culture", "online community"],
-  authors: [{ name: "Cruise Connect Hub", url: "https://cruise-connect-hub.netlify.app" }],
+  authors: [{ name: "Cruise Connect Hub", url: "https://cruise-connect-hub.vercel.app" }],
   creator: "@CCHub_",
   publisher: "Cruise Connect Hub",
 
