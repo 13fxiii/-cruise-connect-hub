@@ -13,6 +13,22 @@ export default function SignupForm() {
   const intent       = searchParams.get('intent');
   const supabase     = createClient();
 
+  /* ── X / Twitter OAuth ────────────────────────────────────── */
+  const handleXSignup = async () => {
+    setLoading(true);
+    setError('');
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'twitter',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=/feed`,
+      },
+    });
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
+
   const [form, setForm]         = useState({ email: '', password: '', username: '', displayName: '' });
   const [showPw, setShowPw]     = useState(false);
   const [loading, setLoading]   = useState(false);
@@ -153,16 +169,24 @@ export default function SignupForm() {
         <p className="text-zinc-600 text-[11px] text-center">By joining, you agree to cruise responsibly 🚌</p>
       </form>
 
-      {/* X OAuth — coming soon */}
       <div className="flex items-center gap-3 my-4">
         <div className="flex-1 h-px bg-zinc-800" />
         <span className="text-zinc-600 text-xs">or</span>
         <div className="flex-1 h-px bg-zinc-800" />
       </div>
-      <div className="w-full flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-800 text-zinc-500 text-xs py-2.5 rounded-xl cursor-not-allowed select-none">
-        <svg className="w-4 h-4 fill-zinc-500" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        Sign up with X — coming soon
-      </div>
+      <button
+        type="button"
+        onClick={handleXSignup}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-700 hover:border-zinc-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        {loading ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        )}
+        Sign up with X
+      </button>
 
       <p className="text-center text-zinc-500 text-xs mt-4">
         Already on board?{' '}

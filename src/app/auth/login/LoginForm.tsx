@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, EyeOff, Loader2, Mail, Lock, ArrowRight, Bus } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Mail, Lock, ArrowRight } from 'lucide-react';
 
 type Mode = 'login' | 'forgot';
 
@@ -21,6 +21,22 @@ export default function LoginForm() {
   const searchParams = useSearchParams();
   const redirectTo  = searchParams.get('redirectTo') || '/feed';
   const supabase    = createClient();
+
+  /* ── X / Twitter OAuth ────────────────────────────────────── */
+  const handleXLogin = async () => {
+    setLoading(true);
+    setError('');
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'twitter',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
+      },
+    });
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
 
   /* ── Email / Password sign-in ─────────────────────────────── */
   const handleLogin = async (e: React.FormEvent) => {
@@ -164,11 +180,20 @@ export default function LoginForm() {
         <div className="flex-1 h-px bg-zinc-800" />
       </div>
 
-      {/* X OAuth — coming soon banner */}
-      <div className="w-full flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-800 text-zinc-500 text-xs font-medium py-2.5 rounded-xl cursor-not-allowed select-none">
-        <svg className="w-4 h-4 fill-zinc-500" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        Sign in with X — coming soon
-      </div>
+      {/* X OAuth — live */}
+      <button
+        type="button"
+        onClick={handleXLogin}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-700 hover:border-zinc-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        {loading ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        )}
+        Sign in with X
+      </button>
 
       {/* Sign up link */}
       <p className="text-center text-zinc-500 text-xs mt-5">
