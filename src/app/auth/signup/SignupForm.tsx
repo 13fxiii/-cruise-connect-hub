@@ -1,181 +1,144 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Mail, Lock, User, Eye, EyeOff, Loader2, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+import { Eye, EyeOff, Loader2, Mail, Lock, User, ArrowRight } from 'lucide-react';
 
 export default function SignupForm() {
-  const router       = useRouter();
-  const searchParams = useSearchParams();
-  const intent       = searchParams.get('intent');
-  const supabase     = createClient();
-
-  /* ── X OAuth — direct API route ──────────────────────────── */
-  const handleXSignup = () => {
-    window.location.href = '/api/auth/x';
-  };
-
-  const [form, setForm]         = useState({ email: '', password: '', username: '', displayName: '' });
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [showPw, setShowPw]     = useState(false);
   const [loading, setLoading]   = useState(false);
+  const [xLoading, setXLoading] = useState(false);
   const [error, setError]       = useState('');
-  const [success, setSuccess]   = useState(false);
+  const [done, setDone]         = useState(false);
+  const router   = useRouter();
+  const supabase = createClient();
 
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm(f => ({ ...f, [k]: k === 'username' ? e.target.value.replace(/[^a-z0-9_]/g, '').toLowerCase() : e.target.value }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  /* ── X OAuth ──────────────────────────────────────────────── */
+  const handleXSignup = async () => {
+    setXLoading(true);
     setError('');
-    if (form.username.length < 3)  { setError('Username must be at least 3 characters'); return; }
-    if (form.password.length < 8)  { setError('Password must be at least 8 characters'); return; }
-    setLoading(true);
-
-    const { error } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'twitter',
       options: {
-        data: {
-          user_name:  form.username.toLowerCase(),
-          full_name:  form.displayName || form.username,
-        },
-        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${intent === 'pr-ads' ? '/ads' : '/feed'}`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/feed`,
+        scopes: 'tweet.read users.read',
       },
     });
-
-    if (error) { setError(error.message); setLoading(false); }
-    else        { setSuccess(true); }
+    if (error) {
+      setError(error.message);
+      setXLoading(false);
+    }
   };
 
-  /* ── Success screen ─────────────────────────────────────── */
-  if (success) {
+  /* ── Email sign-up ────────────────────────────────────────── */
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username.length < 3) { setError('Username must be at least 3 characters'); return; }
+    setLoading(true);
+    setError('');
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { username: username.toLowerCase().replace(/\s/g,''), full_name: username },
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/feed`,
+      },
+    });
+    if (error) { setError(error.message); setLoading(false); }
+    else        { setDone(true); setLoading(false); }
+  };
+
+  /* ── Confirmation screen ──────────────────────────────────── */
+  if (done) {
     return (
       <AuthShell>
-        <div className="text-center py-4">
-          <CheckCircle2 className="w-14 h-14 text-yellow-400 mx-auto mb-4" />
-          <h2 className="text-xl font-black text-white mb-2">You're on the bus! 🚌</h2>
+        <div className="text-center py-6">
+          <div className="text-5xl mb-4">🎉</div>
+          <h2 className="text-xl font-black text-white mb-2">You're in!</h2>
           <p className="text-zinc-400 text-sm mb-2">
-            We sent a confirmation link to{' '}
-            <span className="text-yellow-400 font-semibold">{form.email}</span>
+            Check <span className="text-yellow-400 font-semibold">{email}</span> for a confirmation link.
           </p>
-          <p className="text-zinc-500 text-xs mb-6">
-            Click the link in your email to activate your account, then come back and cruise with us!
-          </p>
-          <Link href="/auth/login"
-            className="inline-flex items-center gap-2 bg-yellow-400 text-black font-black text-sm px-5 py-2.5 rounded-xl hover:bg-yellow-300 transition-colors">
-            <ArrowRight className="w-4 h-4" /> Go to Sign In
-          </Link>
+          <p className="text-zinc-600 text-xs">Click the link to activate your CC Hub account.</p>
         </div>
       </AuthShell>
     );
   }
 
-  /* ── Signup form ──────────────────────────────────────────── */
   return (
     <AuthShell>
-      <h2 className="text-lg font-black text-white mb-1">
-        {intent === 'pr-ads' ? '🎵 Create account to submit' : 'Join the community 🚀'}
-      </h2>
-      <p className="text-zinc-500 text-xs mb-5">Sign up with your email — it's free</p>
+      <h2 className="text-lg font-black text-white mb-1">Join the Hub 🚌</h2>
+      <p className="text-zinc-500 text-xs mb-6">Create your CC Hub account</p>
 
-      <form onSubmit={handleSubmit} className="space-y-3.5">
-        {/* Username + Display Name */}
-        <div className="grid grid-cols-2 gap-2.5">
-          <div>
-            <label className="text-xs text-zinc-400 mb-1 block font-medium">Username *</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">@</span>
-              <input value={form.username} onChange={set('username')}
-                placeholder="cruiser" required maxLength={20}
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-7 pr-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:border-yellow-400 focus:outline-none transition-colors" />
-            </div>
-          </div>
-          <div>
-            <label className="text-xs text-zinc-400 mb-1 block font-medium">Display Name</label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
-              <input value={form.displayName} onChange={set('displayName')}
-                placeholder="Your Name"
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:border-yellow-400 focus:outline-none transition-colors" />
-            </div>
-          </div>
-        </div>
+      {/* X OAuth — primary */}
+      <button
+        onClick={handleXSignup}
+        disabled={xLoading}
+        className="w-full flex items-center justify-center gap-2.5 bg-white hover:bg-zinc-100 text-black font-black text-sm py-3 rounded-xl transition-all disabled:opacity-60 mb-5"
+      >
+        {xLoading ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <svg className="w-4 h-4 fill-black" viewBox="0 0 24 24">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        )}
+        {xLoading ? 'Connecting to X...' : 'Sign up with X'}
+      </button>
 
-        {/* Email */}
+      {/* Divider */}
+      <div className="flex items-center gap-3 mb-5">
+        <div className="flex-1 h-px bg-zinc-800" />
+        <span className="text-zinc-600 text-xs font-medium">or use email</span>
+        <div className="flex-1 h-px bg-zinc-800" />
+      </div>
+
+      <form onSubmit={handleSignup} className="space-y-4">
         <div>
-          <label className="text-xs text-zinc-400 mb-1 block font-medium">Email *</label>
+          <label className="text-xs text-zinc-400 mb-1.5 block font-medium">Username</label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-            <input type="email" value={form.email} onChange={set('email')}
-              placeholder="your@email.com" required autoComplete="email"
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <input value={username} onChange={e => setUsername(e.target.value)}
+              placeholder="yourhandle" required minLength={3}
               className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:border-yellow-400 focus:outline-none transition-colors" />
           </div>
         </div>
-
-        {/* Password */}
         <div>
-          <label className="text-xs text-zinc-400 mb-1 block font-medium">Password *</label>
+          <label className="text-xs text-zinc-400 mb-1.5 block font-medium">Email</label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="you@example.com" required
+              className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:border-yellow-400 focus:outline-none transition-colors" />
+          </div>
+        </div>
+        <div>
+          <label className="text-xs text-zinc-400 mb-1.5 block font-medium">Password</label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-            <input type={showPw ? 'text' : 'password'} value={form.password} onChange={set('password')}
-              placeholder="Min. 8 characters" required minLength={8} autoComplete="new-password"
+            <input type={showPw ? 'text' : 'password'} value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••" required minLength={8}
               className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:border-yellow-400 focus:outline-none transition-colors" />
             <button type="button" onClick={() => setShowPw(!showPw)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors">
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300">
               {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-          {/* Password strength hint */}
-          {form.password.length > 0 && (
-            <div className="flex gap-1 mt-1.5">
-              {[1,2,3,4].map(i => (
-                <div key={i} className={`flex-1 h-1 rounded-full transition-colors ${
-                  form.password.length >= i * 3
-                    ? i <= 2 ? 'bg-red-400' : i === 3 ? 'bg-yellow-400' : 'bg-green-400'
-                    : 'bg-zinc-800'
-                }`} />
-              ))}
-            </div>
-          )}
         </div>
 
-        {/* Error */}
-        {error && (
-          <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-xl p-3">{error}</p>
-        )}
+        {error && <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-xl p-3">{error}</p>}
 
-        {/* Submit */}
         <button type="submit" disabled={loading}
-          className="w-full bg-yellow-400 text-black font-black text-sm py-2.5 rounded-xl hover:bg-yellow-300 transition-all hover:scale-[1.01] disabled:opacity-60 flex items-center justify-center gap-2 mt-1">
-          {loading
-            ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating account...</>
-            : <><ArrowRight className="w-4 h-4" /> Create Account 🚀</>}
+          className="w-full bg-yellow-400 text-black font-black text-sm py-2.5 rounded-xl hover:bg-yellow-300 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
+          {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating account...</> : <><ArrowRight className="w-4 h-4" /> Create Account</>}
         </button>
-
-        <p className="text-zinc-600 text-[11px] text-center">By joining, you agree to cruise responsibly 🚌</p>
       </form>
-
-      <div className="flex items-center gap-3 my-4">
-        <div className="flex-1 h-px bg-zinc-800" />
-        <span className="text-zinc-600 text-xs">or</span>
-        <div className="flex-1 h-px bg-zinc-800" />
-      </div>
-      <button
-        type="button"
-        onClick={handleXSignup}
-        disabled={loading}
-        className="w-full flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-700 hover:border-zinc-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-not-allowed"
-      >
-        {loading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : (
-          <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        )}
-        Sign up with X
-      </button>
 
       <p className="text-center text-zinc-500 text-xs mt-4">
         Already on board?{' '}
@@ -185,7 +148,6 @@ export default function SignupForm() {
   );
 }
 
-/* ── Shared shell ─────────────────────────────────────────────── */
 function AuthShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
@@ -196,7 +158,7 @@ function AuthShell({ children }: { children: React.ReactNode }) {
               <Image src="/logo.jpeg" alt="Cruise Connect Hub" fill sizes="56px" className="object-cover" priority />
             </div>
             <div>
-              <div className="font-black text-white text-sm leading-tight">Cruise Connect Hub</div>
+              <div className="font-black text-white text-sm">Cruise Connect Hub</div>
               <div className="text-yellow-400 text-xs font-bold">〽️ The home of Naija culture</div>
             </div>
           </Link>
@@ -204,6 +166,9 @@ function AuthShell({ children }: { children: React.ReactNode }) {
         <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 shadow-2xl shadow-black/50">
           {children}
         </div>
+        <p className="text-center text-zinc-700 text-xs mt-4">
+          By joining, you agree to cruise responsibly 🚌
+        </p>
       </div>
     </div>
   );

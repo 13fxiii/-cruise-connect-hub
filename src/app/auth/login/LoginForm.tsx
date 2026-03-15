@@ -14,6 +14,7 @@ export default function LoginForm() {
   const [password, setPassword]   = useState('');
   const [showPw, setShowPw]       = useState(false);
   const [loading, setLoading]     = useState(false);
+  const [xLoading, setXLoading]   = useState(false);
   const [error, setError]         = useState('');
   const [mode, setMode]           = useState<Mode>('login');
   const [resetSent, setResetSent] = useState(false);
@@ -21,11 +22,6 @@ export default function LoginForm() {
   const searchParams = useSearchParams();
   const redirectTo  = searchParams.get('redirectTo') || '/feed';
   const supabase    = createClient();
-
-  /* ── X OAuth — direct API route ──────────────────────────── */
-  const handleXLogin = () => {
-    window.location.href = '/api/auth/x';
-  };
 
   /* ── Email / Password sign-in ─────────────────────────────── */
   const handleLogin = async (e: React.FormEvent) => {
@@ -43,6 +39,23 @@ export default function LoginForm() {
     } else {
       router.push(redirectTo);
       router.refresh();
+    }
+  };
+
+  /* ── X OAuth via Supabase ─────────────────────────────────── */
+  const handleXLogin = async () => {
+    setXLoading(true);
+    setError('');
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'twitter',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
+        scopes: 'tweet.read users.read',
+      },
+    });
+    if (error) {
+      setError(error.message);
+      setXLoading(false);
     }
   };
 
@@ -114,6 +127,29 @@ export default function LoginForm() {
       <h2 className="text-lg font-black text-white mb-1">Welcome back 👋</h2>
       <p className="text-zinc-500 text-xs mb-6">Sign in to your CC Hub account</p>
 
+      {/* X OAuth — primary CTA */}
+      <button
+        onClick={handleXLogin}
+        disabled={xLoading}
+        className="w-full flex items-center justify-center gap-2.5 bg-white hover:bg-zinc-100 text-black font-black text-sm py-3 rounded-xl transition-all disabled:opacity-60 mb-5"
+      >
+        {xLoading ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <svg className="w-4 h-4 fill-black" viewBox="0 0 24 24">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        )}
+        {xLoading ? 'Connecting to X...' : 'Continue with X'}
+      </button>
+
+      {/* Divider */}
+      <div className="flex items-center gap-3 mb-5">
+        <div className="flex-1 h-px bg-zinc-800" />
+        <span className="text-zinc-600 text-xs font-medium">or use email</span>
+        <div className="flex-1 h-px bg-zinc-800" />
+      </div>
+
       <form onSubmit={handleLogin} className="space-y-4">
         {/* Email */}
         <div>
@@ -161,28 +197,6 @@ export default function LoginForm() {
             : <><ArrowRight className="w-4 h-4" /> Sign In</>}
         </button>
       </form>
-
-      {/* Divider */}
-      <div className="flex items-center gap-3 my-5">
-        <div className="flex-1 h-px bg-zinc-800" />
-        <span className="text-zinc-600 text-xs">or</span>
-        <div className="flex-1 h-px bg-zinc-800" />
-      </div>
-
-      {/* X OAuth — live */}
-      <button
-        type="button"
-        onClick={handleXLogin}
-        disabled={loading}
-        className="w-full flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-700 hover:border-zinc-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-not-allowed"
-      >
-        {loading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : (
-          <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        )}
-        Sign in with X
-      </button>
 
       {/* Sign up link */}
       <p className="text-center text-zinc-500 text-xs mt-5">
