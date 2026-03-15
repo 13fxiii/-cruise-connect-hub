@@ -8,12 +8,12 @@ const config: CapacitorConfig = {
   // ── PRODUCTION: load live Netlify URL ──────────────────────
   // This means ALL features work: Supabase auth, payments, everything
   server: {
-    url: 'https://cruise-connect-hub.netlify.app',
+    url: 'https://cruise-connect-hub.vercel.app',
     cleartext: false,
     androidScheme: 'https',
     // Allow the live URL to run inside native shell
     allowNavigation: [
-      'cruise-connect-hub.netlify.app',
+      'cruise-connect-hub.vercel.app',
       'xiyjgcoeljquryixmfut.supabase.co',
       '*.paystack.co',
       '*.twitter.com',
