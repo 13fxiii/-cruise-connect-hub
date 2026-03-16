@@ -13,7 +13,37 @@ const BROWSER_GAMES = [
     color:"from-blue-500/20 to-blue-600/5", border:"border-blue-500/30", text:"text-blue-400",
   },
   {
-    id:"word-guess", title:"Naija Wordle", emoji:"🇳🇬", status:"live", tag:"NEW 🔥",
+    id:"uno", title:"UNO 🃏", emoji:"🃏", status:"live", tag:"NEW 🔥",
+    desc:"Classic card game against 3 bots · Match color or number · Call UNO!",
+    players:24, prize:"Bragging rights", href:"/games/uno",
+    color:"from-red-500/20 to-red-600/5", border:"border-red-500/30", text:"text-red-400",
+  },
+  {
+    id:"drawing", title:"Draw & Guess", emoji:"🎨", status:"live", tag:"Naija 🇳🇬",
+    desc:"Draw Naija things · Jollof Rice, Danfo, Suya · Can you guess?",
+    players:18, prize:"Fun + Points", href:"/games/drawing",
+    color:"from-pink-500/20 to-pink-600/5", border:"border-pink-500/30", text:"text-pink-400",
+  },
+  {
+    id:"karaoke", title:"Karaoke Battle", emoji:"🎤", status:"live", tag:"Music",
+    desc:"Sing Naija hits · Get scored on pitch · Compete with the community",
+    players:11, prize:"Community clout", href:"/games/karaoke",
+    color:"from-purple-500/20 to-purple-600/5", border:"border-purple-500/30", text:"text-purple-400",
+  },
+  {
+    id:"mafia", title:"Mafia / Werewolf", emoji:"🔪", status:"live", tag:"Strategy",
+    desc:"Find the Mafia before they take over · Lie, accuse, survive",
+    players:7, prize:"Village pride", href:"/games/mafia",
+    color:"from-zinc-500/20 to-zinc-600/5", border:"border-zinc-500/30", text:"text-zinc-300",
+  },
+  {
+    id:"codenames", title:"Codenames", emoji:"🕵️", status:"live", tag:"Team",
+    desc:"Naija Edition · Give one-word clues · Find your team's words before the other side",
+    players:16, prize:"Bragging rights", href:"/games/codenames",
+    color:"from-sky-500/20 to-sky-600/5", border:"border-sky-500/30", text:"text-sky-400",
+  },
+  {
+    id:"word-guess", title:"Naija Wordle", emoji:"🇳🇬", status:"live", tag:"Daily",
     desc:"Guess the 5-letter Nigerian slang word · 6 attempts",
     players:134, prize:"Fun only", href:"/games/word-guess",
     color:"from-emerald-500/20 to-emerald-600/5", border:"border-emerald-500/30", text:"text-emerald-400",
@@ -28,7 +58,7 @@ const BROWSER_GAMES = [
     id:"spin-wheel", title:"Spin the Wheel", emoji:"🎡", status:"live", tag:"Prizes",
     desc:"Random prizes, dares, and community fun — spin & see",
     players:0, prize:"Mystery prizes", href:"/games/spin-wheel",
-    color:"from-pink-500/20 to-pink-600/5", border:"border-pink-500/30", text:"text-pink-400",
+    color:"from-yellow-500/20 to-yellow-600/5", border:"border-yellow-500/30", text:"text-yellow-400",
   },
   {
     id:"ludo", title:"Ludo Board", emoji:"🎲", status:"live", tag:"2-4P",
@@ -40,7 +70,7 @@ const BROWSER_GAMES = [
     id:"poll", title:"Poll League", emoji:"📊", status:"live", tag:"Community",
     desc:"Vote on weekly community debates · Climb the board",
     players:312, prize:"₦10K pool", href:"/games/poll",
-    color:"from-purple-500/20 to-purple-600/5", border:"border-purple-500/30", text:"text-purple-400",
+    color:"from-indigo-500/20 to-indigo-600/5", border:"border-indigo-500/30", text:"text-indigo-400",
   },
 ];
 
