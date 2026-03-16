@@ -1,8 +1,10 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { createClient } from "@/lib/supabase/client";
 import {
   Menu, X, Rss, Megaphone, Mic, Gamepad2, Wallet, User,
   Music, Film, ShoppingBag, Briefcase, ChevronDown, Bell,
@@ -33,42 +35,13 @@ export default function Navbar() {
   const [open, setOpen]         = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [unread, setUnread]     = useState(0);
-  const [user, setUser]         = useState<{ id: string; email?: string; avatar?: string; username?: string } | null>(null);
-  const path = usePathname();
+  const { user, loading }       = useAuth();
+  const path                    = usePathname();
+  const router                  = useRouter();
+  const supabase                = createClient();
 
   useEffect(() => {
-    // Get current session from Supabase client
-    import('@/lib/supabase/client').then(({ createClient }) => {
-      const supabase = createClient();
-      // Get initial session
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) {
-          setUser({
-            id: data.user.id,
-            email: data.user.email,
-            avatar: data.user.user_metadata?.avatar_url,
-            username: data.user.user_metadata?.username || data.user.user_metadata?.preferred_username,
-          });
-        }
-      });
-      // Listen for auth changes
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (session?.user) {
-          setUser({
-            id: session.user.id,
-            email: session.user.email,
-            avatar: session.user.user_metadata?.avatar_url,
-            username: session.user.user_metadata?.username || session.user.user_metadata?.preferred_username,
-          });
-        } else {
-          setUser(null);
-        }
-      });
-      return () => subscription.unsubscribe();
-    });
-  }, []);
-
-  useEffect(() => {
+    if (!user) return;
     let cancelled = false;
     const fetchUnread = () => {
       fetch("/api/notifications?unread_count=1")
@@ -77,12 +50,22 @@ export default function Navbar() {
         .catch(() => {});
     };
     fetchUnread();
-    const timer = setInterval(fetchUnread, 30000);
-    return () => { cancelled = true; clearInterval(timer); };
-  }, []);
+    const t = setInterval(fetchUnread, 30000);
+    return () => { cancelled = true; clearInterval(t); };
+  }, [user]);
 
   const isActive = (href: string) =>
     href === "/" ? path === "/" : path === href || path.startsWith(href + "/");
+
+  const handleSignOut = async () => {
+    setOpen(false);
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  };
+
+  const avatarUrl   = user?.user_metadata?.avatar_url;
+  const firstLetter = (user?.user_metadata?.full_name || user?.email || "U").charAt(0).toUpperCase();
 
   return (
     <nav className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-zinc-800">
@@ -109,14 +92,10 @@ export default function Navbar() {
               <Icon size={13} /> {label}
             </Link>
           ))}
-
-          {/* More dropdown */}
           <div className="relative">
             <button onClick={() => setMoreOpen(!moreOpen)}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                MORE_LINKS.some(l => isActive(l.href))
-                  ? "bg-yellow-400/10 text-yellow-400"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                moreOpen ? "bg-yellow-400/10 text-yellow-400" : "text-zinc-400 hover:text-white hover:bg-zinc-800"
               }`}>
               More <ChevronDown size={11} className={`transition-transform ${moreOpen ? "rotate-180" : ""}`} />
             </button>
@@ -140,7 +119,6 @@ export default function Navbar() {
 
         {/* DESKTOP RIGHT */}
         <div className="hidden md:flex items-center gap-1.5">
-          {/* Notifications */}
           <Link href="/notifications"
             className="relative text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-zinc-800 transition-colors">
             <Bell size={16} />
@@ -150,29 +128,26 @@ export default function Navbar() {
               </span>
             )}
           </Link>
-          {/* Admin shortcut */}
           <Link href="/admin"
             className={`p-1.5 rounded-lg transition-colors ${
               isActive("/admin") ? "text-yellow-400 bg-yellow-400/10" : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-            }`}
-            title="Admin Panel">
+            }`}>
             <LayoutDashboard size={16} />
           </Link>
           <Link href="/profile"
             className="text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-zinc-800 transition-colors">
-            {user?.avatar ? (
-              <img src={user.avatar} alt="profile" className="w-6 h-6 rounded-full object-cover" />
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="profile" className="w-6 h-6 rounded-full object-cover" />
+            ) : user ? (
+              <div className="w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center text-black text-[10px] font-black">{firstLetter}</div>
             ) : (
               <User size={16} />
             )}
           </Link>
-          {user ? (
-            <button
-              onClick={async () => {
-                const { createClient } = await import('@/lib/supabase/client');
-                await createClient().auth.signOut();
-                window.location.href = '/';
-              }}
+          {loading ? (
+            <div className="w-20 h-7 bg-zinc-800 rounded-full animate-pulse" />
+          ) : user ? (
+            <button onClick={handleSignOut}
               className="bg-zinc-800 text-zinc-300 text-xs font-bold px-3 py-1.5 rounded-full hover:bg-zinc-700 transition-colors">
               Sign Out
             </button>
@@ -184,13 +159,12 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* MOBILE MENU BUTTON */}
+        {/* MOBILE */}
         <button className="md:hidden p-2 text-zinc-400 hover:text-white" onClick={() => setOpen(!open)}>
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
-      {/* MOBILE DRAWER */}
       {open && (
         <div className="md:hidden bg-zinc-950 border-t border-zinc-800 px-3 py-3 flex flex-col gap-0.5 max-h-[85vh] overflow-y-auto">
           {[...PRIMARY_LINKS, ...MORE_LINKS].map(({ href, label, icon: Icon }) => (
@@ -204,11 +178,8 @@ export default function Navbar() {
           <Link href="/notifications" onClick={() => setOpen(false)}
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-900">
             <Bell size={15} /> Notifications
-            {unread > 0 && (
-              <span className="ml-auto bg-yellow-400 text-black text-[10px] font-black px-1.5 py-0.5 rounded-full">{unread}</span>
-            )}
+            {unread > 0 && <span className="ml-auto bg-yellow-400 text-black text-[10px] font-black px-1.5 py-0.5 rounded-full">{unread}</span>}
           </Link>
-          {/* Admin link in mobile drawer */}
           <Link href="/admin" onClick={() => setOpen(false)}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium ${
               isActive("/admin") ? "bg-yellow-400/10 text-yellow-400" : "text-zinc-300 hover:text-white hover:bg-zinc-900"
@@ -221,19 +192,13 @@ export default function Navbar() {
               <User size={15} /> My Profile
             </Link>
             {user ? (
-              <button
-                onClick={async () => {
-                  setOpen(false);
-                  const { createClient } = await import('@/lib/supabase/client');
-                  await createClient().auth.signOut();
-                  window.location.href = '/';
-                }}
-                className="block w-full bg-zinc-800 text-zinc-300 text-xs font-bold py-2.5 rounded-xl text-center hover:bg-zinc-700 transition-colors">
+              <button onClick={handleSignOut}
+                className="block w-full bg-zinc-800 text-zinc-300 text-xs font-bold py-2.5 rounded-xl text-center hover:bg-zinc-700">
                 Sign Out
               </button>
             ) : (
               <Link href="/auth/login" onClick={() => setOpen(false)}
-                className="block bg-yellow-400 text-black text-xs font-black py-2.5 rounded-xl text-center hover:bg-yellow-300 transition-colors">
+                className="block bg-yellow-400 text-black text-xs font-black py-2.5 rounded-xl text-center hover:bg-yellow-300">
                 Join Hub 🚌
               </Link>
             )}

@@ -26,7 +26,7 @@ export default function SignupForm() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'twitter',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: window.location.origin,
         scopes: 'tweet.read users.read',
       },
     });
@@ -47,7 +47,7 @@ export default function SignupForm() {
       password,
       options: {
         data: { username: username.toLowerCase().replace(/\s/g,''), full_name: username },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/feed`,
+        emailRedirectTo: window.location.origin,
       },
     });
     if (error) { setError(error.message); setLoading(false); }
