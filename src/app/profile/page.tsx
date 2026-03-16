@@ -29,9 +29,9 @@ const BADGES = [
 ];
 
 const MOCK_PROFILE = {
-  id: "1", username: "@13fxiii", display_name: "FX〽️",
+  id: "1", username: "@13fxiii_", display_name: "FX〽️",
   bio: "A&R | Creative Artist | Building Cruise Connect Hub 🚌💛",
-  twitter_handle: "@13fxiii", points: 11800, level: "hub_star",
+  twitter_handle: "@13fxiii_", points: 11800, level: "hub_star",
   wallet_balance: 750000, total_earned: 2840000, referral_code: "CCH-13FXIII",
   badges: ["music", "gamer", "host", "og", "naija", "early"],
   interests: ["music", "gaming", "tech", "afrobeats"],

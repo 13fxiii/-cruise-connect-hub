@@ -14,7 +14,7 @@ type LeaderboardEntry = {
 
 const MOCK_LB: LeaderboardEntry[] = [
   { rank: 1, username: "@connectplug",  display_name: "ConnectPlug",    points: 12400, wins: 18 },
-  { rank: 2, username: "@13fxiii",      display_name: "FX〽️",          points: 11800, wins: 15 },
+  { rank: 2, username: "@13fxiii_",      display_name: "FX〽️",          points: 11800, wins: 15 },
   { rank: 3, username: "@naijagamer",   display_name: "NaijaGamer",     points: 9200,  wins: 12 },
   { rank: 4, username: "@theconnector", display_name: "The Connector",  points: 7600,  wins: 9  },
   { rank: 5, username: "@thrillseeka",  display_name: "ThrillSeeka",    points: 6100,  wins: 7  },

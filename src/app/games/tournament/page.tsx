@@ -30,7 +30,7 @@ const TOURNAMENTS = [
 const BRACKET: Record<number, {id:string; p1:string; p2:string; winner?:string; p1score?:number; p2score?:number; status:string}[]> = {
   1: [
     { id:"m1", p1:"@connectplug", p2:"@afroboss", winner:"@connectplug", p1score:3, p2score:1, status:"completed" },
-    { id:"m2", p1:"@13fxiii", p2:"@lagosking", winner:"@13fxiii", p1score:3, p2score:2, status:"completed" },
+    { id:"m2", p1:"@13fxiii_", p2:"@lagosking", winner:"@13fxiii_", p1score:3, p2score:2, status:"completed" },
     { id:"m3", p1:"@naijagamer", p2:"@theconnector", winner:"@naijagamer", p1score:3, p2score:0, status:"completed" },
     { id:"m4", p1:"@thrillseeka", p2:"@waveyboy", winner:"@thrillseeka", p1score:2, p2score:3, status:"completed" },
     { id:"m5", p1:"@abuja_plug", p2:"@ph_vibes", winner:"@abuja_plug", p1score:3, p2score:1, status:"completed" },
@@ -39,7 +39,7 @@ const BRACKET: Record<number, {id:string; p1:string; p2:string; winner?:string; 
     { id:"m8", p1:"@thegsavage", p2:"@hubchamp", winner:"@hubchamp", p1score:0, p2score:3, status:"completed" },
   ],
   2: [
-    { id:"m9", p1:"@connectplug", p2:"@13fxiii", winner:"@connectplug", p1score:3, p2score:1, status:"completed" },
+    { id:"m9", p1:"@connectplug", p2:"@13fxiii_", winner:"@connectplug", p1score:3, p2score:1, status:"completed" },
     { id:"m10", p1:"@naijagamer", p2:"@waveyboy", winner:"@naijagamer", p1score:3, p2score:2, status:"completed" },
     { id:"m11", p1:"@abuja_plug", p2:"@connectking", p1score:2, p2score:2, status:"active" },
     { id:"m12", p1:"@naijadrip", p2:"@hubchamp", status:"pending" },

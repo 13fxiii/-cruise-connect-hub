@@ -116,7 +116,7 @@ const EXTERNAL_GAMES = [
 /* ── Leaderboard (mock) ──────────────────────────────────────── */
 const LEADERBOARD = [
   { rank:1, username:"@connectplug", name:"ConnectPlug", points:12400, wins:18, avatar:"CP", badge:"👑" },
-  { rank:2, username:"@13fxiii",     name:"FX〽️",       points:11800, wins:15, avatar:"FX", badge:"⭐" },
+  { rank:2, username:"@13fxiii_",     name:"FX〽️",       points:11800, wins:15, avatar:"FX", badge:"⭐" },
   { rank:3, username:"@naijagamer",  name:"NaijaGamer",  points:9200,  wins:12, avatar:"NG", badge:"🔥" },
   { rank:4, username:"@theconnector",name:"Connector",   points:7600,  wins:9,  avatar:"TC", badge:"" },
   { rank:5, username:"@thrillseeka", name:"ThrillSeeka", points:6100,  wins:7,  avatar:"TS", badge:"" },

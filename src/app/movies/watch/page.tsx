@@ -19,7 +19,7 @@ const PARTY = {
 
 const SEED_CHAT = [
   { id:"c1", user:"@connectplug", msg:"This movie never gets old 😂🔥", time:"2m ago" },
-  { id:"c2", user:"@13fxiii", msg:"Akeem is literally all of us in the West 🫡", time:"2m ago" },
+  { id:"c2", user:"@13fxiii_", msg:"Akeem is literally all of us in the West 🫡", time:"2m ago" },
   { id:"c3", user:"@naijagamer", msg:"That suit shop scene 💀💀", time:"1m ago" },
   { id:"c4", user:"@thrillseeka", msg:"Eddie Murphy was on another level", time:"1m ago" },
   { id:"c5", user:"@lagosqueen", msg:"Who invited us to this watch party?? Thank you @TheCruiseCH 🙏🏾", time:"45s ago" },
