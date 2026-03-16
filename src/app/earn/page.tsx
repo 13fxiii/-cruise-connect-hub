@@ -5,7 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Link from "next/link";
 import {
   Gift, Users, Trophy, ShoppingBag, Wallet, Copy, Check,
-  TrendingUp, ChevronRight, Zap, Star, ArrowUpRight
+  TrendingUp, ChevronRight, Zap, Star, ArrowUpRight, Flame, Calendar, CheckCircle
 } from "lucide-react";
 
 const EARN_STREAMS = [

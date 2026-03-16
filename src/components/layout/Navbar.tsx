@@ -9,7 +9,7 @@ import {
   Menu, X, Rss, Megaphone, Mic, Gamepad2, Wallet, User,
   Music, Film, ShoppingBag, Briefcase, ChevronDown, Bell,
   Trophy, Star, LayoutDashboard, Shirt, Radio, Zap,
-  Sparkles, BarChart2, Vote, Building2, MessageCircle
+  Sparkles, BarChart2, Vote, Building2, MessageCircle, Search
 } from "lucide-react";
 
 const PRIMARY_LINKS = [
@@ -17,6 +17,7 @@ const PRIMARY_LINKS = [
   { href: "/spaces", label: "Live",  icon: Radio },
   { href: "/games",  label: "Play",  icon: Gamepad2 },
   { href: "/earn",   label: "Earn",  icon: Zap },
+  { href: "/search", label: "Search", icon: Search },
 ];
 
 const MORE_LINKS = [

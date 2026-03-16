@@ -1,58 +1,57 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const url = new URL(req.url);
-  const unreadOnly = url.searchParams.get("unread_count") === "1";
+    const { searchParams } = new URL(req.url);
+    const unreadCount = searchParams.get('unread_count') === '1';
+    const limit = parseInt(searchParams.get('limit') || '50');
 
-  if (unreadOnly) {
-    const { count } = await supabase
-      .from("notifications")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .eq("is_read", false);
-    return NextResponse.json({ unread_count: count || 0 });
+    if (unreadCount) {
+      const { count } = await supabaseAdmin
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('recipient_id', user.id)
+        .eq('is_read', false);
+      return NextResponse.json({ unread_count: count || 0 });
+    }
+
+    const { data } = await supabaseAdmin
+      .from('notifications')
+      .select('*')
+      .eq('recipient_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    return NextResponse.json({ notifications: data || [] });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
-
-  const { data, error } = await supabase
-    .from("notifications")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(50);
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ notifications: data || [] });
 }
 
 export async function PATCH(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json();
-  
-  if (body.mark_all_read) {
-    await supabase
-      .from("notifications")
-      .update({ is_read: true })
-      .eq("user_id", user.id)
-      .eq("is_read", false);
+    const { searchParams } = new URL(req.url);
+    const id       = searchParams.get('id');
+    const markAll  = searchParams.get('mark_all') === '1';
+
+    if (markAll) {
+      await supabaseAdmin.from('notifications').update({ is_read: true }).eq('recipient_id', user.id);
+    } else if (id) {
+      await supabaseAdmin.from('notifications').update({ is_read: true }).eq('id', id).eq('recipient_id', user.id);
+    }
+
     return NextResponse.json({ success: true });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
-
-  if (body.notification_id) {
-    await supabase
-      .from("notifications")
-      .update({ is_read: true })
-      .eq("id", body.notification_id)
-      .eq("user_id", user.id);
-    return NextResponse.json({ success: true });
-  }
-
-  return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 }
