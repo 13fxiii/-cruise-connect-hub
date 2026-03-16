@@ -60,7 +60,7 @@ export default function MusicPage() {
   const [liked, setLiked] = useState<Set<string>>(new Set());
   const [showQueue, setShowQueue] = useState(false);
   const [ytReady, setYtReady] = useState(false);
-  const [tab, setTab] = useState<"stations"|"discover"|"submit">("stations");
+  const [tab, setTab] = useState<"stations"|"playlist"|"discover"|"submit">("stations");
 
   const playerRef    = useRef<any>(null);
   const progressRef  = useRef<any>(null);
@@ -188,16 +188,113 @@ export default function MusicPage() {
             <p className="text-zinc-500 text-xs mt-0.5">Stream Naija music · Submit your track · Join the station</p>
           </div>
           <div className="flex gap-2">
-            {["stations","discover","submit"].map(t => (
+            {["stations","playlist","discover","submit"].map(t => (
               <button key={t} onClick={() => setTab(t as any)}
                 className={`capitalize text-xs font-bold px-3 py-1.5 rounded-full transition-colors ${
                   tab === t ? "bg-yellow-400 text-black" : "bg-zinc-900 text-zinc-400 border border-zinc-800"
-                }`}>{t}</button>
+                }`}>{t === "playlist" ? "🎵 Playlist" : t}</button>
             ))}
           </div>
         </div>
 
-        {/* STATIONS TAB */}
+        {/* BIG CRUISE APPLE MUSIC BANNER */}
+        <a
+          href="https://music.apple.com/ng/playlist/big-cruise-communty-artistes/pl.u-d2b05ZYsLyJx5E0"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block bg-gradient-to-r from-[#fc3c44]/20 via-zinc-900 to-zinc-900 border border-[#fc3c44]/30 hover:border-[#fc3c44]/60 rounded-2xl p-4 transition-all group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#fc3c44] to-[#ff6b6b] flex items-center justify-center flex-shrink-0 shadow-lg shadow-[#fc3c44]/20">
+              <svg viewBox="0 0 24 24" className="w-8 h-8 fill-white">
+                <path d="M23.994 6.124a9.23 9.23 0 0 0-.24-2.19c-.317-1.31-1.062-2.31-2.18-3.043a6.303 6.303 0 0 0-1.976-.75 10.814 10.814 0 0 0-1.664-.17c-.045-.003-.09-.007-.135-.007H6.197c-.049 0-.098.003-.147.006l-.18.009A8.134 8.134 0 0 0 4.2 .214a5.877 5.877 0 0 0-2.168 1.145A5.97 5.97 0 0 0 .667 3.315 8.137 8.137 0 0 0 .168 5.18C.085 5.771.01 6.37.002 6.97c0 .054-.002.109-.002.163v10.74c0 .054 0 .108.002.162a18.74 18.74 0 0 0 .166 2.444 5.97 5.97 0 0 0 2.757 4.24 6.303 6.303 0 0 0 1.976.751c.636.13 1.28.196 1.927.202.049 0 .098.002.147.002h11.607c.049 0 .098 0 .147-.002a18.74 18.74 0 0 0 2.444-.166 6.303 6.303 0 0 0 1.976-.75 5.97 5.97 0 0 0 2.757-4.24c.082-.59.157-1.19.165-1.79.001-.054.002-.108.002-.163V6.287c0-.054 0-.108-.002-.163zM12 17.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0-9a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm5.5-2a1 1 0 1 1 2 0 1 1 0 0 1-2 0z"/>
+              </svg>
+            </div>
+            <div className="flex-1">
+              <div className="text-[#fc3c44] font-black text-xs tracking-widest mb-0.5">APPLE MUSIC · OFFICIAL PLAYLIST</div>
+              <div className="text-white font-black text-base group-hover:text-[#fc3c44] transition-colors">Big Cruise Community Artistes 🚌</div>
+              <div className="text-zinc-400 text-xs mt-0.5">CC Hub's official community artists playlist · Updated regularly</div>
+            </div>
+            <div className="flex items-center gap-1.5 bg-[#fc3c44] text-white text-xs font-black px-3 py-2 rounded-xl group-hover:bg-[#ff5555] transition-colors flex-shrink-0">
+              <ExternalLink size={12} /> Listen
+            </div>
+          </div>
+        </a>
+
+        {/* PLAYLIST TAB */}
+        {tab === "playlist" && (
+          <div className="space-y-4">
+            <div className="relative bg-gradient-to-br from-[#fc3c44]/20 via-zinc-900 to-zinc-950 border border-[#fc3c44]/30 rounded-2xl p-6 overflow-hidden">
+              <div className="flex items-center gap-5 mb-5">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#fc3c44] to-[#ff6b6b] flex items-center justify-center flex-shrink-0 shadow-xl shadow-[#fc3c44]/30">
+                  <span className="text-3xl">🎵</span>
+                </div>
+                <div>
+                  <div className="text-[#fc3c44] font-black text-xs tracking-widest mb-1">APPLE MUSIC · OFFICIAL</div>
+                  <h2 className="text-white font-black text-xl leading-tight">Big Cruise Community Artistes</h2>
+                  <p className="text-zinc-400 text-sm mt-1">The official CC Hub playlist — featuring our community artistes 🚌</p>
+                  <p className="text-zinc-600 text-xs mt-0.5">Curated by @13fxiii_ · Updated regularly</p>
+                </div>
+              </div>
+              <a
+                href="https://music.apple.com/ng/playlist/big-cruise-communty-artistes/pl.u-d2b05ZYsLyJx5E0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2.5 bg-[#fc3c44] hover:bg-[#ff5555] text-white font-black py-3.5 rounded-xl transition-all text-sm"
+              >
+                Open in Apple Music 🎵
+              </a>
+            </div>
+
+            <div className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden">
+              <div className="p-4 border-b border-zinc-800">
+                <h3 className="text-white font-black text-sm">🎧 Preview Playlist</h3>
+                <p className="text-zinc-500 text-xs mt-0.5">Embedded Apple Music player</p>
+              </div>
+              <iframe
+                allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+                frameBorder="0"
+                height="450"
+                style={{ width: "100%", overflow: "hidden", borderRadius: "0 0 16px 16px", background: "transparent" }}
+                sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
+                src="https://embed.music.apple.com/ng/playlist/big-cruise-communty-artistes/pl.u-d2b05ZYsLyJx5E0"
+              />
+            </div>
+
+            <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
+              <h3 className="text-white font-bold text-sm mb-3">📤 Share the Playlist</h3>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    const text = "🎵 Check out the Big Cruise Community Artistes playlist!\n\nhttps://music.apple.com/ng/playlist/big-cruise-communty-artistes/pl.u-d2b05ZYsLyJx5E0\n\n@TheCruiseCH @13fxiii_ #BigCruise #CruiseAndConnect";
+                    if (navigator.share) navigator.share({ title: "Big Cruise Playlist", url: "https://music.apple.com/ng/playlist/big-cruise-communty-artistes/pl.u-d2b05ZYsLyJx5E0" });
+                    else navigator.clipboard.writeText(text);
+                  }}
+                  className="flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-700 text-zinc-300 font-bold text-xs py-2.5 rounded-xl hover:bg-zinc-800"
+                >
+                  Share on X 𝕏
+                </button>
+                <button
+                  onClick={() => { navigator.clipboard.writeText("https://music.apple.com/ng/playlist/big-cruise-communty-artistes/pl.u-d2b05ZYsLyJx5E0"); }}
+                  className="flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-700 text-zinc-300 font-bold text-xs py-2.5 rounded-xl hover:bg-zinc-800"
+                >
+                  Copy Link 🔗
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-yellow-400/10 to-zinc-900 border border-yellow-400/20 rounded-2xl p-5 text-center">
+              <div className="text-2xl mb-2">🎤</div>
+              <h3 className="text-white font-black text-base mb-1">Want to be on the playlist?</h3>
+              <p className="text-zinc-400 text-xs mb-3">Submit your track to be featured in the Big Cruise Community Artistes playlist</p>
+              <button onClick={() => setTab("submit")}
+                className="bg-yellow-400 text-black font-black text-sm px-6 py-2.5 rounded-xl hover:bg-yellow-300 transition-colors">
+                Submit Your Track 🎵
+              </button>
+            </div>
+          </div>
+        )}
+
         {tab === "stations" && (
           <div className="space-y-5">
             {/* Station picker */}
