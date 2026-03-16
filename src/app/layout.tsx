@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import BottomNav from "@/components/layout/BottomNav";
 import InstallBanner from "@/components/layout/InstallBanner";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -103,21 +104,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="bg-[#0a0a0a] text-white min-h-screen overflow-x-hidden antialiased">
-        {/* Safe area wrapper */}
-        <div
-          className="min-h-screen flex flex-col"
-          style={{
-            paddingTop: "env(safe-area-inset-top)",
-            paddingLeft: "env(safe-area-inset-left)",
-            paddingRight: "env(safe-area-inset-right)",
-          }}
-        >
-          {/* PWA install nudge (iOS/Android/Windows) */}
-          <InstallBanner />
-          {children}
-        </div>
-        {/* Mobile bottom tab bar */}
-        <BottomNav />
+        <AuthProvider>
+          {/* Safe area wrapper */}
+          <div
+            className="min-h-screen flex flex-col"
+            style={{
+              paddingTop: "env(safe-area-inset-top)",
+              paddingLeft: "env(safe-area-inset-left)",
+              paddingRight: "env(safe-area-inset-right)",
+            }}
+          >
+            {/* PWA install nudge (iOS/Android/Windows) */}
+            <InstallBanner />
+            {children}
+          </div>
+          {/* Mobile bottom tab bar */}
+          <BottomNav />
+        </AuthProvider>
         {/* Service worker */}
         <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {
