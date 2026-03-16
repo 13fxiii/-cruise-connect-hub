@@ -9,7 +9,7 @@ import {
   Menu, X, Rss, Megaphone, Mic, Gamepad2, Wallet, User,
   Music, Film, ShoppingBag, Briefcase, ChevronDown, Bell,
   Trophy, Star, LayoutDashboard, Shirt, Radio, Zap,
-  Sparkles, BarChart2, Vote, Building2
+  Sparkles, BarChart2, Vote, Building2, MessageCircle
 } from "lucide-react";
 
 const PRIMARY_LINKS = [
@@ -29,6 +29,8 @@ const MORE_LINKS = [
   { href: "/analytics",        label: "Analytics",      icon: BarChart2 },
   { href: "/dao",              label: "DAO Voting",     icon: Vote },
   { href: "/sponsors",         label: "Sponsorships",   icon: Building2 },
+  { href: "/messages",         label: "Messages 💬",     icon: MessageCircle },
+  { href: "/music/artists",    label: "Artist Hub 🎵",   icon: Music },
   { href: "/shop",             label: "C&C Shop",       icon: ShoppingBag },
   { href: "/jobs",             label: "Jobs Board",     icon: Briefcase },
   { href: "/ads",              label: "PR/ADS",         icon: Megaphone },
