@@ -13,10 +13,10 @@ export async function GET() {
       .eq('used_date', today)
       .single();
 
-    let theme;
+    let theme: any;
 
-    if (existing?.daily_theme_pool) {
-      theme = existing.daily_theme_pool;
+    if (existing && (existing as any).daily_theme_pool) {
+      theme = (existing as any).daily_theme_pool;
     } else {
       // Pick a random theme — prefer day_hint matching today, fallback to any
       // Get recently used themes (last 14 days) to avoid repeats
@@ -57,20 +57,22 @@ export async function GET() {
       }
 
       // Weighted random selection
-      const totalWeight = candidates.reduce((sum: number, t: any) => sum + (t.weight || 1), 0);
-      let rand = Math.random() * totalWeight;
-      theme = candidates[0];
-      for (const candidate of candidates) {
-        rand -= (candidate.weight || 1);
-        if (rand <= 0) { theme = candidate; break; }
-      }
+      if (candidates && candidates.length > 0) {
+        const totalWeight = candidates.reduce((sum: number, t: any) => sum + (t.weight || 1), 0);
+        let rand = Math.random() * totalWeight;
+        theme = candidates[0];
+        for (const candidate of candidates) {
+          rand -= (candidate.weight || 1);
+          if (rand <= 0) { theme = candidate; break; }
+        }
 
-      // Log today's theme
-      if (theme) {
-        await supabaseAdmin.from('daily_theme_log').upsert({
-          theme_id: theme.id,
-          used_date: today,
-        }, { onConflict: 'used_date' });
+        // Log today's theme
+        if (theme) {
+          await supabaseAdmin.from('daily_theme_log').upsert({
+            theme_id: theme.id,
+            used_date: today,
+          }, { onConflict: 'used_date' });
+        }
       }
     }
 
@@ -83,7 +85,7 @@ export async function GET() {
     const tally: Record<string, any> = {};
     (votes || []).forEach((v: any) => {
       const uid = v.nominee_id;
-      if (!tally[uid]) tally[uid] = { count: 0, profile: v.profiles };
+      if (!tally[uid]) tally[uid] = { count: 0, profile: (v as any).profiles };
       tally[uid].count++;
     });
     const topVotes = Object.entries(tally)
