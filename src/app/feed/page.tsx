@@ -23,12 +23,13 @@ function timeAgo(iso: string) {
 function Avatar({ profile, size = 36 }: { profile: any; size?: number }) {
   const letter = (profile?.display_name || profile?.username || "U").charAt(0).toUpperCase();
   return profile?.avatar_url ? (
-    <img src={profile.avatar_url} alt="" style={{ width: size, height: size }}
+    <img src={profile.avatar_url} alt=""
+      style={{ width: size, height: size }}
       className="rounded-full object-cover flex-shrink-0 border-2 border-zinc-800" />
   ) : (
-    <div style={{ width: size, height: size }}
-      className="rounded-full bg-yellow-400 flex items-center justify-center text-black font-black flex-shrink-0 border-2 border-zinc-800"
-      style={{ width: size, height: size, fontSize: size * 0.4 }}>
+    <div
+      style={{ width: size, height: size, fontSize: size * 0.4 }}
+      className="rounded-full bg-yellow-400 flex items-center justify-center text-black font-black flex-shrink-0 border-2 border-zinc-800">
       {letter}
     </div>
   );

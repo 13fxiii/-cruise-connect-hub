@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import BottomNav from "@/components/layout/BottomNav";
 import InstallBanner from "@/components/layout/InstallBanner";
-import { AuthProvider } from "@/components/auth/AuthProvider";
+import AuthProvider from "@/components/auth/AuthProvider";
 import "./globals.css";
 
 export const viewport: Viewport = {

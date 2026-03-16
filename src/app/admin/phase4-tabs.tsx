@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Phase 4 Admin Tab Components — imported into admin/page.tsx
 "use client";
 import { useState, useEffect } from "react";

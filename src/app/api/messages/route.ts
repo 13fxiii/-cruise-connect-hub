@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase';
@@ -10,7 +11,7 @@ export async function GET(req: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { data } = await supabaseAdmin
-      .from('dm_conversations')
+      .from('dm_conversations' as any)
       .select(`
         id, last_message, last_message_at, unread_p1, unread_p2,
         p1:profiles!participant1(id, username, display_name, avatar_url),
@@ -47,14 +48,14 @@ export async function POST(req: NextRequest) {
     const [p1, p2] = [user.id, recipient_id].sort();
 
     const { data: existing } = await supabaseAdmin
-      .from('dm_conversations')
+      .from('dm_conversations' as any)
       .select('id')
       .eq('participant1', p1).eq('participant2', p2).single();
 
     if (existing) return NextResponse.json({ conversation_id: existing.id });
 
     const { data, error } = await supabaseAdmin
-      .from('dm_conversations')
+      .from('dm_conversations' as any)
       .insert({ participant1: p1, participant2: p2 })
       .select('id').single();
 

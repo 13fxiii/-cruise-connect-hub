@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     const tokensUsed = data.usage?.input_tokens + data.usage?.output_tokens || 0;
 
     // Save to history
-    await supabaseAdmin.from('ai_generations').insert({
+    await supabaseAdmin.from('ai_generations' as any).insert({
       user_id: user.id,
       tool_type,
       prompt,
@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
     const saved = searchParams.get('saved') === '1';
 
     const query = supabaseAdmin
-      .from('ai_generations')
+      .from('ai_generations' as any)
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })

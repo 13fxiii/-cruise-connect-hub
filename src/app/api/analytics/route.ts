@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase';
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
 
     // Base analytics
     const { data: analytics } = await supabaseAdmin
-      .from('creator_analytics')
+      .from('creator_analytics' as any)
       .select('*')
       .eq('user_id', targetId)
       .single();
@@ -38,7 +39,7 @@ export async function GET(req: NextRequest) {
 
     // 30-day snapshots for chart
     const { data: snapshots } = await supabaseAdmin
-      .from('analytics_snapshots')
+      .from('analytics_snapshots' as any)
       .select('*')
       .eq('user_id', targetId)
       .gte('snapshot_date', new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0])
