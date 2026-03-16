@@ -292,7 +292,7 @@ export default function OnboardingPage() {
                 </div>
                 <div className="text-right">
                   <div className="text-zinc-600 text-[9px]">cruise-connect-hub.vercel.app</div>
-                  <div className="text-zinc-600 text-[9px]">@CCHub_ on X</div>
+                  <div className="text-zinc-600 text-[9px]">@TheCruiseCH on X</div>
                   <div className="text-zinc-600 text-[9px]">Issued {new Date().toLocaleDateString("en-GB")}</div>
                 </div>
               </div>
@@ -311,7 +311,7 @@ export default function OnboardingPage() {
                   <div className="text-yellow-400 text-xs">CC Hub Member · {cardNum}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-zinc-400 text-[10px]">@CCHub_</div>
+                  <div className="text-zinc-400 text-[10px]">@TheCruiseCH</div>
                   <div className="text-zinc-600 text-[9px]">cruise-connect-hub.vercel.app</div>
                 </div>
               </div>
@@ -322,7 +322,7 @@ export default function OnboardingPage() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => {
-                  const text = `I just joined Cruise Connect Hub〽️!\n\n🆔 ${cardNum}\n👤 ${form.display_name} (@${form.username})\n🌱 Newcomer\n\nJoin the wave 👉 @CCHub_\n#CruiseAndConnect #CCHub`;
+                  const text = `I just joined Cruise Connect Hub〽️!\n\n🆔 ${cardNum}\n👤 ${form.display_name} (@${form.username})\n🌱 Newcomer\n\nJoin the wave 👉 @TheCruiseCH\n#CruiseAndConnect #CCHub`;
                   if (navigator.share) navigator.share({ text });
                   else { navigator.clipboard.writeText(text); alert("Copied to clipboard!"); }
                 }}

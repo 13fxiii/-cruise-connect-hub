@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function ProfileEditPage() {
   const [form, setForm] = useState({
     display_name:"FX〽️", username:"13fxiii", twitter_handle:"@13fxiii",
-    bio:"Lagos creative hustler. Social media marketer, A&R in the making. @CCHub_ founder.",
+    bio:"Lagos creative hustler. Social media marketer, A&R in the making. @TheCruiseCH founder.",
     avatar_url:"",
   });
   const [saved, setSaved] = useState(false);

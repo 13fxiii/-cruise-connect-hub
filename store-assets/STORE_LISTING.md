@@ -24,7 +24,7 @@ Cruise & Connect Hub〽️ is the ultimate Nigerian digital community — where 
 • Leaderboard — rise through Newcomer, Cruiser, Connector, Hub Star, Culture King, Community Legend
 
 👑 3,000+ MEMBERS STRONG
-Join the fastest-growing Naija community online. @CCHub_ on X.
+Join the fastest-growing Naija community online. @TheCruiseCH on X.
 
 ## Category
 - Primary: Social Networking
@@ -41,7 +41,7 @@ naija, nigeria, community, afrobeats, amapiano, games, ludo, music, spaces, jobs
 1.0.0
 
 ## Support URL
-https://x.com/CCHub_
+https://x.com/TheCruiseCH
 
 ## Privacy Policy URL
 https://cruise-connect-hub.vercel.app/privacy

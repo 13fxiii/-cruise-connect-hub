@@ -181,7 +181,7 @@ export default function SpinWheelPage() {
             <div className="text-4xl">{result.emoji}</div>
             <h2 className="text-2xl font-black text-white">{result.label}</h2>
             {result.label.includes("Cash")||result.label.includes("JACKPOT")?
-              <p className="text-zinc-400 text-sm">DM <span className="text-yellow-400 font-bold">@CCHub_</span> on X to claim your prize! 🏆</p>:
+              <p className="text-zinc-400 text-sm">DM <span className="text-yellow-400 font-bold">@TheCruiseCH</span> on X to claim your prize! 🏆</p>:
               dare?<p className="text-orange-400 font-bold text-sm">{dare}</p>:
               <p className="text-zinc-400 text-sm">You got: {result.label}</p>
             }

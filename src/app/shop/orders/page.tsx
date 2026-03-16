@@ -63,7 +63,7 @@ export default function OrdersPage() {
                     <span className="font-black text-white">₦{o.total_naira.toLocaleString()}</span>
                     <div className="flex gap-2">
                       <span className="text-xs text-zinc-600">#{o.id}</span>
-                      <a href="https://twitter.com/CCHub_" target="_blank" rel="noopener noreferrer"
+                      <a href="https://twitter.com/TheCruiseCH" target="_blank" rel="noopener noreferrer"
                         className="text-xs text-yellow-400 hover:underline flex items-center gap-1">
                         Support <ExternalLink className="w-3 h-3"/>
                       </a>
@@ -78,7 +78,7 @@ export default function OrdersPage() {
         <div className="mt-8 bg-zinc-900 border border-zinc-800 rounded-xl p-5 text-sm text-zinc-400">
           <p className="font-bold text-white mb-1">Delivery Info</p>
           <p>Lagos: 2–4 business days · Abuja/PH: 3–5 days · Other states: 5–7 days.</p>
-          <p className="mt-1">Questions? DM <a href="https://twitter.com/CCHub_" className="text-yellow-400">@CCHub_</a> on X.</p>
+          <p className="mt-1">Questions? DM <a href="https://twitter.com/TheCruiseCH" className="text-yellow-400">@TheCruiseCH</a> on X.</p>
         </div>
       </main>
     </div>

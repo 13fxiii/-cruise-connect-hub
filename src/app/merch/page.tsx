@@ -32,7 +32,7 @@ const LOGO_TEXTS = [
   "CRUISE CONNECT HUB〽️",
   "CC HUB〽️",
   "CRUISE〽️",
-  "@CCHub_",
+  "@TheCruiseCH",
   "COMMUNITY FIRST 🚌",
 ];
 

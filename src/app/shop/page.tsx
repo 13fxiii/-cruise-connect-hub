@@ -126,7 +126,7 @@ export default function ShopPage() {
               <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
                 <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2"/>
                 <p className="font-black text-white">Order received! 🎉</p>
-                <p className="text-xs text-zinc-400 mt-1">DM <span className="text-yellow-400">@CCHub_</span> with your payment receipt to confirm</p>
+                <p className="text-xs text-zinc-400 mt-1">DM <span className="text-yellow-400">@TheCruiseCH</span> with your payment receipt to confirm</p>
               </div>
             ):checkoutItem?(
               <div className="space-y-3">
@@ -197,8 +197,8 @@ export default function ShopPage() {
             </div>
             <div className="mt-6 bg-zinc-900 border border-zinc-800 rounded-xl p-5 text-center">
               <p className="text-zinc-400 text-sm mb-3">Confirm order via DM · Pay after confirmation</p>
-              <a href="https://twitter.com/CCHub_" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-yellow-400 text-black font-black px-6 py-3 rounded-full hover:bg-yellow-300">
-                DM to Order @CCHub_ <ExternalLink className="w-4 h-4"/>
+              <a href="https://twitter.com/TheCruiseCH" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-yellow-400 text-black font-black px-6 py-3 rounded-full hover:bg-yellow-300">
+                DM to Order @TheCruiseCH <ExternalLink className="w-4 h-4"/>
               </a>
             </div>
           </>

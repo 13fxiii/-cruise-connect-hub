@@ -106,7 +106,7 @@ const MOVIES = [
 const GENRES = ["All","Nollywood","Comedy","Drama","Action","Thriller","Series","Classic"];
 
 const WATCH_NIGHTS = [
-  { id:"1", title:"Friday Movie Night 🎬", movie:"Coming to America", host:"@CCHub_",
+  { id:"1", title:"Friday Movie Night 🎬", movie:"Coming to America", host:"@TheCruiseCH",
     scheduled:"Fri 9PM WAT", rsvp:47, active:true,
     youtube_id:"oN7YzrLKpW0",
     space_url:"https://x.com/i/communities/1897164314764579242" },

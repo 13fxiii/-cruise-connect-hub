@@ -194,7 +194,7 @@ export default function JobsPage() {
                 <button onClick={submitJob} disabled={posting||!form.title||!form.company||!form.description} className="w-full bg-yellow-400 text-black font-black py-4 rounded-full hover:bg-yellow-300 disabled:opacity-50 flex items-center justify-center gap-2">
                   {posting?<><Loader2 className="w-4 h-4 animate-spin"/>Posting...</>:<><Send className="w-4 h-4"/>Post Job — FREE</>}
                 </button>
-                <p className="text-xs text-zinc-500 text-center">Featured listing: <span className="text-yellow-400">@CCHub_</span> — ₦10,000/week</p>
+                <p className="text-xs text-zinc-500 text-center">Featured listing: <span className="text-yellow-400">@TheCruiseCH</span> — ₦10,000/week</p>
               </div>
             )}
           </div>

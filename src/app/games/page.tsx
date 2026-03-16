@@ -305,7 +305,7 @@ export default function GamesPage() {
                   { step:"1", label:"Play your game",              desc:"Console, PC, or mobile — play normally" },
                   { step:"2", label:"Screenshot your result",      desc:"Take a screenshot of your score/rank after the match" },
                   { step:"3", label:"Post in CC Hub Community",    desc:"Share on X with #CCHubGames + your score" },
-                  { step:"4", label:"Get ranked on leaderboard",   desc:"@CCHub_ tracks weekly scores and posts rankings every Sunday" },
+                  { step:"4", label:"Get ranked on leaderboard",   desc:"@TheCruiseCH tracks weekly scores and posts rankings every Sunday" },
                 ].map(({ step, label, desc }) => (
                   <div key={step} className="flex items-start gap-3">
                     <span className="w-6 h-6 rounded-full bg-yellow-400 text-black text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">

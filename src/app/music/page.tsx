@@ -341,7 +341,7 @@ export default function MusicPage() {
                   <Music2 size={15} /> Submit Track for Review
                 </button>
               </div>
-              <p className="text-zinc-600 text-xs mt-3 text-center">Review takes 24-48 hours. Featured tracks get a shoutout on @CCHub_</p>
+              <p className="text-zinc-600 text-xs mt-3 text-center">Review takes 24-48 hours. Featured tracks get a shoutout on @TheCruiseCH</p>
             </div>
           </div>
         )}

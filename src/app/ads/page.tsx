@@ -63,7 +63,7 @@ export default function AdsPage() {
           <div className="card text-left mb-6">
             <p className="text-sm text-cch-muted mb-1">Payment to:</p>
             <p className="text-white font-bold text-lg">13FXIII</p>
-            <p className="text-cch-muted text-sm">On all platforms @CCHub_</p>
+            <p className="text-cch-muted text-sm">On all platforms @TheCruiseCH</p>
           </div>
           <button onClick={() => setSuccess(false)} className="btn-outline text-sm">
             Submit Another
@@ -183,8 +183,8 @@ export default function AdsPage() {
 
             <p className="text-center text-cch-muted text-xs">
               Payment details will be shared after review. Questions? DM{" "}
-              <a href="https://x.com/CCHub_" target="_blank" rel="noopener noreferrer" className="text-cch-gold hover:underline inline-flex items-center gap-0.5">
-                @CCHub_ <ExternalLink size={10} />
+              <a href="https://x.com/TheCruiseCH" target="_blank" rel="noopener noreferrer" className="text-cch-gold hover:underline inline-flex items-center gap-0.5">
+                @TheCruiseCH <ExternalLink size={10} />
               </a>
             </p>
           </form>

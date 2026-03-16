@@ -10,7 +10,7 @@ const PARTY = {
   title: "Friday Movie Night 🎬",
   movie: "Coming to America (1988)",
   youtube_id: "UPhkG58fCb8", // Coming to America trailer/film
-  host: "@CCHub_",
+  host: "@TheCruiseCH",
   status: "live",
   viewer_count: 247,
   twitter_space_url: "https://x.com/i/spaces/",
@@ -22,7 +22,7 @@ const SEED_CHAT = [
   { id:"c2", user:"@13fxiii", msg:"Akeem is literally all of us in the West 🫡", time:"2m ago" },
   { id:"c3", user:"@naijagamer", msg:"That suit shop scene 💀💀", time:"1m ago" },
   { id:"c4", user:"@thrillseeka", msg:"Eddie Murphy was on another level", time:"1m ago" },
-  { id:"c5", user:"@lagosqueen", msg:"Who invited us to this watch party?? Thank you @CCHub_ 🙏🏾", time:"45s ago" },
+  { id:"c5", user:"@lagosqueen", msg:"Who invited us to this watch party?? Thank you @TheCruiseCH 🙏🏾", time:"45s ago" },
   { id:"c6", user:"@abuja_plug", msg:"LMAOO the barbershop debates!!!", time:"30s ago" },
   { id:"c7", user:"@waveyboss", msg:"Next week let's do Coming 2 America", time:"15s ago" },
 ];

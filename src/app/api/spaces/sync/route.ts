@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     }
 
     const TWITTER_BEARER = process.env.TWITTER_BEARER_TOKEN;
-    const COMMUNITY_HANDLE = process.env.COMMUNITY_X_HANDLE || '13fxiii';
+    const COMMUNITY_HANDLE = process.env.COMMUNITY_X_HANDLE || 'TheCruiseCH';
     
     if (!TWITTER_BEARER) {
       return NextResponse.json({ error: 'Twitter Bearer token not configured' }, { status: 500 });

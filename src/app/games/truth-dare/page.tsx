@@ -108,7 +108,7 @@ const DARES: Record<Category,string[]> = {
     "Screenshot your screen time and show everyone in this chat 📊",
     "Dramatically re-enact your most embarrassing moment this year 🎭",
     "Show the group your most embarrassing text conversation 😅",
-    "Post on your story: 'I have a confession — I'm joining C&C Hub 🚌' and tag @CCHub_",
+    "Post on your story: 'I have a confession — I'm joining C&C Hub 🚌' and tag @TheCruiseCH",
     "Send a heartfelt apology to someone you've wronged — in this chat 💙",
     "Show us your most liked post and most embarrassing post side by side 😂",
   ]

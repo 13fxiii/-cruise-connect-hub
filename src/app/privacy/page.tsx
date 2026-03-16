@@ -11,7 +11,7 @@ export default function PrivacyPage() {
   const lastUpdated = 'March 15, 2026';
   const appName    = 'Cruise & Connect Hub〽️';
   const appUrl     = 'https://cruise-connect-hub.vercel.app';
-  const contact    = '@CCHub_ on X';
+  const contact    = '@TheCruiseCH on X';
 
   const sections = [
     {
@@ -107,7 +107,7 @@ export default function PrivacyPage() {
       content: [
         {
           sub: 'Access & Portability',
-          body: 'You can request a copy of all data we hold about you by contacting us at @CCHub_ on X.',
+          body: 'You can request a copy of all data we hold about you by contacting us at @TheCruiseCH on X.',
         },
         {
           sub: 'Correction',
@@ -259,7 +259,7 @@ export default function PrivacyPage() {
             Questions about this policy?
           </p>
           <a
-            href="https://x.com/CCHub_"
+            href="https://x.com/TheCruiseCH"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-yellow-400 text-black font-black text-sm px-6 py-2.5 rounded-xl hover:bg-yellow-300 transition-colors"
@@ -267,7 +267,7 @@ export default function PrivacyPage() {
             <svg className="w-4 h-4 fill-black" viewBox="0 0 24 24">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
             </svg>
-            Contact @CCHub_
+            Contact @TheCruiseCH
           </a>
           <p className="text-zinc-600 text-xs mt-4">
             © 2026 Cruise & Connect Hub〽️ · All rights reserved

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   applicationName: "CC Hub",
   keywords: ["Naija community", "Cruise Connect", "live spaces", "Nigerian culture", "online community"],
   authors: [{ name: "Cruise Connect Hub", url: "https://cruise-connect-hub.vercel.app" }],
-  creator: "@CCHub_",
+  creator: "@TheCruiseCH",
   publisher: "Cruise Connect Hub",
 
   // PWA
@@ -62,12 +62,12 @@ export const metadata: Metadata = {
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Cruise Connect Hub" }],
     type: "website",
     locale: "en_NG",
-    url: "https://cruise-connect-hub.netlify.app",
+    url: "https://cruise-connect-hub.vercel.app",
   },
   twitter: {
     card: "summary_large_image",
-    creator: "@CCHub_",
-    site: "@CCHub_",
+    creator: "@TheCruiseCH",
+    site: "@TheCruiseCH",
     title: "Cruise Connect Hub〽️",
     description: "The home of Naija culture online.",
     images: ["/og-image.png"],

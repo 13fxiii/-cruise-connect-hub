@@ -35,12 +35,12 @@ function generateID(handle:string):string{
 }
 
 const SHARE_TEXTS: Record<string,(d:{id:string;name:string;handle:string;level:string;badge:string;points:number;joined:string;badges:string[]})=>string> = {
-  x:d=>`Just copped my official C&C Hub Community ID 🚌✨\n\n🆔 ${d.id}\n👤 ${d.name} (${d.handle})\n${d.badge} ${d.level} · ${d.points.toLocaleString()} pts\n📅 Member since ${d.joined}\n\n${d.badges.slice(0,3).join(" · ")}\n\nJoin the wave 👉 @CCHub_\n#CruiseAndConnect #CCHub #NaijaCommunity`,
-  instagram:d=>`My C&C Hub Member Card 🚌✨\n\n🆔 ${d.id}\n${d.badge} ${d.level}\n${d.points.toLocaleString()} community points\n\n${d.badges.join(" ")}\n\nJoin: @CCHub_\n.\n.\n#CruiseAndConnect #CCHub #NaijaCommunity #Lagos #Naija`,
-  whatsapp:d=>`Hey! Check out my Cruise & Connect Hub Community ID 🚌\n\n🆔 ${d.id}\n👤 ${d.name}\n${d.badge} ${d.level}\n⭐ ${d.points.toLocaleString()} points\n\n${d.badges.join(" · ")}\n\nJoin the community 👉 search @CCHub_ on X`,
-  telegram:d=>`🚌 My C&C Hub Community ID\n\n🆔 ${d.id}\n👤 ${d.name} (${d.handle})\n${d.badge} ${d.level} – ${d.points.toLocaleString()} pts\n\n${d.badges.join(" · ")}\n\nFind us: @CCHub_ on X`,
-  tiktok:d=>`C&C Hub ID: ${d.id} 🚌 // ${d.badge} ${d.level} // ${d.points.toLocaleString()} pts // @CCHub_ // #CruiseAndConnect #CCHub #Naija`,
-  facebook:d=>`Just joined the Cruise & Connect Hub community! 🚌\n\nMy member ID: ${d.id}\nLevel: ${d.badge} ${d.level}\nPoints: ${d.points.toLocaleString()}\n\n${d.badges.join(" · ")}\n\nFind us on X: @CCHub_`,
+  x:d=>`Just copped my official C&C Hub Community ID 🚌✨\n\n🆔 ${d.id}\n👤 ${d.name} (${d.handle})\n${d.badge} ${d.level} · ${d.points.toLocaleString()} pts\n📅 Member since ${d.joined}\n\n${d.badges.slice(0,3).join(" · ")}\n\nJoin the wave 👉 @TheCruiseCH\n#CruiseAndConnect #CCHub #NaijaCommunity`,
+  instagram:d=>`My C&C Hub Member Card 🚌✨\n\n🆔 ${d.id}\n${d.badge} ${d.level}\n${d.points.toLocaleString()} community points\n\n${d.badges.join(" ")}\n\nJoin: @TheCruiseCH\n.\n.\n#CruiseAndConnect #CCHub #NaijaCommunity #Lagos #Naija`,
+  whatsapp:d=>`Hey! Check out my Cruise & Connect Hub Community ID 🚌\n\n🆔 ${d.id}\n👤 ${d.name}\n${d.badge} ${d.level}\n⭐ ${d.points.toLocaleString()} points\n\n${d.badges.join(" · ")}\n\nJoin the community 👉 search @TheCruiseCH on X`,
+  telegram:d=>`🚌 My C&C Hub Community ID\n\n🆔 ${d.id}\n👤 ${d.name} (${d.handle})\n${d.badge} ${d.level} – ${d.points.toLocaleString()} pts\n\n${d.badges.join(" · ")}\n\nFind us: @TheCruiseCH on X`,
+  tiktok:d=>`C&C Hub ID: ${d.id} 🚌 // ${d.badge} ${d.level} // ${d.points.toLocaleString()} pts // @TheCruiseCH // #CruiseAndConnect #CCHub #Naija`,
+  facebook:d=>`Just joined the Cruise & Connect Hub community! 🚌\n\nMy member ID: ${d.id}\nLevel: ${d.badge} ${d.level}\nPoints: ${d.points.toLocaleString()}\n\n${d.badges.join(" · ")}\n\nFind us on X: @TheCruiseCH`,
 };
 
 export default function CommunityIDPage() {
@@ -91,8 +91,8 @@ export default function CommunityIDPage() {
     const urls:Record<string,string>={
       x:`https://twitter.com/intent/tweet?text=${text}`,
       whatsapp:`https://wa.me/?text=${text}`,
-      telegram:`https://t.me/share/url?url=https://cruise-connect-hub.netlify.app&text=${text}`,
-      facebook:`https://www.facebook.com/sharer/sharer.php?u=https://cruise-connect-hub.netlify.app&quote=${text}`,
+      telegram:`https://t.me/share/url?url=https://cruise-connect-hub.vercel.app&text=${text}`,
+      facebook:`https://www.facebook.com/sharer/sharer.php?u=https://cruise-connect-hub.vercel.app&quote=${text}`,
     };
     if(urls[platform]) window.open(urls[platform],"_blank");
     else copyForPlatform(platform);
@@ -238,7 +238,7 @@ export default function CommunityIDPage() {
 
               {/* Footer */}
               <div className="mt-5 pt-4 border-t border-zinc-800 flex items-center justify-between">
-                <span className="text-zinc-600 text-xs">@CCHub_ on X</span>
+                <span className="text-zinc-600 text-xs">@TheCruiseCH on X</span>
                 <span className="text-zinc-600 text-xs">cruise-connect-hub.vercel.app</span>
               </div>
             </div>
@@ -379,10 +379,10 @@ export default function CommunityIDPage() {
               <h3 className="text-yellow-400 font-black mb-3">📋 Universal Copy (works everywhere)</h3>
               <div className="bg-zinc-800 rounded-xl p-4 mb-3">
                 <p className="text-zinc-300 text-sm whitespace-pre-line">
-                  {`🚌 C&C Hub Member Card\n\n🆔 ${memberId}\n👤 ${displayName} (${handle})\n${level.badge} ${level.name} · ${points.toLocaleString()} pts\n📅 Since ${joinedMonth}\n\n${selectedBadges.join(" · ")}\n\n@CCHub_ on X | #CruiseAndConnect`}
+                  {`🚌 C&C Hub Member Card\n\n🆔 ${memberId}\n👤 ${displayName} (${handle})\n${level.badge} ${level.name} · ${points.toLocaleString()} pts\n📅 Since ${joinedMonth}\n\n${selectedBadges.join(" · ")}\n\n@TheCruiseCH on X | #CruiseAndConnect`}
                 </p>
               </div>
-              <button onClick={()=>{navigator.clipboard?.writeText(`🚌 C&C Hub Member Card\n\n🆔 ${memberId}\n👤 ${displayName} (${handle})\n${level.badge} ${level.name} · ${points.toLocaleString()} pts\n📅 Since ${joinedMonth}\n\n${selectedBadges.join(" · ")}\n\n@CCHub_ on X | #CruiseAndConnect`);setCopied("all");setTimeout(()=>setCopied(null),2500);}}
+              <button onClick={()=>{navigator.clipboard?.writeText(`🚌 C&C Hub Member Card\n\n🆔 ${memberId}\n👤 ${displayName} (${handle})\n${level.badge} ${level.name} · ${points.toLocaleString()} pts\n📅 Since ${joinedMonth}\n\n${selectedBadges.join(" · ")}\n\n@TheCruiseCH on X | #CruiseAndConnect`);setCopied("all");setTimeout(()=>setCopied(null),2500);}}
                 className={`w-full py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 ${copied==="all"?"bg-green-500/20 border border-green-500 text-green-400":"bg-yellow-400 text-black hover:bg-yellow-300"}`}>
                 {copied==="all"?<><Check className="w-4 h-4"/>Copied to clipboard!</>:<><Copy className="w-4 h-4"/>Copy for Any Platform</>}
               </button>

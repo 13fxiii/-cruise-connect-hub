@@ -26,7 +26,7 @@ export default function VendorApplyPage() {
         body: JSON.stringify({ action:"vendor_apply", ...form }),
       });
       setDone(true);
-    } catch { setErr("Something went wrong. DM @CCHub_ on X instead."); }
+    } catch { setErr("Something went wrong. DM @TheCruiseCH on X instead."); }
     finally { setLoading(false); }
   };
 
@@ -38,7 +38,7 @@ export default function VendorApplyPage() {
         </div>
         <h2 className="text-2xl font-black text-white mb-2">Application Submitted! 🎉</h2>
         <p className="text-zinc-400 mb-2">We'll review your application within 24–48 hours.</p>
-        <p className="text-zinc-400 mb-8">Watch for a DM from <span className="text-yellow-400">@CCHub_</span> on X.</p>
+        <p className="text-zinc-400 mb-8">Watch for a DM from <span className="text-yellow-400">@TheCruiseCH</span> on X.</p>
         <Link href="/shop" className="bg-yellow-400 text-black font-black px-8 py-3 rounded-full hover:bg-yellow-300 transition-colors">
           Back to Shop
         </Link>

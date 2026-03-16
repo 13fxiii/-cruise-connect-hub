@@ -110,7 +110,7 @@ export default function AdminPage() {
               <LayoutDashboard size={20} className="text-yellow-400" />
               Admin Panel
             </h1>
-            <p className="text-zinc-500 text-xs mt-0.5">Cruise Connect Hub〽️ · @13fxiii</p>
+            <p className="text-zinc-500 text-xs mt-0.5">Cruise Connect Hub〽️ · @TheCruiseCH</p>
           </div>
           <span className="bg-yellow-400/10 border border-yellow-400/20 text-yellow-400 text-xs font-bold px-3 py-1 rounded-full">
             👑 Super Admin
@@ -449,12 +449,12 @@ function AnnouncementsTab() {
   const [copied, setCopied] = useState(false);
 
   const TEMPLATES = [
-    { label:"🎮 Game Night",      text:"🎮 GAME NIGHT ALERT!\n\nCC Hub Game Night is LIVE tonight 9PM WAT!\n\nTrivia · Ludo · Prizes up for grabs 🏆\n\nJoin the community now 👇\nhttps://cruise-connect-hub.netlify.app/games\n\n#CruiseConnect #CCHub #NaijaGames" },
+    { label:"🎮 Game Night",      text:"🎮 GAME NIGHT ALERT!\n\nCC Hub Game Night is LIVE tonight 9PM WAT!\n\nTrivia · Ludo · Prizes up for grabs 🏆\n\nJoin the community now 👇\nhttps://cruise-connect-hub.vercel.app/games\n\n#CruiseConnect #CCHub #NaijaGames" },
     { label:"🎤 X Space",         text:"🎤 X SPACE STARTING NOW!\n\nDrop what you're doing — we're live!\n\nCome through 👇\nhttps://x.com/i/communities/1897164314764579242\n\n#CruiseConnect #CCHub #NaijaTwitter" },
-    { label:"📣 New Feature",     text:"📣 BIG ANNOUNCEMENT!\n\nNew feature just dropped on the CC Hub app 🚀\n\nCheck it out 👇\nhttps://cruise-connect-hub.netlify.app\n\n#CruiseConnect #CCHub" },
-    { label:"🏆 Winner",          text:"🏆 WE HAVE A WINNER!\n\nBig ups to today's champion 👑\n\nWant to be next? Join the hub 👇\nhttps://cruise-connect-hub.netlify.app/games\n\n#CruiseConnect #CCHub #NaijaWinner" },
-    { label:"🎂 Anniversary",     text:"🎂 1 YEAR OF CRUISING!\n\nOne year. 3,000+ members. Infinite gists.\n\nThank you for riding with us 🙏🚌\n\nhttps://cruise-connect-hub.netlify.app\n\n#CruiseConnect #CCHub #NaijaCommunity" },
-    { label:"💼 Job Alert",       text:"💼 JOB ALERT!\n\nNew opportunity just posted on CC Hub Jobs Board.\n\nNaija creatives & tech folks — this one's for you 👇\nhttps://cruise-connect-hub.netlify.app/jobs\n\n#CruiseConnect #CCHub #NaijaJobs" },
+    { label:"📣 New Feature",     text:"📣 BIG ANNOUNCEMENT!\n\nNew feature just dropped on the CC Hub app 🚀\n\nCheck it out 👇\nhttps://cruise-connect-hub.vercel.app\n\n#CruiseConnect #CCHub" },
+    { label:"🏆 Winner",          text:"🏆 WE HAVE A WINNER!\n\nBig ups to today's champion 👑\n\nWant to be next? Join the hub 👇\nhttps://cruise-connect-hub.vercel.app/games\n\n#CruiseConnect #CCHub #NaijaWinner" },
+    { label:"🎂 Anniversary",     text:"🎂 1 YEAR OF CRUISING!\n\nOne year. 3,000+ members. Infinite gists.\n\nThank you for riding with us 🙏🚌\n\nhttps://cruise-connect-hub.vercel.app\n\n#CruiseConnect #CCHub #NaijaCommunity" },
+    { label:"💼 Job Alert",       text:"💼 JOB ALERT!\n\nNew opportunity just posted on CC Hub Jobs Board.\n\nNaija creatives & tech folks — this one's for you 👇\nhttps://cruise-connect-hub.vercel.app/jobs\n\n#CruiseConnect #CCHub #NaijaJobs" },
   ];
 
   const copy = () => {

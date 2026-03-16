@@ -69,7 +69,7 @@ export default function ProfilePage() {
     : 100;
 
   const copyRef = () => {
-    navigator.clipboard.writeText(`https://cruise-connect-hub.netlify.app?ref=${profile.referral_code}`);
+    navigator.clipboard.writeText(`https://cruise-connect-hub.vercel.app?ref=${profile.referral_code}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -201,7 +201,7 @@ export default function ProfilePage() {
               <p className="text-zinc-400 text-sm mb-3">Share your link. When they join and deposit, you both earn ₦1,000.</p>
               <div className="flex items-center gap-2 bg-zinc-900/50 rounded-xl p-3 border border-zinc-700">
                 <code className="text-yellow-400 text-xs flex-1 truncate">
-                  cruise-connect-hub.netlify.app?ref={profile.referral_code}
+                  cruise-connect-hub.vercel.app?ref={profile.referral_code}
                 </code>
                 <button onClick={copyRef} className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors">
                   {copied ? <><CheckCheck size={14} className="text-green-400" /> Copied!</> : <><Copy size={14} /> Copy</>}
