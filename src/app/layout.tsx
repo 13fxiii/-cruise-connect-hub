@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import BottomNav from "@/components/layout/BottomNav";
 import InstallBanner from "@/components/layout/InstallBanner";
 import "./globals.css";
 
@@ -117,7 +117,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </div>
         {/* Mobile bottom tab bar */}
-        <MobileBottomNav />
+        <BottomNav />
         {/* Service worker */}
         <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {

@@ -6,24 +6,25 @@ import { useState, useEffect } from "react";
 import {
   Menu, X, Rss, Megaphone, Mic, Gamepad2, Wallet, User,
   Music, Film, ShoppingBag, Briefcase, ChevronDown, Bell,
-  Trophy, Star, LayoutDashboard, Shirt, Radio
+  Trophy, Star, LayoutDashboard, Shirt, Radio, Zap
 } from "lucide-react";
 
 const PRIMARY_LINKS = [
-  { href: "/feed",   label: "Feed",   icon: Rss },
-  { href: "/spaces", label: "Spaces", icon: Mic },
-  { href: "/games",  label: "Games",  icon: Gamepad2 },
-  { href: "/wallet", label: "Wallet", icon: Wallet },
+  { href: "/feed",   label: "Home",  icon: Rss },
+  { href: "/spaces", label: "Live",  icon: Radio },
+  { href: "/games",  label: "Play",  icon: Gamepad2 },
+  { href: "/earn",   label: "Earn",  icon: Zap },
 ];
 
 const MORE_LINKS = [
-  { href: "/games/tournament", label: "Tournaments",   icon: Trophy },
-  { href: "/music",            label: "Music Hub",     icon: Music },
-  { href: "/movies",           label: "Movie Hub",     icon: Film },
-  { href: "/shop",             label: "C&C Shop",      icon: ShoppingBag },
-  { href: "/jobs",             label: "Jobs Board",    icon: Briefcase },
-  { href: "/ads",              label: "PR/ADS",        icon: Megaphone },
-  { href: "/community-id",     label: "Community ID",  icon: Star },
+  { href: "/music",            label: "Music Hub",      icon: Music },
+  { href: "/movies",           label: "Movie Hub",      icon: Film },
+  { href: "/wallet",           label: "Wallet",         icon: Wallet },
+  { href: "/games/tournament", label: "Tournaments",    icon: Trophy },
+  { href: "/shop",             label: "C&C Shop",       icon: ShoppingBag },
+  { href: "/jobs",             label: "Jobs Board",     icon: Briefcase },
+  { href: "/ads",              label: "PR/ADS",         icon: Megaphone },
+  { href: "/community-id",     label: "Community ID",   icon: Star },
   { href: "/merch",            label: "Merch Designer", icon: Shirt },
   { href: "/moderator",        label: "Mod Dashboard",  icon: Radio },
 ];
