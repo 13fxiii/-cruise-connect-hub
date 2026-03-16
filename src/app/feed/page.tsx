@@ -58,7 +58,7 @@ export default async function FeedPage() {
             {!session && (
               <div className="card mb-4 text-center py-6">
                 <p className="text-cch-muted text-sm mb-3">Join to post and interact with the community</p>
-                <Link href="/auth/signin" className="btn-gold text-sm inline-flex">
+                <Link href="/auth/login" className="btn-gold text-sm inline-flex">
                   Join the Cruise 🚀
                 </Link>
               </div>

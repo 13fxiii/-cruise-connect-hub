@@ -16,16 +16,16 @@ export async function auth() {
         },
       },
     });
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return null;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
     return {
       user: {
-        id: session.user.id,
-        email: session.user.email,
-        name: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
-        image: session.user.user_metadata?.avatar_url,
-        role: session.user.user_metadata?.role || 'member',
-        twitterHandle: session.user.user_metadata?.preferred_username,
+        id: user.id,
+        email: user.email,
+        name: user.user_metadata?.full_name || user.user_metadata?.name,
+        image: user.user_metadata?.avatar_url,
+        role: user.user_metadata?.role || 'member',
+        twitterHandle: user.user_metadata?.preferred_username,
       }
     };
   } catch {

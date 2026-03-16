@@ -31,7 +31,40 @@ export default function Navbar() {
   const [open, setOpen]         = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [unread, setUnread]     = useState(0);
+  const [user, setUser]         = useState<{ id: string; email?: string; avatar?: string; username?: string } | null>(null);
   const path = usePathname();
+
+  useEffect(() => {
+    // Get current session from Supabase client
+    import('@/lib/supabase/client').then(({ createClient }) => {
+      const supabase = createClient();
+      // Get initial session
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) {
+          setUser({
+            id: data.user.id,
+            email: data.user.email,
+            avatar: data.user.user_metadata?.avatar_url,
+            username: data.user.user_metadata?.username || data.user.user_metadata?.preferred_username,
+          });
+        }
+      });
+      // Listen for auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.user) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email,
+            avatar: session.user.user_metadata?.avatar_url,
+            username: session.user.user_metadata?.username || session.user.user_metadata?.preferred_username,
+          });
+        } else {
+          setUser(null);
+        }
+      });
+      return () => subscription.unsubscribe();
+    });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -125,12 +158,28 @@ export default function Navbar() {
           </Link>
           <Link href="/profile"
             className="text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-zinc-800 transition-colors">
-            <User size={16} />
+            {user?.avatar ? (
+              <img src={user.avatar} alt="profile" className="w-6 h-6 rounded-full object-cover" />
+            ) : (
+              <User size={16} />
+            )}
           </Link>
-          <Link href="/auth/login"
-            className="bg-yellow-400 text-black text-xs font-black px-3 py-1.5 rounded-full hover:bg-yellow-300 transition-colors">
-            Join Hub
-          </Link>
+          {user ? (
+            <button
+              onClick={async () => {
+                const { createClient } = await import('@/lib/supabase/client');
+                await createClient().auth.signOut();
+                window.location.href = '/';
+              }}
+              className="bg-zinc-800 text-zinc-300 text-xs font-bold px-3 py-1.5 rounded-full hover:bg-zinc-700 transition-colors">
+              Sign Out
+            </button>
+          ) : (
+            <Link href="/auth/login"
+              className="bg-yellow-400 text-black text-xs font-black px-3 py-1.5 rounded-full hover:bg-yellow-300 transition-colors">
+              Join Hub
+            </Link>
+          )}
         </div>
 
         {/* MOBILE MENU BUTTON */}
@@ -169,10 +218,23 @@ export default function Navbar() {
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-900">
               <User size={15} /> My Profile
             </Link>
-            <Link href="/auth/login" onClick={() => setOpen(false)}
-              className="block bg-yellow-400 text-black text-xs font-black py-2.5 rounded-xl text-center hover:bg-yellow-300 transition-colors">
-              Join Hub 🚌
-            </Link>
+            {user ? (
+              <button
+                onClick={async () => {
+                  setOpen(false);
+                  const { createClient } = await import('@/lib/supabase/client');
+                  await createClient().auth.signOut();
+                  window.location.href = '/';
+                }}
+                className="block w-full bg-zinc-800 text-zinc-300 text-xs font-bold py-2.5 rounded-xl text-center hover:bg-zinc-700 transition-colors">
+                Sign Out
+              </button>
+            ) : (
+              <Link href="/auth/login" onClick={() => setOpen(false)}
+                className="block bg-yellow-400 text-black text-xs font-black py-2.5 rounded-xl text-center hover:bg-yellow-300 transition-colors">
+                Join Hub 🚌
+              </Link>
+            )}
           </div>
         </div>
       )}
