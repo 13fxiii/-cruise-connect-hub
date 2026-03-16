@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import {
   Menu, X, Rss, Megaphone, Mic, Gamepad2, Wallet, User,
   Music, Film, ShoppingBag, Briefcase, ChevronDown, Bell,
-  Trophy, Star, LayoutDashboard, Shirt
+  Trophy, Star, LayoutDashboard, Shirt, Radio
 } from "lucide-react";
 
 const PRIMARY_LINKS = [
@@ -25,6 +25,7 @@ const MORE_LINKS = [
   { href: "/ads",              label: "PR/ADS",        icon: Megaphone },
   { href: "/community-id",     label: "Community ID",  icon: Star },
   { href: "/merch",            label: "Merch Designer", icon: Shirt },
+  { href: "/moderator",        label: "Mod Dashboard",  icon: Radio },
 ];
 
 export default function Navbar() {
