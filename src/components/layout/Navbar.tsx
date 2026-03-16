@@ -8,7 +8,8 @@ import { createClient } from "@/lib/supabase/client";
 import {
   Menu, X, Rss, Megaphone, Mic, Gamepad2, Wallet, User,
   Music, Film, ShoppingBag, Briefcase, ChevronDown, Bell,
-  Trophy, Star, LayoutDashboard, Shirt, Radio, Zap
+  Trophy, Star, LayoutDashboard, Shirt, Radio, Zap,
+  Sparkles, BarChart2, Vote, Building2
 } from "lucide-react";
 
 const PRIMARY_LINKS = [
@@ -23,6 +24,11 @@ const MORE_LINKS = [
   { href: "/movies",           label: "Movie Hub",      icon: Film },
   { href: "/wallet",           label: "Wallet",         icon: Wallet },
   { href: "/games/tournament", label: "Tournaments",    icon: Trophy },
+  { href: "/marketplace",      label: "Marketplace",    icon: ShoppingBag },
+  { href: "/ai-tools",         label: "AI Tools ✨",    icon: Sparkles },
+  { href: "/analytics",        label: "Analytics",      icon: BarChart2 },
+  { href: "/dao",              label: "DAO Voting",     icon: Vote },
+  { href: "/sponsors",         label: "Sponsorships",   icon: Building2 },
   { href: "/shop",             label: "C&C Shop",       icon: ShoppingBag },
   { href: "/jobs",             label: "Jobs Board",     icon: Briefcase },
   { href: "/ads",              label: "PR/ADS",         icon: Megaphone },
