@@ -66,7 +66,7 @@ export default function SubmitTrackPage() {
             </div>
           ))}
         </div>
-        <Link href="/music/artists" className="bg-yellow-400 text-black font-black px-6 py-3 rounded-full hover:bg-yellow-300">View Artist Hub</Link>
+        <Link href="/music" className="bg-yellow-400 text-black font-black px-6 py-3 rounded-full hover:bg-yellow-300">View Artist Hub</Link>
       </div>
     </div>
   );
@@ -76,7 +76,7 @@ export default function SubmitTrackPage() {
       <Navbar />
       <main className="max-w-xl mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
-          <Link href="/music/artists" className="text-zinc-500 hover:text-white"><ArrowLeft className="w-4 h-4" /></Link>
+          <Link href="/music" className="text-zinc-500 hover:text-white"><ArrowLeft className="w-4 h-4" /></Link>
           <h1 className="text-xl font-black text-white">Submit Your Track 🎵</h1>
         </div>
 

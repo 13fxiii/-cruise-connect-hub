@@ -75,6 +75,8 @@ export default function EarnPage() {
   const [txns, setTxns]           = useState<any[]>([]);
   const [copied, setCopied]       = useState(false);
   const [activeStream, setActiveStream] = useState<string|null>(null);
+  const [checkin, setCheckin]     = useState<any>(null);
+  const [checking, setChecking]   = useState(false);
   const supabase                  = createClient();
 
   useEffect(() => {
@@ -98,6 +100,11 @@ export default function EarnPage() {
         .order("created_at", { ascending: false })
         .limit(10);
       setTxns(t || []);
+
+      // Load checkin status
+      const cr = await fetch('/api/checkin');
+      const cd = await cr.json();
+      setCheckin(cd);
     };
     init();
   }, []);
@@ -119,6 +126,16 @@ export default function EarnPage() {
     if (type?.includes("withdraw")) return "💸";
     if (type?.includes("deposit")) return "💰";
     return "💳";
+  };
+
+  const doCheckin = async () => {
+    if (checking || checkin?.checked_in_today) return;
+    setChecking(true);
+    const res = await fetch('/api/checkin', { method: 'POST' });
+    const d = await res.json();
+    setCheckin(d);
+    if (d.points_earned) setProfile((p: any) => ({ ...p, points: (p?.points || 0) + d.points_earned }));
+    setChecking(false);
   };
 
   return (
@@ -172,6 +189,30 @@ export default function EarnPage() {
             </Link>
           </div>
         </div>
+
+        {/* Daily Check-in */}
+        {checkin && (
+          <div className={`rounded-2xl p-4 border flex items-center justify-between ${checkin.checked_in_today ? 'bg-green-400/5 border-green-400/20' : 'bg-yellow-400/10 border-yellow-400/30'}`}>
+            <div>
+              <p className="text-white font-bold text-sm">Daily Check-in 🔥</p>
+              <p className="text-zinc-400 text-xs mt-0.5">
+                {checkin.checked_in_today
+                  ? `✓ Done! +${checkin.points_earned || 10}pts · Streak: ${checkin.current_streak || 0}🔥`
+                  : `Streak: ${checkin.current_streak || 0}🔥 · Tap to earn +${checkin.next_bonus || 10}pts`}
+              </p>
+            </div>
+            <button
+              onClick={doCheckin}
+              disabled={checking || checkin.checked_in_today}
+              className={`px-4 py-2 rounded-xl text-sm font-black transition-all ${
+                checkin.checked_in_today
+                  ? 'bg-green-400/20 text-green-400 cursor-default'
+                  : 'bg-yellow-400 text-black hover:bg-yellow-300'
+              } disabled:opacity-60`}>
+              {checking ? '...' : checkin.checked_in_today ? '✓ Done' : 'Check In'}
+            </button>
+          </div>
+        )}
 
         {/* Earn Streams */}
         <div>

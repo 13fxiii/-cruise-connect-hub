@@ -7,9 +7,20 @@ export async function GET(request: NextRequest) {
   const code             = searchParams.get('code');
   const error            = searchParams.get('error');
   const errorDescription = searchParams.get('error_description');
+  const errorUri         = searchParams.get('error_uri');
 
+  // Log all params for debugging
+  console.log('[auth/callback]', {
+    hasCode: !!code,
+    error,
+    errorDescription,
+    allParams: Object.fromEntries(searchParams.entries()),
+  });
+
+  // X/Twitter OAuth error — usually means redirect URL mismatch in Supabase dashboard
   if (error) {
     const msg = encodeURIComponent(errorDescription || error);
+    console.error('[auth/callback] OAuth error:', error, errorDescription);
     return NextResponse.redirect(`${origin}/auth/login?error=${msg}`);
   }
 
@@ -17,23 +28,29 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!exchangeError && data?.user) {
-      // Check if this user has completed onboarding (has a display_name set)
+    if (exchangeError) {
+      console.error('[auth/callback] Code exchange failed:', exchangeError.message);
+      const msg = encodeURIComponent(exchangeError.message);
+      return NextResponse.redirect(`${origin}/auth/login?error=${msg}`);
+    }
+
+    if (data?.user) {
+      console.log('[auth/callback] Success, user:', data.user.id, 'email:', data.user.email);
+
+      // Check if new user (no display_name = hasn't done onboarding)
       const { data: profile } = await supabase
         .from('profiles')
         .select('display_name, username')
         .eq('id', data.user.id)
         .single();
 
-      // New user = no profile or no display_name → send to onboarding
       const isNewUser = !profile || !profile.display_name;
       const dest = isNewUser ? `${origin}/onboarding` : `${origin}/feed`;
+      console.log('[auth/callback] Redirecting to:', dest, '(isNewUser:', isNewUser, ')');
       return NextResponse.redirect(dest);
     }
-
-    const msg = encodeURIComponent(exchangeError?.message || 'Auth error');
-    return NextResponse.redirect(`${origin}/auth/login?error=${msg}`);
   }
 
+  // No code, no error — bare callback hit
   return NextResponse.redirect(`${origin}/feed`);
 }

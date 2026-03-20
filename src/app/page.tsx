@@ -10,7 +10,7 @@ export default function HomePage() {
     { icon: Megaphone,   label: "PR / ADS",     desc: "Reach 3K+ members",                  href: "/ads",      color: "text-purple-400", bg: "bg-purple-400/10", border: "border-purple-400/20" },
     { icon: Music,       label: "Music Hub",    desc: "Stream Naija on all platforms",       href: "/music",    color: "text-pink-400",   bg: "bg-pink-400/10",   border: "border-pink-400/20" },
     { icon: Film,        label: "Movie Hub",    desc: "Watch parties & Nollywood",           href: "/movies",   color: "text-blue-400",   bg: "bg-blue-400/10",   border: "border-blue-400/20" },
-    { icon: ShoppingBag, label: "C&C Shop",     desc: "Merch & community marketplace",       href: "/shop",     color: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/20" },
+    { icon: ShoppingBag, label: "CC Hub Store",     desc: "Merch & community marketplace",       href: "/marketplace",     color: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/20" },
     { icon: Briefcase,   label: "Jobs Board",   desc: "Naija creative & tech gigs",          href: "/jobs",     color: "text-cyan-400",   bg: "bg-cyan-400/10",   border: "border-cyan-400/20" },
   ];
 

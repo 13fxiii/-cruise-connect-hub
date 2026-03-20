@@ -31,8 +31,6 @@ const MORE_LINKS = [
   { href: "/dao",              label: "DAO Voting",     icon: Vote },
   { href: "/sponsors",         label: "Sponsorships",   icon: Building2 },
   { href: "/messages",         label: "Messages 💬",     icon: MessageCircle },
-  { href: "/music/artists",    label: "Artist Hub 🎵",   icon: Music },
-  { href: "/shop",             label: "C&C Shop",       icon: ShoppingBag },
   { href: "/jobs",             label: "Jobs Board",     icon: Briefcase },
   { href: "/ads",              label: "PR/ADS",         icon: Megaphone },
   { href: "/community-id",     label: "Community ID",   icon: Star },
