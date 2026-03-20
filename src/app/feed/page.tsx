@@ -59,10 +59,11 @@ function PostCard({ post, currentUserId, onLike }: { post: any; currentUserId?: 
   };
 
   const handleLike = async () => {
-    setLocalLiked(!localLiked);
-    setLocalLikes((n: number) => localLiked ? n - 1 : n + 1);
+    const wasLiked = localLiked;
+    setLocalLiked(!wasLiked);
+    setLocalLikes((n: number) => wasLiked ? n - 1 : n + 1);
     onLike(post.id);
-    await fetch(`/api/posts/${post.id}/like`, { method: "POST" });
+    await fetch(`/api/posts/${post.id}/like`, { method: wasLiked ? 'DELETE' : 'POST' });
   };
 
   const submitComment = async (e: React.FormEvent) => {

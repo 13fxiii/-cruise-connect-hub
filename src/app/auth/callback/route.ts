@@ -8,28 +8,32 @@ export async function GET(request: NextRequest) {
   const error            = searchParams.get('error');
   const errorDescription = searchParams.get('error_description');
 
-  // OAuth returned an error
   if (error) {
     const msg = encodeURIComponent(errorDescription || error);
     return NextResponse.redirect(`${origin}/auth/login?error=${msg}`);
   }
 
-  // Exchange PKCE code for session
   if (code) {
     const supabase = await createClient();
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!exchangeError) {
-      // Success — send to feed (or wherever they were going)
-      const next = searchParams.get('next') || '/feed';
-      const dest = next.startsWith('/') ? `${origin}${next}` : `${origin}/feed`;
+    if (!exchangeError && data?.user) {
+      // Check if this user has completed onboarding (has a display_name set)
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name, username')
+        .eq('id', data.user.id)
+        .single();
+
+      // New user = no profile or no display_name → send to onboarding
+      const isNewUser = !profile || !profile.display_name;
+      const dest = isNewUser ? `${origin}/onboarding` : `${origin}/feed`;
       return NextResponse.redirect(dest);
     }
 
-    const msg = encodeURIComponent(exchangeError.message);
+    const msg = encodeURIComponent(exchangeError?.message || 'Auth error');
     return NextResponse.redirect(`${origin}/auth/login?error=${msg}`);
   }
 
-  // No code or error — just go to feed
   return NextResponse.redirect(`${origin}/feed`);
 }

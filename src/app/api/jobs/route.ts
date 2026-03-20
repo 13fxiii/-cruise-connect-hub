@@ -1,7 +1,7 @@
 // @ts-nocheck
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   const type = searchParams.get("type");
   const search = searchParams.get("search");
   try {
-    const s = getSupabaseAdmin();
+    const s = supabaseAdmin;
     let q = s.from("jobs").select("*").eq("status","active").order("is_featured",{ascending:false}).order("is_urgent",{ascending:false}).order("created_at",{ascending:false});
     if (category && category !== "All") q = q.eq("category", category);
     if (type && type !== "All Types") q = q.eq("type", type);
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const s = getSupabaseAdmin();
+    const s = supabaseAdmin;
     const reqArray = (body.requirements||"").split("\n").filter(Boolean);
     const { data, error } = await s.from("jobs").insert({
       ...body, requirements: reqArray, status:"active",
