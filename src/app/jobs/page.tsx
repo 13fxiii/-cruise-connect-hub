@@ -55,10 +55,13 @@ export default function JobsPage() {
     if (!form.title||!form.company||!form.description) return;
     setPosting(true);
     try {
-      await fetch("/api/jobs",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(form)});
+      const res = await fetch("/api/jobs",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(form)});
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Submission failed"); }
       setPostSuccess(true);
       setForm({title:"",company:"",type:"Full-time",category:"Marketing",location:"",pay:"",description:"",requirements:"",contact_handle:""});
-    } catch {}
+    } catch (err: any) {
+      alert("Could not post job: " + err.message);
+    }
     setPosting(false);
   };
 

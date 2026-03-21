@@ -57,18 +57,34 @@ export default function DAOPage() {
     }).catch(() => {});
   }, [user, proposals]);
 
-  const vote = async (proposalId: string, vote: string) => {
+  const vote = async (proposalId: string, voteChoice: string) => {
     if (!user || userVotes[proposalId]) return;
-    setUV(prev => ({ ...prev, [proposalId]: vote }));
+    // Optimistic update
+    setUV(prev => ({ ...prev, [proposalId]: voteChoice }));
     setPs(prev => prev.map(p => {
       if (p.id !== proposalId) return p;
-      return { ...p, [`votes_${vote}`]: (p[`votes_${vote}`] || 0) + 1 };
+      return { ...p, [`votes_${voteChoice}`]: (p[`votes_${voteChoice}`] || 0) + 1 };
     }));
-    await fetch('/api/dao/vote', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ proposal_id: proposalId, vote }),
-    });
+    try {
+      const res = await fetch('/api/dao/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ proposal_id: proposalId, vote: voteChoice }),
+      });
+      if (!res.ok) {
+        // Revert on failure
+        setUV(prev => { const s = {...prev}; delete s[proposalId]; return s; });
+        setPs(prev => prev.map(p => {
+          if (p.id !== proposalId) return p;
+          return { ...p, [`votes_${voteChoice}`]: Math.max(0, (p[`votes_${voteChoice}`] || 1) - 1) };
+        }));
+        const d = await res.json();
+        alert(d.error || "Vote failed. Try again.");
+      }
+    } catch {
+      // Revert on network error
+      setUV(prev => { const s = {...prev}; delete s[proposalId]; return s; });
+    }
   };
 
   const filtered = filter === 'all'

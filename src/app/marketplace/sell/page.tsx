@@ -24,7 +24,7 @@ export default function SellPage() {
       body: JSON.stringify({ ...form, tags: form.tags.split(",").map(t => t.trim()).filter(Boolean) }),
     });
     const data = await res.json();
-    if (res.ok) router.push("/marketplace");
+    if (res.ok) window.location.href = "/marketplace";
     else { setError(data.error || "Failed to create listing"); setLoading(false); }
   };
 

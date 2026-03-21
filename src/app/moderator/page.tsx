@@ -58,11 +58,12 @@ export default function ModeratorDashboard() {
   const createSpace = async () => {
     if (!newSpace.title) return;
     setLoading(true);
-    await fetch("/api/spaces", {
+    const spaceRes = await fetch("/api/spaces", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newSpace),
     });
+    if (!spaceRes.ok) { const d = await spaceRes.json(); alert("Failed: " + (d.error || "Could not create space")); return; }
     setNewSpace({ title:"", description:"", x_space_url:"", scheduled_at:"" });
     setShowNewSpace(false);
     const res = await fetch("/api/spaces");

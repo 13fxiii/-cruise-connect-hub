@@ -47,13 +47,22 @@ export default function FeedPage() {
   const submit = async () => {
     if (!newPost.trim() || posting) return;
     setPg(true);
-    await fetch('/api/posts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: newPost.trim() }),
-    });
-    setNp(''); setCp(false); setPg(false);
-    load();
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newPost.trim() }),
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.error || 'Failed to post');
+      }
+      setNp(''); setCp(false);
+      load();
+    } catch (err: any) {
+      alert('Could not post: ' + err.message);
+    }
+    setPg(false);
   };
 
   const toggleLike = async (id: string, liked_: boolean) => {

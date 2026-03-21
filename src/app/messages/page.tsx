@@ -36,17 +36,22 @@ export default function MessagesPage() {
   const start = async () => {
     if (!newDM.trim() || starting) return;
     setSt(true);
-    const r = await fetch('/api/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: newDM.trim() }),
-    });
-    const d = await r.json();
-    setSt(false);
-    if (d.conversation_id) {
-      setModal(false); setNew('');
-      window.location.href = `/messages/${d.conversation_id}`;
+    try {
+      const r = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: newDM.trim() }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'User not found');
+      if (d.conversation_id) {
+        setModal(false); setNew('');
+        window.location.href = `/messages/${d.conversation_id}`;
+      }
+    } catch (err: any) {
+      alert(err.message);
     }
+    setSt(false);
   };
 
   const filtered = convos.filter(c => {

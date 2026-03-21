@@ -205,11 +205,13 @@ function SubmitForm({ user, onSuccess }: any) {
   const submit = async () => {
     if (!f.title.trim() || !f.artist.trim() || !f.audio_url.trim()) return;
     setLd(true);
-    await supabase.from('music_submissions').insert({
+    const { error: subErr } = await supabase.from('music_submissions').insert({
       user_id: user?.id, title: f.title, artist_name: f.artist,
       genre: f.genre, audio_url: f.audio_url, cover_url: f.cover_url || null, bio: f.bio,
     });
-    setDone(true); setLd(false);
+    setLd(false);
+    if (subErr) { alert("Submit failed: " + subErr.message); return; }
+    setDone(true);
     setTimeout(onSuccess, 1500);
   };
 

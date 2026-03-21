@@ -25,8 +25,9 @@ export default function VendorApplyPage() {
         method:"POST", headers:{"Content-Type":"application/json"},
         body: JSON.stringify({ action:"vendor_apply", ...form }),
       });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Submission failed"); }
       setDone(true);
-    } catch { setErr("Something went wrong. DM @TheCruiseCH on X instead."); }
+    } catch (err: any) { setErr(err.message || "Something went wrong. DM @TheCruiseCH on X instead."); }
     finally { setLoading(false); }
   };
 

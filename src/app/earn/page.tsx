@@ -170,7 +170,11 @@ function DailyCheckin({ userId, streak, onCheckin }: { userId: string; streak: n
     try {
       const r = await fetch('/api/checkin', { method: 'POST' });
       if (r.ok) { setDone(true); onCheckin(); }
-    } catch {}
+      else {
+        const d = await r.json();
+        alert(d.error || "Check-in failed. Try again.");
+      }
+    } catch { alert("Network error. Check your connection."); }
     setLd(false);
   };
 
