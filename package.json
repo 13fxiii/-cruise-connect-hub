@@ -34,6 +34,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.3",
+    "@vercel/speed-insights": "^2.0.0",
     "date-fns": "^3.6.0",
     "lucide-react": "^0.378.0",
     "next": "14.2.29",
@@ -49,18 +50,18 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
     "eslint": "^8",
     "eslint-config-next": "14.2.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.0",
-    "typescript": "^5",
-    "electron": "^31.0.0",
-    "electron-builder": "^24.13.3"
+    "typescript": "^5"
   },
   "build": {
     "appId": "com.cruiseconnect.hub",
     "productName": "Cruise Connect Hub",
-    "copyright": "Copyright \u00a9 2024 Cruise Connect Hub",
+    "copyright": "Copyright © 2024 Cruise Connect Hub",
     "asar": true,
     "files": [
       "electron/**/*",
