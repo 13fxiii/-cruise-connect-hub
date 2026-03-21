@@ -9,9 +9,7 @@ export async function updateSession(request: NextRequest) {
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON, {
     cookies: {
-      get(name: string) {
-        return request.cookies.get(name)?.value;
-      },
+      get(name: string) { return request.cookies.get(name)?.value; },
       set(name: string, value: string, options: Record<string, unknown>) {
         request.cookies.set(name, value);
         response = NextResponse.next({ request });
@@ -25,20 +23,20 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Refresh the session so it doesn't expire
   const { data: { user } } = await supabase.auth.getUser();
-
   const { pathname } = request.nextUrl;
 
-  // Protected routes — bounce to login
+  // Routes that require login
   const protectedPrefixes = [
     '/feed', '/messages', '/notifications', '/profile',
     '/analytics', '/ai-tools', '/marketplace', '/dao',
     '/earn', '/leaderboard', '/admin', '/wallet', '/settings',
     '/spaces', '/games', '/music', '/search', '/onboarding',
+    '/community-id',
   ];
   const isProtected = protectedPrefixes.some(p => pathname.startsWith(p));
 
+  // Not logged in → login
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth/login';
@@ -46,11 +44,31 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Logged-in users hitting login/signup → go to feed
+  // Logged-in hitting login/signup → feed
   if (user && (pathname === '/auth/login' || pathname === '/auth/signup')) {
     const url = request.nextUrl.clone();
     url.pathname = '/feed';
     return NextResponse.redirect(url);
+  }
+
+  // Logged-in on protected route — check onboarding completion
+  // Only check feed/messages/games/spaces/earn (not onboarding itself or profile)
+  const needsOnboardingCheck = ['/feed', '/messages', '/games', '/spaces', '/earn', '/music', '/dao', '/leaderboard', '/wallet', '/community-id', '/settings', '/analytics', '/ai-tools', '/marketplace'];
+  const shouldCheck = user && needsOnboardingCheck.some(p => pathname.startsWith(p));
+
+  if (shouldCheck) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('display_name, username')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const incomplete = !profile || (!profile.display_name && !profile.username);
+    if (incomplete) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/onboarding';
+      return NextResponse.redirect(url);
+    }
   }
 
   return response;

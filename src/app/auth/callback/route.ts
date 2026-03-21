@@ -38,13 +38,14 @@ export async function GET(request: NextRequest) {
       console.log('[auth/callback] Success, user:', data.user.id, 'email:', data.user.email);
 
       // Check if new user (no display_name = hasn't done onboarding)
+      // Use maybeSingle — .single() throws PGRST116 if no row exists
       const { data: profile } = await supabase
         .from('profiles')
         .select('display_name, username')
         .eq('id', data.user.id)
-        .single();
+        .maybeSingle();
 
-      const isNewUser = !profile || !profile.display_name;
+      const isNewUser = !profile || !profile.display_name || !profile.username;
       const dest = isNewUser ? `${origin}/onboarding` : `${origin}/feed`;
       console.log('[auth/callback] Redirecting to:', dest, '(isNewUser:', isNewUser, ')');
       return NextResponse.redirect(dest);
