@@ -1,8 +1,8 @@
 // @ts-nocheck
 'use client';
-import { useState, useEffect } from 'react';
-import { Music2, Radio, ExternalLink, Heart, Play, Loader2, Plus, TrendingUp, Upload } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
+import { useState, useEffect, useRef } from 'react';
+import { Play, Pause, Heart, ExternalLink, Upload, Loader2, Music2, Radio, ChevronRight } from 'lucide-react';
+import AppHeader from '@/components/layout/AppHeader';
 import BottomNav from '@/components/layout/BottomNav';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -11,208 +11,241 @@ import { createClient } from '@/lib/supabase/client';
 const GENRES = ['all','afrobeats','amapiano','afropop','highlife','rap','rnb','gospel'];
 
 const STATIONS = [
-  { id:'afrobeats', label:'Afrobeats 🔥',     url:'https://stream.zeno.fm/f3wvbbqmdg8uv', color:'from-orange-500 to-red-600' },
-  { id:'amapiano',  label:'Amapiano 🎹',       url:'https://stream.zeno.fm/f3wvbbqmdg8uv', color:'from-blue-500 to-purple-600' },
-  { id:'naija',     label:'Old Skool Naija 🇳🇬', url:'https://stream.zeno.fm/f3wvbbqmdg8uv', color:'from-green-500 to-emerald-600' },
-  { id:'ccradio',   label:'CC Hub Radio 🚌',   url:'https://stream.zeno.fm/f3wvbbqmdg8uv', color:'from-yellow-500 to-amber-600' },
+  { id:'afrobeats',label:'Afrobeats 🔥',    url:'https://stream.zeno.fm/f3wvbbqmdg8uv',color:'from-orange-500 to-red-600' },
+  { id:'amapiano', label:'Amapiano 🎹',      url:'https://stream.zeno.fm/f3wvbbqmdg8uv',color:'from-blue-500 to-purple-600' },
+  { id:'naija',    label:'Old Skool 🇳🇬',     url:'https://stream.zeno.fm/f3wvbbqmdg8uv',color:'from-green-500 to-emerald-600' },
+  { id:'ccradio',  label:'CC Hub Radio 🚌',  url:'https://stream.zeno.fm/f3wvbbqmdg8uv',color:'from-yellow-500 to-amber-600' },
 ];
 
 export default function MusicPage() {
   const { user }           = useAuth();
-  const [tab, setTab]      = useState<'artists'|'radio'|'submit'>('artists');
+  const [tab, setTab]      = useState<'tracks'|'radio'|'submit'>('tracks');
   const [tracks, setTracks]= useState<any[]>([]);
   const [genre, setGenre]  = useState('all');
   const [loading, setLd]   = useState(false);
-  const [likedTx, setLiked]= useState<Set<string>>(new Set());
+  const [liked, setLiked]  = useState<Set<string>>(new Set());
+  const [playing, setPlay] = useState<string|null>(null);
   const [station, setStn]  = useState<string|null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const supabase = createClient();
 
-  useEffect(() => {
-    if (tab !== 'artists') return;
+  const loadTracks = async (g: string) => {
     setLd(true);
-    fetch(`/api/artists?genre=${genre}`)
-      .then(r => r.json())
-      .then(d => { setTracks(d.tracks || []); setLd(false); });
-  }, [genre, tab]);
-
-  const likeTrack = async (id: string) => {
-    if (!user) { window.location.href = '/auth/login'; return; }
-    await fetch(`/api/artists/${id}`, { method:'POST', body: JSON.stringify({ action:'like' }), headers:{'Content-Type':'application/json'} });
-    setLiked(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+    try {
+      const r = await fetch(`/api/music?genre=${g}&limit=30`);
+      const d = await r.json();
+      setTracks(d.tracks || []);
+    } catch {}
+    setLd(false);
   };
 
-  const playTrack = (id: string) => {
-    fetch(`/api/artists/${id}`, { method:'POST', body: JSON.stringify({ action:'play' }), headers:{'Content-Type':'application/json'} });
+  useEffect(() => { loadTracks(genre); }, [genre]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('music_likes').select('track_id').eq('user_id', user.id)
+      .then(({ data }) => setLiked(new Set((data || []).map((l: any) => l.track_id))));
+  }, [user]);
+
+  const togglePlay = (trackId: string, url: string) => {
+    if (playing === trackId) {
+      audioRef.current?.pause(); setPlay(null);
+    } else {
+      if (audioRef.current) audioRef.current.pause();
+      audioRef.current = new Audio(url);
+      audioRef.current.play().catch(() => {});
+      audioRef.current.onended = () => setPlay(null);
+      setPlay(trackId);
+      fetch(`/api/music/play`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ track_id: trackId }) }).catch(() => {});
+    }
+  };
+
+  const toggleLike = async (trackId: string) => {
+    const isLiked = liked.has(trackId);
+    setLiked(prev => { const s = new Set(prev); isLiked ? s.delete(trackId) : s.add(trackId); return s; });
+    setTracks(prev => prev.map(t => t.id === trackId ? { ...t, likes: (t.likes || 0) + (isLiked ? -1 : 1) } : t));
+    if (isLiked) {
+      await supabase.from('music_likes').delete().match({ user_id: user?.id, track_id: trackId });
+    } else {
+      await supabase.from('music_likes').upsert({ user_id: user?.id, track_id: trackId });
+    }
+  };
+
+  const playStation = (id: string, url: string) => {
+    if (station === id) {
+      audioRef.current?.pause(); setStn(null);
+    } else {
+      if (audioRef.current) audioRef.current.pause();
+      audioRef.current = new Audio(url);
+      audioRef.current.play().catch(() => {});
+      setStn(id);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-24">
-      <Navbar />
-      <main className="max-w-2xl mx-auto px-4 py-6">
-        <div className="flex items-center gap-3 mb-5">
-          <Music2 className="w-7 h-7 text-yellow-400" />
-          <div>
-            <h1 className="text-2xl font-black text-white">CC Hub Music〽️</h1>
-            <p className="text-zinc-500 text-xs">Discover · Listen · Support</p>
-          </div>
-        </div>
+      <AppHeader title="Music Hub" back />
 
-        {/* Tabs */}
-        <div className="flex gap-1 bg-zinc-900 border border-zinc-800 rounded-xl p-1 mb-5">
-          {[
-            { id:'artists', label:'🎵 Artists' },
-            { id:'radio',   label:'📻 Radio'   },
-            { id:'submit',  label:'📤 Submit'  },
-          ].map(t => (
-            <button key={t.id} onClick={() => setTab(t.id as any)}
-              className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${tab === t.id ? 'bg-yellow-400 text-black' : 'text-zinc-400 hover:text-white'}`}>
-              {t.label}
+      {/* Tabs */}
+      <div className="flex gap-1 mx-4 mt-4 mb-4 bg-zinc-900 p-1 rounded-2xl">
+        {[['tracks','🎵 Tracks'],['radio','📻 Radio'],['submit','⬆️ Submit']].map(([t,l]) => (
+          <button key={t} onClick={() => setTab(t as any)}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${tab === t ? 'bg-yellow-400 text-black' : 'text-zinc-400'}`}>
+            {l}
+          </button>
+        ))}
+      </div>
+
+      {/* Tracks tab */}
+      {tab === 'tracks' && (
+        <div className="max-w-lg mx-auto">
+          {/* Genre pills */}
+          <div className="flex gap-2 px-4 mb-4 overflow-x-auto scrollbar-none">
+            {GENRES.map(g => (
+              <button key={g} onClick={() => setGenre(g)}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold capitalize transition-all ${
+                  genre === g ? 'bg-yellow-400 text-black' : 'bg-zinc-900 text-zinc-400 border border-zinc-800'}`}>
+                {g}
+              </button>
+            ))}
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 text-yellow-400 animate-spin" /></div>
+          ) : tracks.length === 0 ? (
+            <div className="text-center py-12 px-4">
+              <div className="text-4xl mb-3">🎵</div>
+              <p className="text-white font-bold mb-1">No tracks yet</p>
+              <p className="text-zinc-500 text-sm mb-4">Submit your music to get featured</p>
+              <button onClick={() => setTab('submit')} className="px-5 py-2 bg-yellow-400 text-black font-black text-sm rounded-full">Submit Track</button>
+            </div>
+          ) : (
+            <div className="px-4 space-y-2">
+              {tracks.map(track => (
+                <TrackCard key={track.id} track={track} playing={playing === track.id}
+                  liked={liked.has(track.id)} onPlay={togglePlay} onLike={toggleLike} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Radio tab */}
+      {tab === 'radio' && (
+        <div className="max-w-lg mx-auto px-4 space-y-3">
+          {STATIONS.map(s => (
+            <button key={s.id} onClick={() => playStation(s.id, s.url)}
+              className="w-full flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-2xl p-4 active:scale-[0.98] transition-transform">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center`}>
+                  {station === s.id ? <Pause className="w-5 h-5 text-white" /> : <Play className="w-5 h-5 text-white fill-white" />}
+                </div>
+                <div className="text-left">
+                  <p className="font-bold text-white text-sm">{s.label}</p>
+                  <p className={`text-xs ${station === s.id ? 'text-yellow-400' : 'text-zinc-500'}`}>
+                    {station === s.id ? '● Playing' : 'Tap to play'}
+                  </p>
+                </div>
+              </div>
+              {station === s.id && <div className="flex gap-0.5 items-end h-5">{[3,5,4,6,3,5,4].map((h,i) => (
+                <div key={i} className="w-1 bg-yellow-400 rounded-full animate-bounce" style={{ height:`${h*3}px`, animationDelay:`${i*0.1}s` }} />
+              ))}</div>}
             </button>
           ))}
         </div>
+      )}
 
-        {/* ── ARTISTS TAB ── */}
-        {tab === 'artists' && (
-          <>
-            <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
-              {GENRES.map(g => (
-                <button key={g} onClick={() => setGenre(g)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap flex-shrink-0 transition-all ${genre===g ? 'bg-yellow-400 text-black' : 'bg-zinc-900 border border-zinc-700 text-zinc-400 hover:text-white'}`}>
-                  {g === 'all' ? 'All Genres' : g.charAt(0).toUpperCase()+g.slice(1)}
-                </button>
-              ))}
-            </div>
+      {/* Submit tab */}
+      {tab === 'submit' && (
+        <div className="max-w-lg mx-auto px-4">
+          <SubmitForm user={user} onSuccess={() => { setTab('tracks'); loadTracks(genre); }} />
+        </div>
+      )}
 
-            {/* ThrillSeekaEnt featured card — always shown */}
-            <div className="bg-gradient-to-br from-yellow-400/15 via-amber-400/5 to-zinc-900 border border-yellow-400/30 rounded-2xl p-5 mb-4">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-14 h-14 rounded-2xl bg-yellow-400/20 flex items-center justify-center text-3xl border border-yellow-400/20">🎵</div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-white font-black">Lil Miss Thrill Seeker</p>
-                    <span className="text-xs bg-yellow-400/20 text-yellow-400 px-2 py-0.5 rounded-full font-bold">FEATURED</span>
-                  </div>
-                  <p className="text-zinc-400 text-xs">@ThrillSeekaEnt · Afrobeats · Afropop</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                {['HARDINARY','JUMP ROPE','SPEAKEASY'].map(title => (
-                  <div key={title} className="bg-zinc-900/60 rounded-xl p-2.5 text-center">
-                    <p className="text-yellow-400 text-xs font-bold truncate">{title}</p>
-                    <p className="text-zinc-600 text-xs">Single</p>
-                  </div>
-                ))}
-              </div>
-
-              <a href="https://linktr.ee/ThrillSeekerEnt" target="_blank" rel="noreferrer"
-                className="w-full flex items-center justify-center gap-2 bg-yellow-400 text-black font-black text-sm py-2.5 rounded-xl hover:bg-yellow-300 transition-colors">
-                <ExternalLink className="w-4 h-4" /> Listen · Follow · Share
-              </a>
-              <p className="text-center text-zinc-600 text-xs mt-2">If you love discovering music before it blows, this is for you 👀🔥</p>
-            </div>
-
-            {/* DB tracks */}
-            {loading ? (
-              <div className="flex justify-center py-8"><Loader2 className="w-7 h-7 text-yellow-400 animate-spin" /></div>
-            ) : tracks.length > 0 ? (
-              <div className="space-y-2">
-                {tracks.map((t: any) => (
-                  <div key={t.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex items-center gap-3 hover:border-zinc-700 transition-colors">
-                    <div className="w-10 h-10 bg-zinc-800 rounded-xl flex items-center justify-center text-xl flex-shrink-0">
-                      {t.cover_url ? <img src={t.cover_url} className="w-full h-full rounded-xl object-cover" alt="" /> : '🎤'}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white font-bold text-sm truncate">{t.title}</p>
-                      <p className="text-zinc-500 text-xs">{t.artist_name} · {t.genre}</p>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <button onClick={() => likeTrack(t.id)}
-                        className={`p-1.5 rounded-lg transition-colors ${likedTx.has(t.id) ? 'text-pink-400 bg-pink-400/10' : 'text-zinc-500 hover:text-pink-400'}`}>
-                        <Heart className="w-4 h-4" />
-                      </button>
-                      {t.external_link && (
-                        <a href={t.external_link} target="_blank" rel="noreferrer" onClick={() => playTrack(t.id)}
-                          className="text-yellow-400 hover:text-yellow-300 p-1.5 rounded-lg bg-yellow-400/10">
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-zinc-500 text-sm">
-                No tracks for this genre yet — <Link href="/music/submit" className="text-yellow-400 hover:underline">submit yours</Link>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* ── RADIO TAB ── */}
-        {tab === 'radio' && (
-          <div className="space-y-3">
-            <p className="text-zinc-400 text-sm mb-4">Tune into CC Hub radio stations 📻</p>
-            {STATIONS.map(s => (
-              <div key={s.id} className={`bg-gradient-to-r ${s.color} p-px rounded-2xl`}>
-                <div className="bg-zinc-900 rounded-2xl p-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-white font-black">{s.label}</p>
-                    <p className="text-zinc-400 text-xs mt-0.5">{station === s.id ? '▶ Now playing' : 'Tap to tune in'}</p>
-                  </div>
-                  <button onClick={() => setStn(station === s.id ? null : s.id)}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${station === s.id ? 'bg-yellow-400 text-black' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}>
-                    {station === s.id ? '⏸' : '▶'}
-                  </button>
-                </div>
-              </div>
-            ))}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 mt-4">
-              <p className="text-zinc-400 text-xs text-center">
-                🎙️ Want to host a live audio space?{' '}
-                <Link href="/spaces" className="text-yellow-400 hover:underline">Go to Spaces →</Link>
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* ── SUBMIT TAB ── */}
-        {tab === 'submit' && (
-          <div className="space-y-4">
-            <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-2xl p-5">
-              <div className="flex items-center gap-3 mb-3">
-                <Upload className="w-8 h-8 text-yellow-400" />
-                <div>
-                  <p className="text-white font-black">Submit Your Music</p>
-                  <p className="text-zinc-400 text-xs">Get featured in front of the CC Hub community</p>
-                </div>
-              </div>
-              <ul className="space-y-2 mb-4">
-                {['Get featured on the Artists tab','Reach 3,000+ active community members','Drive streams & followers to your profiles','Direct link to your Spotify/Apple/Linktree'].map(b => (
-                  <li key={b} className="flex items-center gap-2 text-zinc-300 text-sm">
-                    <span className="text-yellow-400">✓</span> {b}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/music/submit"
-                className="w-full flex items-center justify-center gap-2 bg-yellow-400 text-black font-black py-3 rounded-xl hover:bg-yellow-300 transition-colors text-sm">
-                <Plus className="w-4 h-4" /> Submit Now — It's Free
-              </Link>
-            </div>
-
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-              <p className="text-zinc-400 text-sm font-medium mb-2">📋 What we need</p>
-              <ul className="space-y-1 text-zinc-500 text-xs">
-                <li>• Track title, artist name & genre</li>
-                <li>• Link to your music (Spotify, Apple, Audiomack, etc.)</li>
-                <li>• Your X / Instagram handle</li>
-                <li>• Short bio (optional)</li>
-              </ul>
-            </div>
-          </div>
-        )}
-      </main>
       <BottomNav />
+    </div>
+  );
+}
+
+function TrackCard({ track, playing, liked, onPlay, onLike }: any) {
+  return (
+    <div className="flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-2xl p-3">
+      <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-zinc-800">
+        {track.cover_url ? <img src={track.cover_url} alt={track.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl">🎵</div>}
+        {track.audio_url && (
+          <button onClick={() => onPlay(track.id, track.audio_url)}
+            className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            {playing ? <Pause className="w-5 h-5 text-white fill-white" /> : <Play className="w-5 h-5 text-white fill-white" />}
+          </button>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-bold text-white text-sm truncate">{track.title}</p>
+        <p className="text-zinc-500 text-xs truncate">{track.artist_name || track.profiles?.display_name}</p>
+        {playing && <div className="flex gap-0.5 mt-0.5">{[2,4,3,5,3].map((h,i) => (
+          <div key={i} className="w-0.5 bg-yellow-400 rounded-full animate-bounce" style={{ height:`${h*2}px`, animationDelay:`${i*0.1}s` }} />
+        ))}</div>}
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <span className="text-[10px] text-zinc-600">{(track.plays || track.play_count || 0).toLocaleString()}</span>
+        <button onClick={() => onLike(track.id)} className={`p-1.5 ${liked ? 'text-red-400' : 'text-zinc-500'}`}>
+          <Heart className={`w-4 h-4 ${liked ? 'fill-red-400' : ''}`} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SubmitForm({ user, onSuccess }: any) {
+  const [f, setF] = useState({ title: '', artist: '', genre: 'afrobeats', audio_url: '', cover_url: '', bio: '' });
+  const [loading, setLd] = useState(false);
+  const [done, setDone]  = useState(false);
+  const supabase = createClient();
+
+  const submit = async () => {
+    if (!f.title.trim() || !f.artist.trim() || !f.audio_url.trim()) return;
+    setLd(true);
+    await supabase.from('music_submissions').insert({
+      user_id: user?.id, title: f.title, artist_name: f.artist,
+      genre: f.genre, audio_url: f.audio_url, cover_url: f.cover_url || null, bio: f.bio,
+    });
+    setDone(true); setLd(false);
+    setTimeout(onSuccess, 1500);
+  };
+
+  if (done) return (
+    <div className="text-center py-16">
+      <div className="text-5xl mb-4">🎉</div>
+      <p className="text-white font-black text-xl mb-2">Submitted!</p>
+      <p className="text-zinc-400 text-sm">Your track is under review</p>
+    </div>
+  );
+
+  if (!user) return (
+    <div className="text-center py-12">
+      <p className="text-white font-bold mb-2">Sign in to submit</p>
+      <Link href="/auth/login" className="px-5 py-2 bg-yellow-400 text-black font-black rounded-full text-sm">Sign In</Link>
+    </div>
+  );
+
+  const inp = "w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-yellow-400/50";
+
+  return (
+    <div className="space-y-3 pb-6">
+      <p className="text-zinc-400 font-bold text-xs tracking-wider mb-4">SUBMIT YOUR TRACK</p>
+      <input className={inp} placeholder="Track title *" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} />
+      <input className={inp} placeholder="Artist name *" value={f.artist} onChange={e => setF({ ...f, artist: e.target.value })} />
+      <select className={inp} value={f.genre} onChange={e => setF({ ...f, genre: e.target.value })}>
+        {GENRES.filter(g => g !== 'all').map(g => <option key={g} value={g} className="bg-zinc-900 capitalize">{g}</option>)}
+      </select>
+      <input className={inp} placeholder="Audio URL (SoundCloud / Audiomack) *" value={f.audio_url} onChange={e => setF({ ...f, audio_url: e.target.value })} />
+      <input className={inp} placeholder="Cover image URL (optional)" value={f.cover_url} onChange={e => setF({ ...f, cover_url: e.target.value })} />
+      <textarea className={`${inp} resize-none`} rows={3} placeholder="Short bio or description..." value={f.bio} onChange={e => setF({ ...f, bio: e.target.value })} />
+      <button onClick={submit} disabled={!f.title || !f.artist || !f.audio_url || loading}
+        className="w-full py-3.5 bg-yellow-400 text-black font-black text-sm rounded-xl disabled:opacity-40 flex items-center justify-center gap-2">
+        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+        {loading ? 'Submitting…' : 'Submit Track'}
+      </button>
     </div>
   );
 }

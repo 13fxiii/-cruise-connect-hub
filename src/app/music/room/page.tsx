@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Music2, Users, ThumbsUp, ThumbsDown, Mic2, Send, Volume2, VolumeX, Radio, Plus, ExternalLink } from "lucide-react";
@@ -69,7 +69,7 @@ export default function MusicRoomPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <main className="max-w-lg mx-auto px-4 py-5 space-y-4">
 
         {/* Header */}

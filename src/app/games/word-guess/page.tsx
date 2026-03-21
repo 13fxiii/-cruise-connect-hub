@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, RotateCcw, Home, Delete } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 
 const WORDS = [
@@ -152,7 +152,7 @@ export default function WordGuessingPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar/>
+      
       <main className="max-w-lg mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <Link href="/games" className="text-zinc-400 hover:text-white transition-colors text-sm">← Games</Link>

@@ -34,7 +34,7 @@ export async function updateSession(request: NextRequest) {
   const protectedPrefixes = [
     '/feed', '/messages', '/notifications', '/profile',
     '/analytics', '/ai-tools', '/marketplace', '/dao',
-    '/earn', '/leaderboard', '/admin', '/wallet',
+    '/earn', '/leaderboard', '/admin', '/wallet', '/settings',
     '/spaces', '/games', '/music', '/search', '/onboarding',
   ];
   const isProtected = protectedPrefixes.some(p => pathname.startsWith(p));

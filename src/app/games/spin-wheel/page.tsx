@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { RotateCcw, Home, Share2 } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 
 const PRIZES = [
@@ -156,7 +156,7 @@ export default function SpinWheelPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar/>
+      
       <main className="max-w-lg mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <Link href="/games" className="text-zinc-400 hover:text-white text-sm">← Games</Link>

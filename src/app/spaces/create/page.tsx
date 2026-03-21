@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Mic, Radio, Calendar, Tag, Link, ArrowLeft, CheckCircle, Zap, Clock } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link2 from "next/link";
 
 const TAGS = ["Music","Afrobeats","Gaming","Business","Trivia","Movies","Discussion","Giveaway","Tech","Naija Culture"];
@@ -37,7 +37,7 @@ export default function CreateSpacePage() {
 
   if (done) return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar/>
+      
       <div className="max-w-lg mx-auto px-4 py-20 text-center">
         <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-10 h-10 text-green-400"/>
@@ -53,7 +53,7 @@ export default function CreateSpacePage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar/>
+      
       <main className="max-w-2xl mx-auto px-4 py-8">
         <Link2 href="/spaces" className="flex items-center gap-2 text-zinc-400 hover:text-white mb-6 text-sm transition-colors">
           <ArrowLeft className="w-4 h-4"/> Back to Spaces

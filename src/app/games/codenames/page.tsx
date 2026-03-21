@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 import { Users, RefreshCw, Eye, EyeOff, Crown } from "lucide-react";
 
@@ -109,7 +109,7 @@ export default function CodenamesPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <main className="max-w-4xl mx-auto px-3 py-4 space-y-4">
 
         {/* Header */}

@@ -2,8 +2,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Trophy, Medal, Loader2, Crown } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
+
 import BottomNav from '@/components/layout/BottomNav';
+import AppHeader from '@/components/layout/AppHeader';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 export default function LeaderboardPage() {
@@ -32,7 +33,8 @@ export default function LeaderboardPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-24">
-      <Navbar />
+      <AppHeader title="Leaderboard" back />
+      
       <main className="max-w-xl mx-auto px-4 py-6">
 
         {/* Header */}

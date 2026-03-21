@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Trophy, Users, Clock, Zap, ArrowLeft, Crown, Medal, Award, ChevronRight, Shield, Target, Star } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 
 // Mock tournament data — replace with API data
@@ -86,7 +86,7 @@ export default function TournamentPage() {
 
   if (selected) return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar/>
+      
       <main className="max-w-5xl mx-auto px-4 py-8">
         <button onClick={()=>setSelected(null)} className="flex items-center gap-2 text-zinc-400 hover:text-white mb-6 text-sm">
           <ArrowLeft className="w-4 h-4"/> All Tournaments
@@ -198,7 +198,7 @@ export default function TournamentPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar/>
+      
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-start justify-between mb-8">
           <div>

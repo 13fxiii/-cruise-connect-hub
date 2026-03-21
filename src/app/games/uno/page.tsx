@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 import { useState, useEffect } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 
 const COLORS = ["red","blue","green","yellow"] as const;
@@ -226,7 +226,7 @@ export default function UnoPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <main className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">

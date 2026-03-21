@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import {
   Shirt, Palette, Type, Download, ShoppingCart, Wand2,
   ChevronLeft, ChevronRight, Loader2, CheckCircle, RotateCcw,
@@ -235,7 +235,7 @@ export default function MerchPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-16">
-      <Navbar />
+      
       <main className="max-w-5xl mx-auto px-4 pt-6">
 
         {/* Header */}

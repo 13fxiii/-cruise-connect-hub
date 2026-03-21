@@ -1,7 +1,7 @@
 "use client";
 import { useState, useCallback } from "react";
 import { ArrowLeft, RotateCcw, Trophy, Dice1, Dice2, Dice3, Dice4, Dice5, Dice6 } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 
 const COLORS = ["#ef4444","#3b82f6","#22c55e","#eab308"];
@@ -158,7 +158,7 @@ export default function LudoPage() {
   // --- SETUP SCREEN ---
   if (phase === "setup") return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <main className="max-w-lg mx-auto px-4 py-10">
         <Link href="/games" className="flex items-center gap-2 text-zinc-400 hover:text-white mb-6 text-sm">
           <ArrowLeft className="w-4 h-4" /> Back to Games
@@ -198,7 +198,7 @@ export default function LudoPage() {
   // --- WIN SCREEN ---
   if (phase === "won" && winner !== null) return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-      <Navbar />
+      
       <div className="text-center px-6 mt-16">
         <div className="text-8xl mb-4 animate-bounce">{EMOJIS[winner]}</div>
         <div className="text-6xl mb-2">🏆</div>
@@ -216,7 +216,7 @@ export default function LudoPage() {
   const curPlayer = players[current];
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <main className="max-w-5xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-4">
           <Link href="/games" className="flex items-center gap-2 text-zinc-400 hover:text-white text-sm"><ArrowLeft className="w-4 h-4" /> Games</Link>

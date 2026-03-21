@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import { useAuth } from "@/components/auth/AuthProvider";
 import Link from "next/link";
 import { Music, ArrowLeft, Send, CheckCircle } from "lucide-react";
@@ -40,7 +40,7 @@ export default function SubmitTrackPage() {
   };
 
   if (!user) return (
-    <div className="min-h-screen bg-[#0a0a0a]"><Navbar />
+    <div className="min-h-screen bg-[#0a0a0a]">
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Music className="w-12 h-12 text-zinc-700" />
         <p className="text-zinc-400">Sign in to submit your track</p>
@@ -50,7 +50,7 @@ export default function SubmitTrackPage() {
   );
 
   if (submitted) return (
-    <div className="min-h-screen bg-[#0a0a0a]"><Navbar />
+    <div className="min-h-screen bg-[#0a0a0a]">
       <div className="max-w-md mx-auto px-4 py-20 text-center">
         <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle className="w-8 h-8 text-green-400" />
@@ -73,7 +73,7 @@ export default function SubmitTrackPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <main className="max-w-xl mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/music" className="text-zinc-500 hover:text-white"><ArrowLeft className="w-4 h-4" /></Link>

@@ -1,8 +1,9 @@
 // @ts-nocheck
 'use client';
+import AppHeader from '@/components/layout/AppHeader';
 import { useState, useEffect } from 'react';
 import { Copy, CheckCheck, Share2, Download, RotateCcw } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
+
 import BottomNav from '@/components/layout/BottomNav';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
@@ -36,6 +37,7 @@ export default function CommunityIDPage() {
 
   if (!user || !profile) return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <AppHeader title="Member ID" back />
       <div className="w-8 h-8 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin" />
     </div>
   );
@@ -61,7 +63,7 @@ export default function CommunityIDPage() {
 
   return (
     <div className="min-h-screen bg-[#050505] pb-24">
-      <Navbar />
+      
       <main className="max-w-sm mx-auto px-4 py-8 flex flex-col items-center">
 
         <h1 className="text-2xl font-black text-white mb-1 text-center">Member ID Card</h1>

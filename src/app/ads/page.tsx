@@ -1,6 +1,7 @@
 "use client";
+import AppHeader from '@/components/layout/AppHeader';
 import { useState } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import { Megaphone, Check, ExternalLink, AlertCircle } from "lucide-react";
 
 const PACKAGES = [
@@ -50,7 +51,8 @@ export default function AdsPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-cch-black">
-        <Navbar />
+      <AppHeader title="PR & Ads" back />
+        
         <div className="max-w-lg mx-auto px-4 py-20 text-center">
           <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
             <Check size={28} className="text-green-400" />
@@ -75,7 +77,7 @@ export default function AdsPage() {
 
   return (
     <div className="min-h-screen bg-cch-black">
-      <Navbar />
+      
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-10">

@@ -1,8 +1,9 @@
 // @ts-nocheck
 'use client';
 import { useState, useEffect } from 'react';
+import AppHeader from '@/components/layout/AppHeader';
 import { Edit3, Trophy, Wallet, Copy, CheckCheck, ExternalLink, Settings, Camera, Medal, Gift, LogOut } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
+
 import BottomNav from '@/components/layout/BottomNav';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -114,7 +115,8 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-24">
-      <Navbar />
+      <AppHeader showSearch />
+      
       <div className="max-w-2xl mx-auto px-4 py-6">
 
         {/* Header card */}

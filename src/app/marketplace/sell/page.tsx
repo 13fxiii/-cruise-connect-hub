@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ShoppingBag, ArrowLeft } from "lucide-react";
@@ -30,7 +30,7 @@ export default function SellPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <main className="max-w-xl mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/marketplace" className="text-zinc-500 hover:text-white"><ArrowLeft className="w-4 h-4" /></Link>

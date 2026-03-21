@@ -1,7 +1,8 @@
 "use client";
+import AppHeader from '@/components/layout/AppHeader';
 import { useState, useEffect, useCallback } from "react";
 import { Briefcase, MapPin, Clock, DollarSign, Plus, Search, ExternalLink, Building, ChevronDown, ChevronUp, Send, CheckCircle, Loader2 } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
+
 
 type Job = {
   id: string; title: string; company: string; type: string; category: string;
@@ -63,7 +64,8 @@ export default function JobsPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      <AppHeader title="Jobs Board" back />
+      
       <main className="max-w-5xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-black text-white flex items-center gap-3"><Briefcase className="text-yellow-400 w-8 h-8"/>Jobs Board</h1>

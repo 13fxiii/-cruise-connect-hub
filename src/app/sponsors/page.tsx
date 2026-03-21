@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import { Building2, CheckCircle, Zap, BarChart3, Star, ArrowRight, Send } from "lucide-react";
 
 const INDUSTRIES = ["Music","Tech","Fashion","Food & Beverage","Finance","Entertainment","Beauty","Sports","Other"];
@@ -44,7 +44,7 @@ export default function SponsorsPage() {
   ];
 
   if (submitted) return (
-    <div className="min-h-screen bg-[#0a0a0a]"><Navbar />
+    <div className="min-h-screen bg-[#0a0a0a]">
       <div className="max-w-md mx-auto px-4 py-20 text-center">
         <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle className="w-8 h-8 text-green-400" />
@@ -66,7 +66,7 @@ export default function SponsorsPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-10">
 
         {/* Hero */}

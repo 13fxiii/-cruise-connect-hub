@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 import { Eraser, Trash2, ChevronRight, Trophy } from "lucide-react";
 
@@ -163,7 +163,7 @@ export default function DrawingPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <main className="max-w-4xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">

@@ -1,6 +1,7 @@
 "use client";
+import AppHeader from '@/components/layout/AppHeader';
 import { useState, useEffect } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import { useAuth } from "@/components/auth/AuthProvider";
 import Link from "next/link";
 import { BarChart3, TrendingUp, Users, Heart, DollarSign, Zap, Star, Share2, MessageCircle, Trophy } from "lucide-react";
@@ -49,7 +50,8 @@ export default function AnalyticsPage() {
   }, [user, range]);
 
   if (!user) return (
-    <div className="min-h-screen bg-[#0a0a0a]"><Navbar />
+    <div className="min-h-screen bg-[#0a0a0a]">
+      <AppHeader title="Analytics" back />
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <BarChart3 className="w-12 h-12 text-zinc-700" />
         <p className="text-zinc-400">Sign in to view your analytics</p>
@@ -70,7 +72,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
 
         {/* Header */}

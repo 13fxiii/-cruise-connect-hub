@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import {
   LayoutDashboard, Users, FileText, Megaphone, Briefcase, Music,
   CheckCircle, XCircle, Loader2, RefreshCw, TrendingUp, DollarSign,
@@ -101,7 +101,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <div className="max-w-6xl mx-auto px-3 py-6">
 
         {/* Header */}

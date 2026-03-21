@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 import { Mic, MicOff, Star, ChevronRight, Timer, Trophy, Play, Pause } from "lucide-react";
 
@@ -120,7 +120,7 @@ export default function KaraokePage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <main className="max-w-lg mx-auto px-4 py-6 space-y-5">
 
         {/* LOBBY */}

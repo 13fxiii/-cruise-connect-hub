@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Store, ArrowLeft, CheckCircle, Upload, Star, Users, Zap } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 
 const CATEGORIES = ["Fashion","Food & Beverages","Tech & Gadgets","Beauty & Cosmetics","Printing & Merch","Events & Entertainment","Health & Wellness","Education","Services","Other"];
@@ -31,7 +31,7 @@ export default function VendorApplyPage() {
   };
 
   if (done) return (
-    <div className="min-h-screen bg-[#0a0a0a]"><Navbar/>
+    <div className="min-h-screen bg-[#0a0a0a]">
       <div className="max-w-lg mx-auto px-4 py-20 text-center">
         <div className="w-20 h-20 bg-yellow-400/20 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-10 h-10 text-yellow-400"/>
@@ -47,7 +47,7 @@ export default function VendorApplyPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]"><Navbar/>
+    <div className="min-h-screen bg-[#0a0a0a]">
       <main className="max-w-2xl mx-auto px-4 py-8">
         <Link href="/shop" className="flex items-center gap-2 text-zinc-400 hover:text-white mb-6 text-sm transition-colors">
           <ArrowLeft className="w-4 h-4"/> Back to Shop

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { Brain, Clock, Trophy, Zap, ArrowRight, CheckCircle, XCircle, RotateCcw, Home, Star, Flame } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 
 const QUESTION_BANK = [
@@ -101,7 +101,7 @@ export default function TriviaPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar/>
+      
       <main className="max-w-2xl mx-auto px-4 py-8">
 
         {phase==="lobby"&&(

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { MessageCircle, Users, Send, ExternalLink, Play, ArrowLeft, Heart, Zap, Mic } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 
 // Demo watch party data
@@ -75,7 +75,7 @@ export default function WatchPartyPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar/>
+      
       <main className="max-w-6xl mx-auto px-4 py-6">
         <Link href="/movies" className="flex items-center gap-2 text-zinc-400 hover:text-white mb-4 text-sm">
           <ArrowLeft className="w-4 h-4"/> Back to Movie Hub

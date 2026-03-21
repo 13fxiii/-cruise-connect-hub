@@ -1,8 +1,9 @@
 // @ts-nocheck
 'use client';
+import AppHeader from '@/components/layout/AppHeader';
 import { useState, useEffect } from 'react';
 import { ArrowUpRight, ArrowDownLeft, Gift, Trophy, Wallet, Loader2, Copy, CheckCheck } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
+
 import BottomNav from '@/components/layout/BottomNav';
 import { useAuth } from '@/components/auth/AuthProvider';
 
@@ -33,6 +34,7 @@ export default function WalletPage() {
 
   if (loading) return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <AppHeader title="Wallet" back />
       <Loader2 className="w-8 h-8 text-yellow-400 animate-spin" />
     </div>
   );
@@ -49,7 +51,7 @@ export default function WalletPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-24">
-      <Navbar />
+      
       <main className="max-w-xl mx-auto px-4 py-6 space-y-5">
         <h1 className="text-2xl font-black text-white flex items-center gap-2">
           <Wallet className="text-yellow-400" /> Wallet

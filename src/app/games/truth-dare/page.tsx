@@ -1,7 +1,7 @@
 "use client";
 import { useState, useCallback } from "react";
 import { Flame, Users, Shuffle, Home, RefreshCw } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 
 type Category = "mild"|"spicy"|"savage";
@@ -161,7 +161,7 @@ export default function TruthDarePage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar/>
+      
       <main className="max-w-lg mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <Link href="/games" className="text-zinc-400 hover:text-white text-sm">← Games</Link>

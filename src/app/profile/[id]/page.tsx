@@ -1,210 +1,208 @@
-"use client";
-import { useState, useEffect } from "react";
-import Navbar from "@/components/layout/Navbar";
-import { useAuth } from "@/components/auth/AuthProvider";
-import Link from "next/link";
-import {
-  MapPin, Globe, Twitter, Users, Heart, MessageCircle,
-  Music, Gamepad2, Trophy, Zap, Send, UserPlus, UserMinus,
-  Loader2, Share2
-} from "lucide-react";
+// @ts-nocheck
+'use client';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+import AppHeader from '@/components/layout/AppHeader';
+import BottomNav from '@/components/layout/BottomNav';
+import Link from 'next/link';
+import { UserPlus, UserCheck, MessageCircle, Music2, FileText, Trophy, Loader2, ExternalLink } from 'lucide-react';
 
-const LEVEL_CONFIG: Record<string, { color: string; bg: string }> = {
-  newcomer:     { color:"text-zinc-400",  bg:"bg-zinc-400/10"  },
-  cruiser:      { color:"text-blue-400",  bg:"bg-blue-400/10"  },
-  connector:    { color:"text-green-400", bg:"bg-green-400/10" },
-  "hub star":   { color:"text-yellow-400",bg:"bg-yellow-400/10"},
-  "culture king":{ color:"text-orange-400",bg:"bg-orange-400/10"},
-  legend:       { color:"text-red-400",   bg:"bg-red-400/10"   },
-};
+function timeAgo(iso: string) {
+  const d = Date.now() - new Date(iso).getTime();
+  if (d < 3600000) return `${Math.floor(d / 60000)}m`;
+  if (d < 86400000) return `${Math.floor(d / 3600000)}h`;
+  return `${Math.floor(d / 86400000)}d`;
+}
 
 export default function PublicProfilePage({ params }: { params: { id: string } }) {
-  const { user } = useAuth();
-  const [profile, setProfile]     = useState<any>(null);
-  const [posts, setPosts]         = useState<any[]>([]);
-  const [following, setFollowing] = useState(false);
-  const [loading, setLoading]     = useState(true);
-  const [followLoading, setFL]    = useState(false);
-  const isOwnProfile = user?.id === params.id;
+  const { user }           = useAuth();
+  const [profile, setPf]   = useState<any>(null);
+  const [posts, setPosts]  = useState<any[]>([]);
+  const [tracks, setTracks]= useState<any[]>([]);
+  const [following, setFw] = useState(false);
+  const [loading, setLd]   = useState(true);
+  const [tab, setTab]      = useState<'posts'|'music'>('posts');
+  const supabase = createClient();
 
   useEffect(() => {
-    const loadProfile = async () => {
-      const [pRes, postsRes] = await Promise.all([
-        fetch(`/api/profile/${params.id}`).then(r => r.json()),
-        fetch(`/api/posts?user_id=${params.id}&limit=9`).then(r => r.json()),
-      ]);
-      setProfile(pRes.profile || null);
-      setPosts(postsRes.posts || []);
-      setFollowing(pRes.is_following || false);
-      setLoading(false);
+    const load = async () => {
+      // Load by username or id
+      const { data: pf } = await supabase.from('profiles')
+        .select('*')
+        .or(`username.eq.${params.id},id.eq.${params.id}`)
+        .maybeSingle();
+
+      if (!pf) { setLd(false); return; }
+      setPf(pf);
+
+      // Load posts
+      const { data: ps } = await supabase.from('posts')
+        .select('*').eq('author_id', pf.id)
+        .order('created_at', { ascending: false }).limit(20);
+      setPosts(ps || []);
+
+      // Load tracks
+      const { data: tr } = await supabase.from('music_tracks')
+        .select('*').eq('user_id', pf.id)
+        .order('created_at', { ascending: false }).limit(10);
+      setTracks(tr || []);
+
+      // Check if following
+      if (user && user.id !== pf.id) {
+        const { data: fw } = await supabase.from('follows')
+          .select('id').eq('follower_id', user.id).eq('following_id', pf.id).maybeSingle();
+        setFw(!!fw);
+      }
+
+      setLd(false);
     };
-    loadProfile();
-  }, [params.id]);
+    load();
+  }, [params.id, user]);
 
   const toggleFollow = async () => {
-    if (!user || isOwnProfile) return;
-    setFL(true);
-    await fetch("/api/follow", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ target_id: params.id, action: following ? "unfollow" : "follow" }),
+    if (!user || !profile) return;
+    const wasFollowing = following;
+    setFw(!wasFollowing);
+    setPf((p: any) => ({ ...p, followers_count: (p.followers_count || 0) + (wasFollowing ? -1 : 1) }));
+    await fetch('/api/follow', {
+      method: wasFollowing ? 'DELETE' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ following_id: profile.id }),
     });
-    setFollowing(!following);
-    setProfile((p: any) => p ? {
-      ...p,
-      followers_count: following ? (p.followers_count || 0) - 1 : (p.followers_count || 0) + 1,
-    } : p);
-    setFL(false);
-  };
-
-  const startDM = async () => {
-    if (!user) return;
-    const res = await fetch("/api/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ recipient_id: params.id }),
-    });
-    const data = await res.json();
-    if (res.ok) window.location.href = `/messages/${data.conversation_id}`;
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0a0a0a]"><Navbar />
-      <div className="flex justify-center pt-20"><Loader2 className="w-6 h-6 animate-spin text-yellow-400" /></div>
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <Loader2 className="w-7 h-7 text-yellow-400 animate-spin" />
     </div>
   );
 
   if (!profile) return (
-    <div className="min-h-screen bg-[#0a0a0a]"><Navbar />
-      <div className="text-center pt-20">
-        <p className="text-zinc-400">Profile not found</p>
-        <Link href="/feed" className="text-yellow-400 mt-2 inline-block">← Back to Feed</Link>
-      </div>
+    <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center gap-3">
+      <div className="text-4xl">🔍</div>
+      <p className="text-white font-bold">User not found</p>
+      <Link href="/search" className="text-yellow-400 text-sm">Search members</Link>
     </div>
   );
 
-  const levelCfg = LEVEL_CONFIG[profile.level?.toLowerCase()] || LEVEL_CONFIG.newcomer;
-  const displayName = profile.display_name || profile.username;
-  const letter = displayName.charAt(0).toUpperCase();
+  const isMe = user?.id === profile.id;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
-      <main className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-[#0a0a0a] pb-24">
+      <AppHeader back />
 
-        {/* Cover */}
-        <div className="h-32 md:h-48 bg-gradient-to-br from-yellow-400/20 via-zinc-900 to-zinc-950 relative">
-          {profile.cover_url && (
-            <img src={profile.cover_url} alt="cover" className="w-full h-full object-cover" />
-          )}
+      {/* Cover */}
+      <div className="h-28 bg-gradient-to-br from-yellow-500/20 via-zinc-900 to-zinc-900 relative">
+        {profile.cover_url && <img src={profile.cover_url} className="w-full h-full object-cover" alt="" />}
+      </div>
+
+      {/* Profile info */}
+      <div className="px-4 pb-4">
+        <div className="flex items-end justify-between -mt-9 mb-3">
+          <div className="w-18 h-18 rounded-2xl overflow-hidden border-4 border-[#0a0a0a] bg-zinc-800">
+            {profile.avatar_url
+              ? <img src={profile.avatar_url} className="w-full h-full object-cover" alt={profile.display_name} />
+              : <div className="w-full h-full flex items-center justify-center text-2xl font-black text-zinc-400">
+                  {(profile.display_name || profile.username || '?')[0].toUpperCase()}
+                </div>}
+          </div>
+
+          <div className="flex gap-2 mb-1">
+            {isMe ? (
+              <Link href="/profile/edit" className="px-4 py-2 bg-zinc-900 border border-zinc-700 text-white text-xs font-bold rounded-full">Edit Profile</Link>
+            ) : (
+              <>
+                <Link href={`/messages?dm=${profile.username}`}
+                  className="p-2 bg-zinc-900 border border-zinc-700 text-white rounded-full">
+                  <MessageCircle className="w-4 h-4" />
+                </Link>
+                <button onClick={toggleFollow}
+                  className={`flex items-center gap-1.5 px-4 py-2 text-xs font-black rounded-full transition-all ${
+                    following ? 'bg-zinc-900 border border-zinc-700 text-white' : 'bg-yellow-400 text-black'}`}>
+                  {following ? <><UserCheck className="w-3.5 h-3.5" /> Following</> : <><UserPlus className="w-3.5 h-3.5" /> Follow</>}
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Profile header */}
-        <div className="px-4 pb-4">
-          <div className="flex items-end justify-between -mt-12 mb-4">
-            {/* Avatar */}
-            <div className="relative">
-              {profile.avatar_url ? (
-                <img src={profile.avatar_url} className="w-20 h-20 rounded-full object-cover border-4 border-[#0a0a0a]" />
-              ) : (
-                <div className="w-20 h-20 rounded-full bg-yellow-400 border-4 border-[#0a0a0a] flex items-center justify-center text-black font-black text-2xl">
-                  {letter}
-                </div>
-              )}
-              <div className={`absolute -bottom-1 -right-1 text-[10px] font-black px-1.5 py-0.5 rounded-full border border-[#0a0a0a] ${levelCfg.bg} ${levelCfg.color}`}>
-                {profile.level || "newcomer"}
-              </div>
-            </div>
+        <h1 className="font-black text-white text-xl leading-tight">{profile.display_name || profile.username}</h1>
+        <p className="text-zinc-500 text-sm mb-2">@{profile.username}</p>
+        {profile.bio && <p className="text-zinc-300 text-sm leading-relaxed mb-3">{profile.bio}</p>}
 
-            {/* Action buttons */}
-            <div className="flex items-center gap-2 mt-14">
-              {isOwnProfile ? (
-                <Link href="/profile"
-                  className="bg-zinc-800 text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-zinc-700 border border-zinc-700">
-                  Edit Profile
-                </Link>
-              ) : user ? (
-                <>
-                  <button onClick={startDM}
-                    className="w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-700 border border-zinc-700">
-                    <Send className="w-3.5 h-3.5 text-white" />
-                  </button>
-                  <button onClick={toggleFollow} disabled={followLoading}
-                    className={`flex items-center gap-1.5 text-xs font-black px-4 py-2 rounded-full transition-all ${
-                      following ? "bg-zinc-800 text-zinc-300 hover:bg-red-500/20 hover:text-red-400 border border-zinc-700"
-                                : "bg-yellow-400 text-black hover:bg-yellow-300"
-                    }`}>
-                    {followLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
-                      following ? <><UserMinus className="w-3.5 h-3.5" /> Unfollow</> :
-                                  <><UserPlus className="w-3.5 h-3.5" /> Follow</>}
-                  </button>
-                </>
-              ) : (
-                <Link href="/auth/login" className="bg-yellow-400 text-black font-black text-xs px-4 py-2 rounded-full">Follow</Link>
-              )}
-              <button onClick={() => navigator.share?.({ title: displayName, url: window.location.href })}
-                className="w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-700 border border-zinc-700">
-                <Share2 className="w-3.5 h-3.5 text-white" />
-              </button>
-            </div>
+        {/* Stats row */}
+        <div className="flex gap-5 mb-4">
+          <div className="text-center">
+            <p className="font-black text-white text-lg leading-none">{posts.length}</p>
+            <p className="text-zinc-500 text-xs">Posts</p>
           </div>
-
-          {/* Identity */}
-          <div className="mb-4">
-            <h1 className="text-white font-black text-xl">{displayName}</h1>
-            <div className="text-zinc-500 text-sm">@{profile.username}</div>
-            {profile.twitter_handle && (
-              <div className="flex items-center gap-1 text-zinc-600 text-xs mt-1">
-                <Twitter className="w-3 h-3" /> @{profile.twitter_handle}
-              </div>
-            )}
-            {profile.bio && <p className="text-zinc-300 text-sm mt-2 leading-relaxed">{profile.bio}</p>}
-            <div className="flex flex-wrap gap-3 mt-2">
-              {profile.location && (
-                <span className="flex items-center gap-1 text-zinc-500 text-xs"><MapPin className="w-3 h-3" /> {profile.location}</span>
-              )}
-              {profile.website && (
-                <a href={profile.website} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-yellow-400 text-xs hover:underline"><Globe className="w-3 h-3" /> Website</a>
-              )}
-            </div>
+          <div className="text-center">
+            <p className="font-black text-white text-lg leading-none">{(profile.followers_count || 0).toLocaleString()}</p>
+            <p className="text-zinc-500 text-xs">Followers</p>
           </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-4 gap-2 mb-5">
-            {[
-              { label:"Points",    value:(profile.points||0).toLocaleString(),    icon:Zap      },
-              { label:"Followers", value:(profile.followers_count||0).toLocaleString(), icon:Users },
-              { label:"Following", value:(profile.following_count||0).toLocaleString(), icon:Heart },
-              { label:"Streak",    value:`${profile.current_streak||0}🔥`,         icon:Trophy   },
-            ].map(({ label, value, icon: Icon }) => (
-              <div key={label} className="bg-zinc-950 border border-zinc-800 rounded-2xl p-3 text-center">
-                <div className="text-white font-black text-sm">{value}</div>
-                <div className="text-zinc-600 text-[10px] mt-0.5">{label}</div>
-              </div>
-            ))}
+          <div className="text-center">
+            <p className="font-black text-white text-lg leading-none">{(profile.following_count || 0).toLocaleString()}</p>
+            <p className="text-zinc-500 text-xs">Following</p>
           </div>
+          <div className="text-center">
+            <p className="font-black text-yellow-400 text-lg leading-none">{(profile.points || 0).toLocaleString()}</p>
+            <p className="text-zinc-500 text-xs">Points</p>
+          </div>
+        </div>
 
-          {/* Posts grid */}
-          {posts.length > 0 && (
-            <div>
-              <div className="text-zinc-500 text-xs font-bold mb-3">RECENT POSTS</div>
-              <div className="space-y-2">
-                {posts.slice(0, 5).map((p: any) => (
-                  <div key={p.id} className="bg-zinc-950 border border-zinc-800 rounded-xl p-3">
-                    <p className="text-zinc-300 text-sm leading-relaxed line-clamp-2">{p.content}</p>
-                    <div className="flex items-center gap-3 mt-2 text-zinc-600 text-xs">
-                      <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {p.likes_count||0}</span>
-                      <span className="flex items-center gap-1"><MessageCircle className="w-3 h-3" /> {p.comments_count||0}</span>
-                      <span className="ml-auto">{new Date(p.created_at).toLocaleDateString()}</span>
+        {/* Tabs */}
+        <div className="flex gap-1 bg-zinc-900 p-1 rounded-2xl mb-4">
+          <button onClick={() => setTab('posts')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-xl transition-all ${tab === 'posts' ? 'bg-yellow-400 text-black' : 'text-zinc-400'}`}>
+            <FileText className="w-3.5 h-3.5" /> Posts
+          </button>
+          <button onClick={() => setTab('music')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-xl transition-all ${tab === 'music' ? 'bg-yellow-400 text-black' : 'text-zinc-400'}`}>
+            <Music2 className="w-3.5 h-3.5" /> Music
+          </button>
+        </div>
+
+        {/* Content */}
+        {tab === 'posts' ? (
+          posts.length === 0
+            ? <div className="text-center py-10 text-zinc-500 text-sm">No posts yet</div>
+            : <div className="space-y-3">
+                {posts.map(p => (
+                  <div key={p.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+                    <p className="text-zinc-200 text-sm leading-relaxed">{p.content}</p>
+                    <div className="flex items-center gap-3 mt-2.5 text-xs text-zinc-600">
+                      <span>❤️ {p.likes_count || 0}</span>
+                      <span>💬 {p.replies_count || 0}</span>
+                      <span className="ml-auto">{timeAgo(p.created_at)}</span>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-        </div>
-      </main>
+        ) : (
+          tracks.length === 0
+            ? <div className="text-center py-10 text-zinc-500 text-sm">No tracks yet</div>
+            : <div className="space-y-2">
+                {tracks.map(t => (
+                  <div key={t.id} className="flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-2xl p-3">
+                    <div className="w-10 h-10 rounded-xl bg-zinc-800 overflow-hidden shrink-0">
+                      {t.cover_url ? <img src={t.cover_url} className="w-full h-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center text-lg">🎵</div>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-white text-sm truncate">{t.title}</p>
+                      <p className="text-zinc-500 text-xs capitalize">{t.genre}</p>
+                    </div>
+                    {t.audio_url && (
+                      <a href={t.audio_url} target="_blank" rel="noreferrer" className="p-1.5 text-zinc-500"><ExternalLink className="w-4 h-4" /></a>
+                    )}
+                  </div>
+                ))}
+              </div>
+        )}
+      </div>
+
+      <BottomNav />
     </div>
   );
 }

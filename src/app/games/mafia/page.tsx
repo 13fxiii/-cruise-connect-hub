@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 import { useState } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import Link from "next/link";
 import { Eye, EyeOff, Moon, Sun, Users, Skull, Shield, Search } from "lucide-react";
 
@@ -116,7 +116,7 @@ export default function MafiaPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
       <main className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/games" className="text-zinc-500 hover:text-white text-sm">← Games</Link>

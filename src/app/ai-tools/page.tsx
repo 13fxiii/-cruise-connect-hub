@@ -1,6 +1,7 @@
 "use client";
+import AppHeader from '@/components/layout/AppHeader';
 import { useState, useEffect } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import { useAuth } from "@/components/auth/AuthProvider";
 import Link from "next/link";
 import {
@@ -73,7 +74,8 @@ export default function AIToolsPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      <AppHeader title="AI Tools ✨" back />
+      
       <main className="max-w-5xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-6">

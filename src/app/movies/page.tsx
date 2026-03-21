@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import {
   Play, X, Star, Users, Clock, Calendar, Film,
   ExternalLink, ChevronRight, Tv, PartyPopper, Vote, Search, Filter
@@ -159,7 +159,7 @@ export default function MoviesPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Navbar />
+      
 
       {/* Fullscreen video modal */}
       {playing && (

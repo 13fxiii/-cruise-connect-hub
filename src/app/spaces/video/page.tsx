@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 import { useState, useRef, useEffect } from "react";
-import Navbar from "@/components/layout/Navbar";
+
 import { createClient } from "@/lib/supabase/client";
 import { Mic, MicOff, Video, VideoOff, Users, Gift, MessageCircle, Send, Heart, X, Plus, Crown, Phone } from "lucide-react";
 
@@ -74,7 +74,7 @@ export default function VideoSpacePage() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
-      <Navbar />
+      
       <div className="flex-1 flex flex-col md:flex-row max-w-6xl mx-auto w-full px-4 py-4 gap-4">
 
         {/* VIDEO AREA */}
