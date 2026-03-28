@@ -7,9 +7,11 @@ interface AuthState { user: User | null; session: Session | null; loading: boole
 const AuthContext = createContext<AuthState>({ user: null, session: null, loading: true });
 export function useAuth() { return useContext(AuthContext); }
 
+// Create once per module so auth state doesn't flap between renders.
+const supabase = createClient();
+
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({ user: null, session: null, loading: true });
-  const supabase = createClient();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {

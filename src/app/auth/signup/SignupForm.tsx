@@ -23,12 +23,10 @@ export default function SignupForm() {
   const handleXSignup = async () => {
     setXLoading(true);
     setError('');
+    const callbackUrl = `${window.location.origin}/auth/callback`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'twitter',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        scopes: 'tweet.read users.read',
-      },
+      options: { redirectTo: callbackUrl },
     });
     if (error) {
       setError(error.message);

@@ -49,8 +49,8 @@ export async function POST(req: NextRequest) {
     // UPSERT — handles both new + existing profiles
     const profileData: any = {
       id: user.id,
-      email: user.email,
       updated_at: new Date().toISOString(),
+      onboarding_done: true,
     };
     if (display_name)          profileData.display_name   = display_name.trim();
     if (username)              profileData.username       = username.toLowerCase().trim();

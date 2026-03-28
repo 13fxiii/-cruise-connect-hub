@@ -32,20 +32,32 @@
                 <data android:scheme="cchub" />
             </intent-filter>
 
-            <!-- HTTPS deep link: cruise-connect-hub.vercel.app -->
+            <!-- HTTPS deep links: keep legacy Vercel host and new canonical custom domain -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="cruise-connect-hub.vercel.app" />
             </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="cruiseconnect.eu.org" />
+            </intent-filter>
 
-            <!-- X/Twitter OAuth callback -->
+            <!-- X/Twitter OAuth callbacks: support both old and new web hosts -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="cruise-connect-hub.vercel.app" android:path="/api/auth/x/callback" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="cruiseconnect.eu.org" android:path="/api/auth/x/callback" />
             </intent-filter>
 
         </activity>

@@ -8,6 +8,9 @@ import BottomNav from '@/components/layout/BottomNav';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cruise-connect-hub.vercel.app';
+const appHost = new URL(appUrl).host;
+
 const LEVELS: Record<string, string> = {
   newcomer: 'Newcomer', cruiser: 'Cruiser', connector: 'Connector',
   hub_star: 'Hub Star', culture_king: 'Culture King', legend: 'Legend',
@@ -47,7 +50,7 @@ export default function CommunityIDPage() {
   const refCode     = profile.referral_code || 'CCH-000000';
   const level       = getLevelName(profile.points || 0);
   const joinDate    = new Date(profile.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-  const profileUrl  = `https://cruise-connect-hub.vercel.app?ref=${refCode}`;
+  const profileUrl  = `${appUrl}?ref=${refCode}`;
   const qrUrl       = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(profileUrl)}&bgcolor=ffffff&color=000000&margin=10`;
 
   const copyLink = () => {
@@ -248,7 +251,7 @@ export default function CommunityIDPage() {
                 {/* Website pill */}
                 <div className="w-full flex items-center justify-center gap-2 bg-white/5 border border-white/10 rounded-full py-1.5 px-4">
                   <span className="text-xs">🌐</span>
-                  <span className="text-white/70 text-[11px]">cruise-connect-hub.vercel.app</span>
+                  <span className="text-white/70 text-[11px]">{appHost}</span>
                 </div>
 
                 {/* Bottom gold line */}

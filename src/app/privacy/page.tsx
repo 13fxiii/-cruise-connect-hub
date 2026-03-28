@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   const lastUpdated = 'March 15, 2026';
   const appName    = 'Cruise & Connect Hub〽️';
-  const appUrl     = 'https://cruise-connect-hub.vercel.app';
+  const appUrl     = process.env.NEXT_PUBLIC_APP_URL || 'https://cruise-connect-hub.vercel.app';
   const contact    = '@TheCruiseCH on X';
 
   const sections = [
@@ -31,7 +31,7 @@ export default function PrivacyPage() {
         },
         {
           sub: 'Payment Information',
-          body: 'Payments are processed by Paystack. We do not store your card details — only transaction references, amounts, and statuses are saved in our system.',
+          body: 'Payments are processed by Flutterwave. We do not store your card details — only transaction references, amounts, and statuses are saved in our system.',
         },
         {
           sub: 'User Content',
@@ -73,7 +73,7 @@ export default function PrivacyPage() {
         },
         {
           sub: 'Service Providers',
-          body: 'We share data with trusted providers that help us operate: Supabase (database & auth), Vercel (hosting), Paystack (payments), and Anthropic (AI features). These providers are bound by strict data processing agreements.',
+          body: 'We share data with trusted providers that help us operate: Supabase (database & auth), Vercel (hosting), Flutterwave (payments), and Anthropic (AI features). These providers are bound by strict data processing agreements.',
         },
         {
           sub: 'Public Profile',
