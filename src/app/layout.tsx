@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import BottomNav from "@/components/layout/BottomNav";
 import InstallBanner from "@/components/layout/InstallBanner";
 import AuthProvider from "@/components/auth/AuthProvider";
@@ -133,6 +134,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             });
           }
         `}</Script>
+        <SpeedInsights />
       </body>
     </html>
   );
