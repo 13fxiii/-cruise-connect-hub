@@ -10,7 +10,7 @@
 **Secondary CTA:** Cruise. Connect. Grow.  
 **Founded by:** @13fxiii (Augustine Ajibola Fagbohun)  
 **Community X Handle:** @CCHub_  
-**Website (live):** https://cruise-connect-hub.netlify.app  
+**Website (live):** https://cruise-connect-hub.vercel.app  
 **GitHub Repo:** https://github.com/13fxiii/-cruise-connect-hub  
 **Supabase Project:** xiyjgcoeljquryixmfut.supabase.co  
 
@@ -35,7 +35,7 @@
 | **Styling** | Tailwind CSS |
 | **Database** | Supabase (PostgreSQL) |
 | **Auth** | Supabase SSR Auth (email + planned X OAuth) |
-| **Hosting** | Netlify (auto-deploy from GitHub main) |
+| **Hosting** | Vercel (auto-deploy from GitHub main) |
 | **Payments** | Paystack (Nigeria NGN payments) — planned |
 | **File Storage** | Supabase Storage |
 | **Icons** | Lucide React |
@@ -526,17 +526,17 @@ created_at  timestamptz
 
 ## 🚀 DEPLOYMENT
 
-- **Platform:** Netlify
+- **Platform:** Vercel
 - **Auto-deploy:** On push to `main` branch of GitHub
 - **Build command:** `npm run build`
 - **Publish dir:** `.next`
 - **Node version:** 18.x
 
-**Environment Variables needed in Netlify:**
+**Environment Variables needed in Vercel:**
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xiyjgcoeljquryixmfut.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=[anon key]
-NEXT_PUBLIC_APP_URL=https://cruise-connect-hub.netlify.app
+NEXT_PUBLIC_APP_URL=https://cruise-connect-hub.vercel.app
 PAYSTACK_SECRET_KEY=[when ready]
 ```
 
@@ -578,7 +578,7 @@ PAYSTACK_SECRET_KEY=[when ready]
 
 ## 🧩 PROMPT FOR CHATGPT / OTHER AI
 
-> **Context:** I'm building Cruise & Connect Hub〽️ — a Next.js 14 community platform (TypeScript, Tailwind CSS, Supabase backend, deployed on Netlify). The app is live at https://cruise-connect-hub.netlify.app.
+> **Context:** I'm building Cruise & Connect Hub〽️ — a Next.js community platform (TypeScript, Tailwind CSS, Supabase backend, deployed on Vercel). The app is live at https://cruise-connect-hub.vercel.app.
 >
 > **Brand:** Black (#0a0a0a) + Gold (#EAB308) color scheme. All pages use dark backgrounds, yellow-400 accents, rounded cards, glassmorphism touches.
 >

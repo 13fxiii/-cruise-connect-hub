@@ -2,7 +2,7 @@
 
 **App ID:** `com.cruiseconnect.hub`  
 **Version:** `1.0.0`  
-**Live URL:** `https://cruise-connect-hub.netlify.app`  
+**Live URL:** `https://cruise-connect-hub.vercel.app`  
 **Dev:** @13fxiii · @CCHub_
 
 ---
@@ -45,7 +45,7 @@ npx cap open android
    ```bash
    keytool -list -v -keystore your-keystore.jks -alias your-alias
    ```
-5. Paste the SHA-256 into: `public/.well-known/assetlinks.json` → redeploy to Netlify
+5. Paste the SHA-256 into: `public/.well-known/assetlinks.json` → redeploy to Vercel
 
 ### Step 4 — Upload to Play Store
 1. Go to https://play.google.com/console → Create App
@@ -165,7 +165,7 @@ Options:
 
 ## 🔗 IMPORTANT: Link Your Website to Your Apps
 
-After publishing, update these files on your Netlify site:
+After publishing, update these files on your Vercel site:
 
 ### For Android (Play Store)
 Edit `public/.well-known/assetlinks.json` — replace `REPLACE_WITH_YOUR_SHA256_KEYSTORE_FINGERPRINT` with your actual keystore SHA-256.
@@ -173,7 +173,7 @@ Edit `public/.well-known/assetlinks.json` — replace `REPLACE_WITH_YOUR_SHA256_
 ### For iOS (App Store)  
 Edit `public/.well-known/apple-app-site-association` — replace `REPLACE_TEAM_ID` with your Apple Team ID (found in developer.apple.com → Membership).
 
-Redeploy to Netlify after both changes.
+Redeploy to Vercel after both changes.
 
 ---
 
@@ -190,7 +190,7 @@ Redeploy to Netlify after both changes.
 ---
 
 ## 💡 Tips
-- The app uses your **live Netlify URL** — so any update you push to Netlify instantly updates ALL platforms automatically. No store resubmission needed for content changes!
+- The app uses your **live Vercel URL** — so any update you push to Vercel instantly updates ALL platforms automatically. No store resubmission needed for content changes!
 - Only submit to stores when the core app functionality changes.
 - Keep your Supabase + Paystack keys secure — never commit them to GitHub.
 

@@ -3,24 +3,46 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
 
-// Support both "Next public" vars and Vercel/Supabase integration vars.
-const SUPABASE_URL =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  process.env.SUPABASE_URL ||
-  'https://xiyjgcoeljquryixmfut.supabase.co';
-
-const SUPABASE_ANON_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_ANON_KEY ||
-  // Back-compat: older env names
-  (process.env as any).SUPABASE_ANON ||
+const DEFAULT_SUPABASE_URL = 'https://xiyjgcoeljquryixmfut.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeWpnY29lbGpxdXJ5aXhtZnV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1NTMzNjAsImV4cCI6MjA4NTEyOTM2MH0.BnVAwvmor0JnjmFn0t4t5lTZU_fIoE3FNl1RYOK1_Hk';
 
+function normalizeSupabaseUrl(maybeUrl: string | undefined) {
+  const url = (maybeUrl || '').trim();
+  if (!url) return DEFAULT_SUPABASE_URL;
+  // Avoid common placeholder values accidentally set in hosting dashboards.
+  if (/\[.*\]/.test(url) || /your[_ -]?supabase/i.test(url) || /example\.com/i.test(url)) return DEFAULT_SUPABASE_URL;
+  if (!/^https?:\/\//i.test(url)) return DEFAULT_SUPABASE_URL;
+  return url;
+}
+
+function normalizeJwtKey(maybeKey: string | undefined, fallback: string) {
+  const key = (maybeKey || '').trim();
+  if (!key) return fallback;
+  // Real Supabase keys are JWT-like (3 dot-separated segments).
+  if (/\[.*\]/.test(key) || /anon key/i.test(key) || /service role/i.test(key) || /your[_ -]?supabase/i.test(key)) return fallback;
+  if (key.split('.').length !== 3) return fallback;
+  return key;
+}
+
+// Support both "Next public" vars and Vercel/Supabase integration vars.
+const SUPABASE_URL = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL);
+
+const SUPABASE_ANON_KEY = normalizeJwtKey(
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    // Back-compat: older env names
+    (process.env as any).SUPABASE_ANON,
+  DEFAULT_SUPABASE_ANON_KEY
+);
+
 const SUPABASE_SERVICE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.SUPABASE_SECRET_KEY ||
-  (process.env as any).SUPABASE_SERVICE_KEY ||
-  SUPABASE_ANON_KEY;
+  normalizeJwtKey(
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.SUPABASE_SECRET_KEY ||
+      (process.env as any).SUPABASE_SERVICE_KEY,
+    SUPABASE_ANON_KEY
+  );
 
 let _supabaseAdmin: ReturnType<typeof createClient<Database>> | null = null;
 

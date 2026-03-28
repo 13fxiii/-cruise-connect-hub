@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'CC Hub〽️',
   webDir: 'out',          // static export dir — see build section
 
-  // ── PRODUCTION: load live Netlify URL ──────────────────────
+  // ── PRODUCTION: load live Vercel URL ───────────────────────
   // This means ALL features work: Supabase auth, payments, everything
   server: {
     url: 'https://cruise-connect-hub.vercel.app',
@@ -16,6 +16,7 @@ const config: CapacitorConfig = {
       'cruise-connect-hub.vercel.app',
       'xiyjgcoeljquryixmfut.supabase.co',
       '*.paystack.co',
+      '*.flutterwave.com',
       '*.twitter.com',
       '*.x.com',
     ],
