@@ -25,8 +25,14 @@ const SUPABASE_URL = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL |
 
 const SUPABASE_ANON = normalizeAnonKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY);
 
+type SchemaName = Exclude<keyof Database, "__InternalSupabase">;
+const SUPABASE_SCHEMA: SchemaName =
+  ((process.env.NEXT_PUBLIC_SUPABASE_SCHEMA || process.env.SUPABASE_SCHEMA) as SchemaName) || "public";
+
 export function createClient() {
   // Pass NO extra auth options — any overrides via mergeDeepRight can
   // accidentally shadow the internal cookie-based PKCE storage adapter
-  return createBrowserClient<Database>(SUPABASE_URL, SUPABASE_ANON);
+  return createBrowserClient<Database>(SUPABASE_URL, SUPABASE_ANON, {
+    db: { schema: SUPABASE_SCHEMA },
+  });
 }

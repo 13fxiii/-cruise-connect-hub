@@ -3,5 +3,7 @@ node_modules/
 .next_old_*/
 output/
 .env.local
+.vercel/.env*.local
+.vercel/.env.*.local
 *.log
 .DS_Store

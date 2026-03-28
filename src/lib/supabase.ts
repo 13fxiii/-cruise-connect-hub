@@ -7,6 +7,10 @@ const DEFAULT_SUPABASE_URL = 'https://xiyjgcoeljquryixmfut.supabase.co';
 const DEFAULT_SUPABASE_ANON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeWpnY29lbGpxdXJ5aXhtZnV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1NTMzNjAsImV4cCI6MjA4NTEyOTM2MH0.BnVAwvmor0JnjmFn0t4t5lTZU_fIoE3FNl1RYOK1_Hk';
 
+type SchemaName = Exclude<keyof Database, "__InternalSupabase">;
+const SUPABASE_SCHEMA: SchemaName =
+  ((process.env.NEXT_PUBLIC_SUPABASE_SCHEMA || process.env.SUPABASE_SCHEMA) as SchemaName) || "public";
+
 function normalizeSupabaseUrl(maybeUrl: string | undefined) {
   const url = (maybeUrl || '').trim();
   if (!url) return DEFAULT_SUPABASE_URL;
@@ -49,7 +53,8 @@ let _supabaseAdmin: ReturnType<typeof createClient<Database>> | null = null;
 export function getSupabaseAdmin() {
   if (!_supabaseAdmin) {
     _supabaseAdmin = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-      auth: { persistSession: false }
+      auth: { persistSession: false },
+      db: { schema: SUPABASE_SCHEMA },
     });
   }
   return _supabaseAdmin;
@@ -62,12 +67,15 @@ export const supabaseAdmin = new Proxy({} as ReturnType<typeof createClient<Data
 });
 
 export function getSupabaseBrowser() {
-  return createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY);
+  return createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    db: { schema: SUPABASE_SCHEMA },
+  });
 }
 
 export function createSupabaseServerClient() {
   const cookieStore = cookies();
   return createServerClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    db: { schema: SUPABASE_SCHEMA },
     cookies: {
       getAll() {
         return (cookieStore as any).getAll();

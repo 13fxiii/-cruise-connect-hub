@@ -26,10 +26,15 @@ const SUPABASE_URL = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL |
 
 const SUPABASE_ANON = normalizeAnonKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY);
 
+type SchemaName = Exclude<keyof Database, "__InternalSupabase">;
+const SUPABASE_SCHEMA: SchemaName =
+  ((process.env.NEXT_PUBLIC_SUPABASE_SCHEMA || process.env.SUPABASE_SCHEMA) as SchemaName) || "public";
+
 export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient<Database>(SUPABASE_URL, SUPABASE_ANON, {
+    db: { schema: SUPABASE_SCHEMA },
     cookies: {
       // v0.3.0 internally calls cookies.get(name) for PKCE verifier lookup —
       // must provide individual get/set/remove, not just getAll/setAll
