@@ -26,13 +26,21 @@ const SUPABASE_URL = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL |
 const SUPABASE_ANON = normalizeAnonKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY);
 
 type SchemaName = Exclude<keyof Database, "__InternalSupabase">;
-const SUPABASE_SCHEMA: SchemaName =
-  ((process.env.NEXT_PUBLIC_SUPABASE_SCHEMA || process.env.SUPABASE_SCHEMA) as SchemaName) || "public";
+function normalizeSchema(maybeSchema: string | undefined): SchemaName | undefined {
+  const schema = (maybeSchema || "").trim();
+  if (!schema) return undefined;
+  if (/\[.*\]/.test(schema) || /your[_ -]?schema/i.test(schema)) return undefined;
+  return schema as SchemaName;
+}
+
+// Do not default to "public" to avoid "Invalid schema: public" when Supabase "Exposed schemas"
+// is configured to something else.
+const SUPABASE_SCHEMA = normalizeSchema(process.env.NEXT_PUBLIC_SUPABASE_SCHEMA || process.env.SUPABASE_SCHEMA);
 
 export function createClient() {
   // Pass NO extra auth options — any overrides via mergeDeepRight can
   // accidentally shadow the internal cookie-based PKCE storage adapter
   return createBrowserClient<Database>(SUPABASE_URL, SUPABASE_ANON, {
-    db: { schema: SUPABASE_SCHEMA },
+    ...(SUPABASE_SCHEMA ? { db: { schema: SUPABASE_SCHEMA } } : {}),
   });
 }

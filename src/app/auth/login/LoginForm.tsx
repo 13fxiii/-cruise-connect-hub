@@ -63,13 +63,6 @@ export default function LoginForm() {
         >
           Create an X account
         </a>
-
-        <Link
-          href="/feed"
-          className="w-full block text-center text-zinc-500 text-xs hover:text-zinc-300 transition-colors"
-        >
-          Browse without signing in
-        </Link>
       </div>
     </AuthShell>
   );
@@ -104,4 +97,3 @@ function AuthShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
