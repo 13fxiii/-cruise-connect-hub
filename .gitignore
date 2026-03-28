@@ -1,6 +1,7 @@
 node_modules/
 .next/
 output/
+.next_old_*/
 .env.local
 *.log
 .DS_Store
