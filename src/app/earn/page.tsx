@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cruise-connect-hub.vercel.app';
+
 export default function EarnPage() {
   const { user }          = useAuth();
   const [profile, setPf]  = useState<any>(null);
@@ -34,7 +36,7 @@ export default function EarnPage() {
   }, [user]);
 
   const refLink = profile?.referral_code
-    ? `https://cruise-connect-hub.vercel.app?ref=${profile.referral_code}`
+    ? `${appUrl}?ref=${profile.referral_code}`
     : '';
 
   const copy = () => {

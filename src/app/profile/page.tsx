@@ -9,6 +9,8 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cruise-connect-hub.vercel.app';
+
 const LEVELS = [
   { name:'Newcomer',     min:0,    color:'text-zinc-400',  bg:'bg-zinc-400/10',  border:'border-zinc-600' },
   { name:'Cruiser',      min:100,  color:'text-blue-400',  bg:'bg-blue-400/10',  border:'border-blue-600' },
@@ -111,7 +113,7 @@ export default function ProfilePage() {
 
   const copyRef = () => {
     if (!profile?.referral_code) return;
-    navigator.clipboard.writeText(`https://cruise-connect-hub.vercel.app?ref=${profile.referral_code}`);
+    navigator.clipboard.writeText(`${appUrl}?ref=${profile.referral_code}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

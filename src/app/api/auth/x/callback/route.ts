@@ -4,13 +4,14 @@ import { createClient } from '@supabase/supabase-js';
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
   const code  = searchParams.get('code');
   const state = searchParams.get('state');
   const error = searchParams.get('error');
 
   // Error from X
   if (error) {
-    return NextResponse.redirect(`${origin}/auth/login?error=x_denied`);
+    return NextResponse.redirect(`${appUrl}/auth/login?error=x_denied`);
   }
 
   // Validate state
@@ -18,12 +19,16 @@ export async function GET(request: NextRequest) {
   const codeVerifier   = request.cookies.get('x_code_verifier')?.value;
 
   if (!code || !state || state !== storedState || !codeVerifier) {
-    return NextResponse.redirect(`${origin}/auth/login?error=x_invalid_state`);
+    return NextResponse.redirect(`${appUrl}/auth/login?error=x_invalid_state`);
   }
 
   const clientId     = process.env.TWITTER_CLIENT_ID     || 'OTZFOG85a29YZ1RwdTJteTIxQlI6MTpjaQ';
   const clientSecret = process.env.TWITTER_CLIENT_SECRET || '';
-  const redirectUri  = `${origin}/api/auth/x/callback`;
+  const redirectUri  = `${appUrl}/api/auth/x/callback`;
+
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.redirect(`${appUrl}/auth/login?error=x_config_missing`);
+  }
 
   try {
     // Exchange code for token
@@ -44,7 +49,7 @@ export async function GET(request: NextRequest) {
     const tokenData = await tokenRes.json();
     if (!tokenRes.ok || !tokenData.access_token) {
       console.error('X token error:', tokenData);
-      return NextResponse.redirect(`${origin}/auth/login?error=x_token_failed`);
+      return NextResponse.redirect(`${appUrl}/auth/login?error=x_token_failed`);
     }
 
     // Get X user info
@@ -55,7 +60,7 @@ export async function GET(request: NextRequest) {
     const xUser = userData.data;
 
     if (!xUser?.id) {
-      return NextResponse.redirect(`${origin}/auth/login?error=x_user_failed`);
+      return NextResponse.redirect(`${appUrl}/auth/login?error=x_user_failed`);
     }
 
     // Use Supabase admin to create/get user
@@ -95,7 +100,7 @@ export async function GET(request: NextRequest) {
       });
       if (createErr || !newUser?.user) {
         console.error('Create user error:', createErr);
-        return NextResponse.redirect(`${origin}/auth/login?error=x_create_failed`);
+        return NextResponse.redirect(`${appUrl}/auth/login?error=x_create_failed`);
       }
       userId = newUser.user.id;
 
@@ -118,11 +123,11 @@ export async function GET(request: NextRequest) {
 
     if (sessionErr || !sessionData?.properties?.hashed_token) {
       console.error('Session error:', sessionErr);
-      return NextResponse.redirect(`${origin}/auth/login?error=x_session_failed`);
+      return NextResponse.redirect(`${appUrl}/auth/login?error=x_session_failed`);
     }
 
     // Redirect to Supabase confirm URL which sets session cookies
-    const confirmUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify?token=${sessionData.properties.hashed_token}&type=magiclink&redirect_to=${origin}/feed`;
+    const confirmUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify?token=${sessionData.properties.hashed_token}&type=magiclink&redirect_to=${appUrl}/feed`;
 
     // Clear PKCE cookies
     const response = NextResponse.redirect(confirmUrl);
@@ -132,6 +137,6 @@ export async function GET(request: NextRequest) {
 
   } catch (err) {
     console.error('X OAuth callback error:', err);
-    return NextResponse.redirect(`${origin}/auth/login?error=x_unknown`);
+    return NextResponse.redirect(`${appUrl}/auth/login?error=x_unknown`);
   }
 }

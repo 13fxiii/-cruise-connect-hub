@@ -14,7 +14,8 @@ function generateCodeChallenge(verifier: string): string {
 export async function GET(request: NextRequest) {
   const clientId = process.env.TWITTER_CLIENT_ID || 'OTZFOG85a29YZ1RwdTJteTIxQlI6MTpjaQ';
   const origin = request.nextUrl.origin;
-  const redirectUri = `${origin}/api/auth/x/callback`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
+  const redirectUri = `${appUrl}/api/auth/x/callback`;
 
   // PKCE
   const codeVerifier = generateCodeVerifier();

@@ -6,6 +6,8 @@ import InstallBanner from "@/components/layout/InstallBanner";
 import AuthProvider from "@/components/auth/AuthProvider";
 import "./globals.css";
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://cruise-connect-hub.vercel.app";
+
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: dark)",  color: "#EAB308" },
@@ -20,12 +22,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://cruise-connect-hub.vercel.app'),
+  metadataBase: new URL(appUrl),
   title: { default: "Cruise Connect Hub〽️", template: "%s · CC Hub" },
   description: "The home of Naija culture online. Live Spaces, Games, Music, Movies, Jobs & Wallet. 3,000+ members strong.",
   applicationName: "CC Hub",
   keywords: ["Naija community", "Cruise Connect", "live spaces", "Nigerian culture", "online community"],
-  authors: [{ name: "Cruise Connect Hub", url: "https://cruise-connect-hub.vercel.app" }],
+  authors: [{ name: "Cruise Connect Hub", url: appUrl }],
   creator: "@TheCruiseCH",
   publisher: "Cruise Connect Hub",
 
@@ -64,7 +66,7 @@ export const metadata: Metadata = {
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Cruise Connect Hub" }],
     type: "website",
     locale: "en_NG",
-    url: "https://cruise-connect-hub.vercel.app",
+    url: appUrl,
   },
   twitter: {
     card: "summary_large_image",

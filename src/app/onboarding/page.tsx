@@ -42,7 +42,7 @@ export default function OnboardingPage() {
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) { router.replace("/auth/login"); return; }
       setUser(data.user);
       const meta = data.user.user_metadata || {};
@@ -51,20 +51,36 @@ export default function OnboardingPage() {
         display_name: meta.full_name || meta.name || "",
         username: (meta.username || meta.preferred_username || "").toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,30),
       }));
+
+      // If profile already complete, skip onboarding
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name, username")
+        .eq("id", data.user.id)
+        .maybeSingle();
+      if (profile?.display_name && profile?.username) {
+        router.replace("/feed");
+      }
     });
   }, []);
 
   const field = (k: string) => (e: any) => setForm(p => ({...p,[k]:e.target.value}));
 
   /* ─── STEP 0: agree to rules ─── */
-  const handleAgree = async () => {
+  const handleAgree = () => {
     if (!agreed || !user) return;
     setLoading(true);
-    await supabase.from("member_rules_accepted")
-      .upsert({ user_id: user.id }, { onConflict: "user_id" })
-      .catch(() => {});
-    setLoading(false);
+
+    // Never block onboarding UX on this write. If the network request hangs, we still
+    // let the user proceed and persist in the background.
     setStep(1);
+    const persist = supabase
+      .from("member_rules_accepted")
+      .upsert({ user_id: user.id }, { onConflict: "user_id" });
+
+    Promise.race([persist, new Promise((r) => setTimeout(r, 2500))])
+      .catch(() => {})
+      .finally(() => setLoading(false));
   };
 
   /* ─── STEP 1: profile form → just validate, no save yet ─── */

@@ -8,14 +8,12 @@ export async function GET(request: NextRequest) {
   const error            = searchParams.get('error');
   const errorDescription = searchParams.get('error_description');
   const errorUri         = searchParams.get('error_uri');
+  const redirectToParam  = searchParams.get('redirectTo');
 
-  // Log all params for debugging
-  console.log('[auth/callback]', {
-    hasCode: !!code,
-    error,
-    errorDescription,
-    allParams: Object.fromEntries(searchParams.entries()),
-  });
+  // Never log full query params in production (may contain sensitive auth codes).
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[auth/callback]', { hasCode: !!code, error, errorDescription, errorUri });
+  }
 
   // X/Twitter OAuth error — usually means redirect URL mismatch in Supabase dashboard
   if (error) {
@@ -35,7 +33,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (data?.user) {
-      console.log('[auth/callback] Success, user:', data.user.id, 'email:', data.user.email);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[auth/callback] Success, user:', data.user.id);
+      }
 
       // Check if new user (no display_name = hasn't done onboarding)
       // Use maybeSingle — .single() throws PGRST116 if no row exists
@@ -46,8 +46,21 @@ export async function GET(request: NextRequest) {
         .maybeSingle();
 
       const isNewUser = !profile || !profile.display_name || !profile.username;
-      const dest = isNewUser ? `${origin}/onboarding` : `${origin}/feed`;
-      console.log('[auth/callback] Redirecting to:', dest, '(isNewUser:', isNewUser, ')');
+
+      // Optional post-login redirect (must be a safe internal path).
+      let safeRedirect: string | null = null;
+      if (redirectToParam && redirectToParam.startsWith('/') && !redirectToParam.startsWith('//')) {
+        safeRedirect = redirectToParam;
+      }
+
+      const dest = isNewUser
+        ? `${origin}/onboarding`
+        : `${origin}${safeRedirect || '/feed'}`;
+
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[auth/callback] Redirecting to:', dest, '(isNewUser:', isNewUser, ')');
+      }
+
       return NextResponse.redirect(dest);
     }
   }

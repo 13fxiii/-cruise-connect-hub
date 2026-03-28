@@ -35,6 +35,8 @@ export default function LoginForm() {
       setError(
         error.message === 'Invalid login credentials'
           ? 'Wrong email or password — try again or reset it.'
+          : error.message === 'Email not confirmed'
+          ? 'Please confirm your email first, then try again.'
           : error.message
       );
       setLoading(false);
@@ -48,14 +50,11 @@ export default function LoginForm() {
   const handleXLogin = async () => {
     setXLoading(true);
     setError('');
-    // No ?next= query param — Supabase only accepts exact URL matches
-    // Callback always lands on /feed (or whatever callback redirects to)
+    // Use Supabase OAuth (twitter provider covers X)
+    const callbackUrl = `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'twitter',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        scopes: 'tweet.read users.read',
-      },
+      options: { redirectTo: callbackUrl },
     });
     if (error) {
       setError(error.message);
@@ -118,9 +117,22 @@ export default function LoginForm() {
   );
 
   /* ── Main login ───────────────────────────────────────────── */
+  const friendlyError = urlError
+    ? ({
+        x_denied: 'X login was cancelled. Please try again.',
+        x_invalid_state: 'X login session expired. Please try again.',
+        x_token_failed: 'Could not connect to X. Please try again.',
+        x_user_failed: 'X login failed. Please try again.',
+        x_create_failed: 'Could not create your account. Please try again.',
+        x_session_failed: 'Could not complete login. Please try again.',
+        x_config_missing: 'Login is not configured yet. Please try again later.',
+        x_unknown: 'Something went wrong with X login. Please try again.',
+      } as Record<string, string>)[urlError] || decodeURIComponent(urlError)
+    : '';
+
   return (
     <AuthShell>
-      {urlError && <ErrorBox msg={decodeURIComponent(urlError)} />}
+      {urlError && <ErrorBox msg={friendlyError} />}
 
       <h2 className="text-lg font-black text-white mb-1">Welcome back 👋</h2>
       <p className="text-zinc-500 text-xs mb-6">Sign in to your CC Hub account</p>
