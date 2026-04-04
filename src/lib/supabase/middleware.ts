@@ -96,13 +96,6 @@ export async function updateSession(request: NextRequest) {
   const shouldCheck = user && needsOnboardingCheck.some(p => pathname.startsWith(p));
 
   if (shouldCheck) {
-    // Rules acceptance: every user should see the rules at least once after login.
-    const { data: rulesRow, error: rulesError } = await supabase
-      .from('member_rules_accepted')
-      .select('user_id')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
     const { data: profile, error } = await supabase
       .from('profiles')
       .select('display_name, username')
@@ -110,12 +103,10 @@ export async function updateSession(request: NextRequest) {
       .maybeSingle();
 
     // If the DB schema is misconfigured (or any other error), never hard-block the user.
-    if (error || rulesError) return response;
+    if (error) return response;
 
-    const rulesAccepted = Boolean(rulesRow?.user_id);
     const incompleteProfile = !profile || !profile.display_name || !profile.username;
-    const incomplete = !rulesAccepted || incompleteProfile;
-    if (incomplete) {
+    if (incompleteProfile) {
       const url = request.nextUrl.clone();
       url.pathname = '/onboarding';
       return NextResponse.redirect(url);

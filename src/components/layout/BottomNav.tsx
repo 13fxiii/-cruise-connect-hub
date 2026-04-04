@@ -17,8 +17,15 @@ export default function BottomNav() {
   const { user } = useAuth();
   const [unreadDMs, setUnreadDMs] = useState(0);
 
+  // Hide nav on auth + onboarding flows.
+  const shouldHide =
+    pathname === "/" ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/rules");
+
   useEffect(() => {
-    if (!user) return;
+    if (!user || shouldHide) return;
     const fetch_ = () => {
       fetch('/api/messages').then(r => r.json()).then(d => {
         const total = (d.conversations || []).reduce((a: number, c: any) => a + (c.unread || 0), 0);
@@ -28,7 +35,9 @@ export default function BottomNav() {
     fetch_();
     const t = setInterval(fetch_, 30000);
     return () => clearInterval(t);
-  }, [user]);
+  }, [user, shouldHide]);
+
+  if (shouldHide) return null;
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/');

@@ -20,14 +20,68 @@ export default function LoginForm() {
     setError('');
 
     // Supabase OAuth: "twitter" provider covers X.
-    const callbackUrl = `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectTo)}`;
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'twitter',
-      options: { redirectTo: callbackUrl },
-    });
+    // Use a popup so the main app doesn't lose state and cookies settle cleanly.
+    const callbackUrl = `${window.location.origin}/auth/callback?popup=1&redirectTo=${encodeURIComponent(redirectTo)}`;
 
-    if (error) {
-      setError(error.message);
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: { redirectTo: callbackUrl, skipBrowserRedirect: true },
+      });
+
+      if (error) throw error;
+      if (!data?.url) throw new Error('Unable to start X login');
+
+      const w = 520;
+      const h = 680;
+      const left = window.screenX + Math.max(0, (window.outerWidth - w) / 2);
+      const top = window.screenY + Math.max(0, (window.outerHeight - h) / 2);
+
+      const popup = window.open(
+        data.url,
+        'cch-x-oauth',
+        `popup=yes,width=${w},height=${h},left=${left},top=${top}`
+      );
+
+      // Popup blocked: just continue in the same tab.
+      if (!popup) {
+        window.location.href = data.url;
+        return;
+      }
+
+      const onMessage = (event: MessageEvent) => {
+        if (event.origin !== window.location.origin) return;
+        const payload: any = event.data;
+        if (!payload || typeof payload !== 'object') return;
+
+        if (payload.type === 'cch-auth-success') {
+          cleanup(poll);
+          window.location.href = payload.dest || redirectTo;
+          return;
+        }
+
+        if (payload.type === 'cch-auth-error') {
+          cleanup(poll);
+          setError(payload.error || 'Sign-in failed. Please try again.');
+          setXLoading(false);
+        }
+      };
+
+      const cleanup = (timer?: number) => {
+        window.removeEventListener('message', onMessage);
+        if (timer) window.clearInterval(timer);
+      };
+
+      window.addEventListener('message', onMessage);
+
+      const poll = window.setInterval(() => {
+        if (popup.closed) {
+          cleanup(poll);
+          setXLoading(false);
+        }
+      }, 500);
+    } catch (err: any) {
+      setError(err?.message || 'Sign-in failed. Please try again.');
       setXLoading(false);
     }
   };
@@ -92,7 +146,6 @@ function AuthShell({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
         <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 shadow-2xl shadow-black/50">{children}</div>
-        <p className="text-center text-zinc-700 text-xs mt-4">By signing in, you agree to cruise responsibly 🚌</p>
       </div>
     </div>
   );
