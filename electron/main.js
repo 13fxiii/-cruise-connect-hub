@@ -2,7 +2,7 @@ const { app, BrowserWindow, shell, Menu, Tray, nativeImage, ipcMain, Notificatio
 const path   = require('path');
 const os     = require('os');
 
-const APP_URL  = 'https://cruise-connect-hub.netlify.app';
+const APP_URL  = 'https://cruise-connect-hub.vercel.app';
 const APP_NAME = 'Cruise Connect Hub';
 const isDev    = process.env.NODE_ENV === 'development';
 

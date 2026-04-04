@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { isAdminUser } from '@/lib/authz';
 
 async function verifyAdmin(req: NextRequest) {
   const supabase = await createClient();
@@ -9,7 +10,7 @@ async function verifyAdmin(req: NextRequest) {
   if (!user) return null;
   const { data: profile } = await supabaseAdmin
     .from('profiles').select('is_admin, role').eq('id', user.id).single();
-  if (!(profile as any)?.is_admin && (profile as any)?.role !== 'admin') return null;
+  if (!isAdminUser(user, profile as any)) return null;
   return user;
 }
 

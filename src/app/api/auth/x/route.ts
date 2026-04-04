@@ -11,11 +11,22 @@ function generateCodeChallenge(verifier: string): string {
   return crypto.createHash('sha256').update(verifier).digest('base64url');
 }
 
+function getSafeRedirect(redirectTo?: string): string {
+  if (!redirectTo) return '/feed';
+  if (redirectTo.startsWith('/') && !redirectTo.startsWith('//')) return redirectTo;
+  return '/feed';
+}
+
 export async function GET(request: NextRequest) {
-  const clientId = process.env.TWITTER_CLIENT_ID || 'OTZFOG85a29YZ1RwdTJteTIxQlI6MTpjaQ';
+  const clientId = process.env.TWITTER_CLIENT_ID;
   const origin = request.nextUrl.origin;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
   const redirectUri = `${appUrl}/api/auth/x/callback`;
+  const redirectTo = getSafeRedirect(request.nextUrl.searchParams.get('redirectTo') || undefined);
+
+  if (!clientId) {
+    return NextResponse.redirect(`${appUrl}/auth/login?error=x_config_missing`);
+  }
 
   // PKCE
   const codeVerifier = generateCodeVerifier();
@@ -35,22 +46,18 @@ export async function GET(request: NextRequest) {
 
   const authUrl = `https://twitter.com/i/oauth2/authorize?${params.toString()}`;
 
-  // Store verifier + state in cookie (short-lived)
+  // Store verifier + state + redirect target in cookie (short-lived)
   const response = NextResponse.redirect(authUrl);
-  response.cookies.set('x_code_verifier', codeVerifier, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 600, // 10 mins
-    path: '/',
-  });
-  response.cookies.set('x_oauth_state', state, {
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 600,
     path: '/',
-  });
+  };
+  response.cookies.set('x_code_verifier', codeVerifier, cookieOptions);
+  response.cookies.set('x_oauth_state', state, cookieOptions);
+  response.cookies.set('x_oauth_redirect_to', redirectTo, cookieOptions);
 
   return response;
 }

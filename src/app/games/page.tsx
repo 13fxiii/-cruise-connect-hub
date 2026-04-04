@@ -12,6 +12,7 @@ const GAMES = [
   { id:'trivia', emoji:'🧠', title:'Trivia', desc:'Naija & General Knowledge', href:'/games/trivia', color:'bg-blue-500/10 border-blue-500/20', tag:'Popular', players:89 },
   { id:'uno',    emoji:'🃏', title:'UNO',    desc:'Classic card game vs bots',  href:'/games/uno',    color:'bg-red-500/10 border-red-500/20',  tag:'NEW 🔥', players:24 },
   { id:'drawing',emoji:'🎨', title:'Draw & Guess', desc:'Draw Naija things',    href:'/games/drawing',color:'bg-pink-500/10 border-pink-500/20', tag:'🇳🇬 Naija', players:18 },
+  { id:'werewolf',emoji:'🐺', title:'Werewolf', desc:'Social deduction (Plato-style)', href:'/games/werewolf', color:'bg-violet-500/10 border-violet-500/20', tag:'NEW', players:12 },
   { id:'poll',   emoji:'📊', title:'Daily Poll',   desc:'Vote on today\'s topic',href:'/games/poll',   color:'bg-green-500/10 border-green-500/20', tag:'Today', players:0 },
   { id:'truth',  emoji:'💬', title:'Truth or Dare',desc:'Community T&D rounds', href:'/games/truth-dare', color:'bg-orange-500/10 border-orange-500/20', tag:'Hot', players:33 },
   { id:'tournament',emoji:'🏆',title:'Tournament', desc:'Compete for prizes',   href:'/games/tournament',color:'bg-yellow-500/10 border-yellow-500/20', tag:'₦100K', players:0 },

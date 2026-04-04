@@ -25,9 +25,8 @@ export default function ModeratorDashboard() {
       if (!user) { router.push("/auth/login"); return; }
       setUser(user);
 
-      // Check mod status
-      const { data: mod } = await supabase.from("moderators").select("role,permissions").eq("user_id", user.id).single();
-      if (!mod) { router.push("/feed"); return; }
+      // Access to this page is enforced by middleware (admin allowlist).
+      // Keep client-side state simple to avoid false negatives when RLS/schema changes.
       setIsMod(true);
 
       const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).single();

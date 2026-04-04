@@ -1,7 +1,10 @@
 node_modules/
 .next/
-output/
 .next_old_*/
+output/
+dist-electron/
 .env.local
+.vercel/.env*.local
+.vercel/.env.*.local
 *.log
 .DS_Store

@@ -2,13 +2,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const ADMIN_IDS = ['81341f73-3a9b-4f89-abcc-cf49c4f7ce20'];
+import { isAdminUser } from '@/lib/authz';
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || !ADMIN_IDS.includes(user.id)) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Prefer env allowlist; fall back to profile flags only if allowlist isn't configured.
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('is_admin, role')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (!isAdminUser(user, profile as any)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get('page') || '1');
@@ -35,7 +43,15 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || !ADMIN_IDS.includes(user.id)) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('is_admin, role')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (!isAdminUser(user, profile as any)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { member_id, action, value } = await req.json();
 

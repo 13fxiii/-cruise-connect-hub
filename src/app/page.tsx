@@ -44,8 +44,8 @@ export default function HomePage() {
         <div className="flex items-center gap-2">
           <Link href="/feed" className="text-zinc-400 text-xs hover:text-white transition-colors hidden sm:block">Community</Link>
           <Link href="/auth/login" className="text-zinc-400 text-xs hover:text-white transition-colors">Sign In</Link>
-          <Link href="/auth/signup" className="bg-yellow-400 text-black text-xs font-black px-3 py-1.5 rounded-full hover:bg-yellow-300 transition-all hover:scale-105">
-            Join 🚌
+          <Link href="/auth/login" className="bg-yellow-400 text-black text-xs font-black px-3 py-1.5 rounded-full hover:bg-yellow-300 transition-all hover:scale-105">
+            Continue with X
           </Link>
         </div>
       </nav>
@@ -74,9 +74,9 @@ export default function HomePage() {
           <span className="text-white font-semibold">rides together.</span>
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link href="/auth/signup"
+          <Link href="/auth/login"
             className="flex items-center gap-2 bg-yellow-400 text-black font-black px-6 py-3 rounded-xl hover:bg-yellow-300 transition-all hover:scale-105 text-sm shadow-lg shadow-yellow-400/20 w-full sm:w-auto justify-center">
-            Join the Community <ArrowRight size={16} />
+            Continue with X <ArrowRight size={16} />
           </Link>
           <Link href="/feed"
             className="flex items-center gap-2 border border-zinc-700 text-white font-bold px-6 py-3 rounded-xl hover:bg-zinc-800 transition-colors text-sm w-full sm:w-auto justify-center">
