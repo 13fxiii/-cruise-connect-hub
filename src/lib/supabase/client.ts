@@ -38,9 +38,12 @@ function normalizeSchema(maybeSchema: string | undefined): SchemaName | undefine
 const SUPABASE_SCHEMA = normalizeSchema(process.env.NEXT_PUBLIC_SUPABASE_SCHEMA || process.env.SUPABASE_SCHEMA);
 
 export function createClient() {
-  // Pass NO extra auth options — any overrides via mergeDeepRight can
-  // accidentally shadow the internal cookie-based PKCE storage adapter
   return createBrowserClient<Database>(SUPABASE_URL, SUPABASE_ANON, {
     ...(SUPABASE_SCHEMA ? { db: { schema: SUPABASE_SCHEMA } } : {}),
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
   });
 }

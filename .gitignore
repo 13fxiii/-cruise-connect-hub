@@ -2,6 +2,7 @@ node_modules/
 .next/
 .next_old_*/
 output/
+dist-electron/
 .env.local
 .vercel/.env*.local
 .vercel/.env.*.local
