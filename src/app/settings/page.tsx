@@ -57,6 +57,7 @@ export default function SettingsPage() {
     { label: 'Edit Profile',  href: '/profile/edit', icon: User },
     { label: 'Community ID',  href: '/community-id', icon: Shield },
     { label: 'Privacy Policy', href: '/privacy',     icon: Lock },
+    { label: 'Terms of Service', href: '/terms',      icon: Shield },
   ];
 
   return (

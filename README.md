@@ -32,6 +32,8 @@ NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5...
 NEXT_PUBLIC_APP_URL=https://cruiseconnect.hub
+NEXT_PUBLIC_TERMS_OF_SERVICE_URL=https://cruiseconnect.hub/terms
+NEXT_PUBLIC_PRIVACY_POLICY_URL=https://cruiseconnect.hub/privacy
 ```
 
 ### Step 3: Local Development
@@ -55,9 +57,17 @@ vercel env add NEXT_PUBLIC_SUPABASE_URL
 vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
 vercel env add SUPABASE_SERVICE_ROLE_KEY
 vercel env add NEXT_PUBLIC_APP_URL
+vercel env add NEXT_PUBLIC_TERMS_OF_SERVICE_URL
+vercel env add NEXT_PUBLIC_PRIVACY_POLICY_URL
 
 # Deploy to production
 vercel --prod
+```
+
+If you also build from GitHub Actions, mirror these in GitHub Actions secrets:
+```bash
+gh secret set NEXT_PUBLIC_TERMS_OF_SERVICE_URL --body "https://cruiseconnect.hub/terms"
+gh secret set NEXT_PUBLIC_PRIVACY_POLICY_URL --body "https://cruiseconnect.hub/privacy"
 ```
 
 ### Step 5: Twitter/X OAuth Final Config

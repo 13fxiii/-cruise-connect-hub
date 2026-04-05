@@ -64,6 +64,8 @@ vercel env add TWITTER_CLIENT_SECRET
 vercel env add NEXT_PUBLIC_SUPABASE_URL
 vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
 vercel env add SUPABASE_SERVICE_ROLE_KEY
+vercel env add NEXT_PUBLIC_TERMS_OF_SERVICE_URL
+vercel env add NEXT_PUBLIC_PRIVACY_POLICY_URL
 vercel env add RESEND_API_KEY
 vercel env add EMAIL_FROM
 
