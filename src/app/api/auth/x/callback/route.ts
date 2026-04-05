@@ -2,6 +2,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+function getSafeRedirect(redirectTo?: string): string {
+  if (!redirectTo) return '/feed';
+  if (redirectTo.startsWith('/') && !redirectTo.startsWith('//')) return redirectTo;
+  return '/feed';
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
@@ -15,18 +21,19 @@ export async function GET(request: NextRequest) {
   }
 
   // Validate state
-  const storedState    = request.cookies.get('x_oauth_state')?.value;
-  const codeVerifier   = request.cookies.get('x_code_verifier')?.value;
+  const storedState  = request.cookies.get('x_oauth_state')?.value;
+  const codeVerifier = request.cookies.get('x_code_verifier')?.value;
+  const redirectTo   = getSafeRedirect(request.cookies.get('x_oauth_redirect_to')?.value);
 
   if (!code || !state || state !== storedState || !codeVerifier) {
     return NextResponse.redirect(`${appUrl}/auth/login?error=x_invalid_state`);
   }
 
-  const clientId     = process.env.TWITTER_CLIENT_ID     || 'OTZFOG85a29YZ1RwdTJteTIxQlI6MTpjaQ';
-  const clientSecret = process.env.TWITTER_CLIENT_SECRET || '';
+  const clientId     = process.env.TWITTER_CLIENT_ID;
+  const clientSecret = process.env.TWITTER_CLIENT_SECRET;
   const redirectUri  = `${appUrl}/api/auth/x/callback`;
 
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!clientId || !clientSecret || !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.redirect(`${appUrl}/auth/login?error=x_config_missing`);
   }
 
@@ -70,22 +77,21 @@ export async function GET(request: NextRequest) {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Use X id as email proxy (no real email from X OAuth 2.0 without special permissions)
     const proxyEmail = `x_${xUser.id}@cruise-connect.app`;
     const displayName = xUser.name || xUser.username;
     const handle = `@${xUser.username}`;
-
-    // Upsert user in Supabase auth
     let userId: string;
 
     // Check if user exists
-    const { data: existingUsers } = await supabase.auth.admin.listUsers();
+    const { data: existingUsers, error: listError } = await supabase.auth.admin.listUsers();
+    if (listError) {
+      console.error('List users error:', listError);
+    }
     const existingUser = existingUsers?.users?.find(u => u.email === proxyEmail);
 
     if (existingUser) {
       userId = existingUser.id;
     } else {
-      // Create new user
       const { data: newUser, error: createErr } = await supabase.auth.admin.createUser({
         email: proxyEmail,
         email_confirm: true,
@@ -104,7 +110,6 @@ export async function GET(request: NextRequest) {
       }
       userId = newUser.user.id;
 
-      // Upsert profile
       await supabase.from('profiles').upsert({
         id: userId,
         username: xUser.username,
@@ -115,7 +120,18 @@ export async function GET(request: NextRequest) {
       }, { onConflict: 'id' });
     }
 
-    // Generate magic link session for user
+    // Store X OAuth tokens for backend calls
+    const expiresAt = tokenData.expires_in ? new Date(Date.now() + Number(tokenData.expires_in) * 1000).toISOString() : null;
+    await supabase.from('x_oauth_tokens').upsert({
+      user_id: userId,
+      access_token: tokenData.access_token,
+      refresh_token: tokenData.refresh_token || null,
+      token_type: tokenData.token_type || 'bearer',
+      scope: tokenData.scope || null,
+      expires_at: expiresAt,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+
     const { data: sessionData, error: sessionErr } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email: proxyEmail,
@@ -126,13 +142,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${appUrl}/auth/login?error=x_session_failed`);
     }
 
-    // Redirect to Supabase confirm URL which sets session cookies
-    const confirmUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify?token=${sessionData.properties.hashed_token}&type=magiclink&redirect_to=${appUrl}/feed`;
+    const confirmUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify?token=${sessionData.properties.hashed_token}&type=magiclink&redirect_to=${appUrl}${redirectTo}`;
 
-    // Clear PKCE cookies
     const response = NextResponse.redirect(confirmUrl);
     response.cookies.delete('x_code_verifier');
     response.cookies.delete('x_oauth_state');
+    response.cookies.delete('x_oauth_redirect_to');
     return response;
 
   } catch (err) {

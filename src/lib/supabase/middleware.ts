@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { getAdminAllowlist, isAdminAllowlisted } from '@/lib/authz';
 
 const SUPABASE_URL =
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -33,6 +34,36 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const { pathname } = request.nextUrl;
 
+  // Admin-only routes. Prefer env allowlist when configured; otherwise fall back to profile flags.
+  const adminOnlyPrefixes = ['/admin', '/moderator', '/api/admin'];
+  const isAdminOnly = adminOnlyPrefixes.some((p) => pathname.startsWith(p));
+  if (user && isAdminOnly) {
+    const allow = getAdminAllowlist();
+    let isAdmin = false;
+
+    if (allow.configured) {
+      isAdmin = isAdminAllowlisted(user);
+    } else {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('is_admin, role')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (!error) {
+        isAdmin = Boolean(profile?.is_admin) || profile?.role === 'admin';
+      }
+    }
+
+    if (!isAdmin) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = '/feed';
+      return NextResponse.redirect(url);
+    }
+  }
+
   // Routes that require login
   const protectedPrefixes = [
     '/feed', '/messages', '/notifications', '/profile',
@@ -40,6 +71,7 @@ export async function updateSession(request: NextRequest) {
     '/earn', '/leaderboard', '/admin', '/wallet', '/settings',
     '/spaces', '/games', '/music', '/search', '/onboarding',
     '/community-id',
+    '/moderator',
   ];
   const isProtected = protectedPrefixes.some(p => pathname.startsWith(p));
 
@@ -64,14 +96,17 @@ export async function updateSession(request: NextRequest) {
   const shouldCheck = user && needsOnboardingCheck.some(p => pathname.startsWith(p));
 
   if (shouldCheck) {
-    const { data: profile } = await supabase
+    const { data: profile, error } = await supabase
       .from('profiles')
       .select('display_name, username')
       .eq('id', user.id)
       .maybeSingle();
 
-    const incomplete = !profile || (!profile.display_name && !profile.username);
-    if (incomplete) {
+    // If the DB schema is misconfigured (or any other error), never hard-block the user.
+    if (error) return response;
+
+    const incompleteProfile = !profile || !profile.display_name || !profile.username;
+    if (incompleteProfile) {
       const url = request.nextUrl.clone();
       url.pathname = '/onboarding';
       return NextResponse.redirect(url);

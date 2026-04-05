@@ -1,0 +1,23 @@
+# Vercel deploy should only include the web app source + public assets.
+# Exclude local build artifacts and native app folders that can easily exceed Vercel's upload limits.
+
+node_modules/
+.next/
+.next_old_*/
+dist-electron/
+out/
+output/
+
+# Native / desktop wrappers (not needed for web deploys)
+android/
+ios/
+electron/
+store-assets/
+
+# Local env and logs
+.env.local
+*.log
+
+# Local Vercel artifacts
+.vercel/output/
+

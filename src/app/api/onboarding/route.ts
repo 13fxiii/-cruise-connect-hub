@@ -1,7 +1,6 @@
 // @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,7 +15,7 @@ export async function POST(req: NextRequest) {
 
     // Username uniqueness check
     if (username) {
-      const { data: existing } = await supabaseAdmin
+      const { data: existing } = await supabase
         .from('profiles')
         .select('id')
         .eq('username', username.toLowerCase())
@@ -27,7 +26,7 @@ export async function POST(req: NextRequest) {
         const suffix = user.id.slice(0, 4);
         const candidate = `${username.toLowerCase()}_${suffix}`.slice(0, 30);
         // Check the new candidate too
-        const { data: alsoExists } = await supabaseAdmin
+        const { data: alsoExists } = await supabase
           .from('profiles').select('id')
           .eq('username', candidate).neq('id', user.id).maybeSingle();
         if (!alsoExists) {
@@ -62,7 +61,7 @@ export async function POST(req: NextRequest) {
     if (website)               profileData.website        = website.trim();
     if (avatar_url)            profileData.avatar_url     = avatar_url.trim();
 
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('profiles')
       .upsert(profileData, { onConflict: 'id' });
 
@@ -81,7 +80,7 @@ export async function GET(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { data: profile } = await supabaseAdmin
+    const { data: profile } = await supabase
       .from('profiles').select('*').eq('id', user.id).maybeSingle();
 
     return NextResponse.json({ profile: profile || null });

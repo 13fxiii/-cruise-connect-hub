@@ -58,13 +58,13 @@ naija, nigeria, community, afrobeats, live spaces, games, ludo, trivia, music, n
 ---
 
 ## PRIVACY POLICY URL
-https://cruise-connect-hub.netlify.app/privacy
+https://cruise-connect-hub.vercel.app/privacy
 
 ## SUPPORT URL
-https://cruise-connect-hub.netlify.app/support
+https://cruise-connect-hub.vercel.app/support
 
 ## MARKETING URL
-https://cruise-connect-hub.netlify.app
+https://cruise-connect-hub.vercel.app
 
 ---
 
@@ -117,4 +117,4 @@ Test account:
 - Email: reviewer@cruiseconnect.test
 - Password: TestReview2024!
 
-The app loads via a WebView pointing to our live Netlify deployment. All features are fully functional without any dummy content. The wallet/payment features use Paystack (Africa's leading payment processor, similar to Stripe) and require Nigerian bank accounts for real transactions — the reviewer can use the app without completing payment flows.
+The app loads via a WebView pointing to our live Vercel deployment. All features are fully functional without any dummy content. The wallet/payment features use Flutterwave and require Nigerian bank accounts for real transactions — the reviewer can use the app without completing payment flows.

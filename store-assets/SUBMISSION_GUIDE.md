@@ -126,7 +126,7 @@ npm run electron:build
 
 ### Option A: PWA Builder (easiest)
 1. Go to pwabuilder.com
-2. Enter: https://cruise-connect-hub.netlify.app
+2. Enter: https://cruise-connect-hub.vercel.app
 3. Click "Package For Stores" → Windows
 4. Download the MSIX package
 5. Submit to Microsoft Partner Center (partner.microsoft.com)
@@ -147,7 +147,7 @@ npm run electron:build
 | Android       | com.cruiseconnect.hub       |
 | Windows       | com.cruiseconnect.hub       |
 | Deep link     | ccapp://                    |
-| Web URL       | cruise-connect-hub.netlify.app |
+| Web URL       | cruise-connect-hub.vercel.app |
 
 ---
 
