@@ -83,6 +83,17 @@ export default function HomePage() {
             Browse the Feed
           </Link>
         </div>
+        <p className="text-zinc-500 text-xs text-center mt-4">
+          By continuing you agree to the{' '}
+          <Link href="/terms" className="underline hover:text-white transition-colors">
+            Terms of Service
+          </Link>{' '}
+          and{' '}
+          <Link href="/privacy" className="underline hover:text-white transition-colors">
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </section>
 
       {/* Stats */}

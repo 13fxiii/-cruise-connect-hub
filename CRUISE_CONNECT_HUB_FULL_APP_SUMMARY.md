@@ -8,8 +8,8 @@
 **App Name:** Cruise & Connect Hub〽️  
 **Tagline:** Where Community Meets Culture  
 **Secondary CTA:** Cruise. Connect. Grow.  
-**Founded by:** @13fxiii (Augustine Ajibola Fagbohun)  
-**Community X Handle:** @CCHub_  
+**Founded by:** FX〽️ (Augustine Ajibola Fagbohun)  
+**Community X Handle:** @TheCruiseCH  
 **Website (live):** https://cruise-connect-hub.vercel.app  
 **GitHub Repo:** https://github.com/13fxiii/-cruise-connect-hub  
 **Supabase Project:** xiyjgcoeljquryixmfut.supabase.co  
