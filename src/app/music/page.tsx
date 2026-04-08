@@ -17,6 +17,14 @@ const STATIONS = [
   { id:'ccradio',  label:'CC Hub Radio 🚌',  url:'https://stream.zeno.fm/f3wvbbqmdg8uv',color:'from-yellow-500 to-amber-600' },
 ];
 
+const PLAYLIST_LINKS = [
+  { label: "Spotify", url: "https://open.spotify.com/search/cruise%20connect" },
+  { label: "Apple Music", url: "https://music.apple.com" },
+  { label: "Audiomack", url: "https://audiomack.com" },
+  { label: "Boomplay", url: "https://www.boomplay.com" },
+  { label: "YouTube Music", url: "https://music.youtube.com" },
+];
+
 export default function MusicPage() {
   const { user }           = useAuth();
   const [tab, setTab]      = useState<'tracks'|'radio'|'submit'>('tracks');
@@ -94,6 +102,23 @@ export default function MusicPage() {
             {l}
           </button>
         ))}
+      </div>
+
+      <div className="mx-4 mb-4 rounded-2xl border border-zinc-800 bg-zinc-900/70 p-3.5">
+        <p className="text-zinc-200 text-xs font-black tracking-wide mb-2">CRUISE CONNECT PLAYLIST LINKS</p>
+        <div className="flex flex-wrap gap-2">
+          {PLAYLIST_LINKS.map((item) => (
+            <a
+              key={item.label}
+              href={item.url}
+              target="_blank"
+              rel="noreferrer"
+              className="px-2.5 py-1.5 rounded-full border border-zinc-700 text-zinc-200 text-xs hover:border-yellow-400/40 hover:text-yellow-400"
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
       </div>
 
       {/* Tracks tab */}

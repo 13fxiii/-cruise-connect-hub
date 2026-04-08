@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 
 export default function LoginForm() {
   const [xLoading, setXLoading] = useState(false);
@@ -13,77 +12,12 @@ export default function LoginForm() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') || '/feed';
   const urlError = searchParams.get('error');
-  const supabase = createClient();
 
   const handleXLogin = async () => {
     setXLoading(true);
     setError('');
-
-    // Supabase OAuth: "twitter" provider covers X.
-    // Use a popup so the main app doesn't lose state and cookies settle cleanly.
-    const callbackUrl = `${window.location.origin}/auth/callback?popup=1&redirectTo=${encodeURIComponent(redirectTo)}`;
-
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'twitter',
-        options: { redirectTo: callbackUrl, skipBrowserRedirect: true },
-      });
-
-      if (error) throw error;
-      if (!data?.url) throw new Error('Unable to start X login');
-
-      const w = 520;
-      const h = 680;
-      const left = window.screenX + Math.max(0, (window.outerWidth - w) / 2);
-      const top = window.screenY + Math.max(0, (window.outerHeight - h) / 2);
-
-      const popup = window.open(
-        data.url,
-        'cch-x-oauth',
-        `popup=yes,width=${w},height=${h},left=${left},top=${top}`
-      );
-
-      // Popup blocked: just continue in the same tab.
-      if (!popup) {
-        window.location.href = data.url;
-        return;
-      }
-
-      const onMessage = (event: MessageEvent) => {
-        if (event.origin !== window.location.origin) return;
-        const payload: any = event.data;
-        if (!payload || typeof payload !== 'object') return;
-
-        if (payload.type === 'cch-auth-success') {
-          cleanup(poll);
-          window.location.href = payload.dest || redirectTo;
-          return;
-        }
-
-        if (payload.type === 'cch-auth-error') {
-          cleanup(poll);
-          setError(payload.error || 'Sign-in failed. Please try again.');
-          setXLoading(false);
-        }
-      };
-
-      const cleanup = (timer?: number) => {
-        window.removeEventListener('message', onMessage);
-        if (timer) window.clearInterval(timer);
-      };
-
-      window.addEventListener('message', onMessage);
-
-      const poll = window.setInterval(() => {
-        if (popup.closed) {
-          cleanup(poll);
-          setXLoading(false);
-        }
-      }, 500);
-    } catch (err: any) {
-      setError(err?.message || 'Sign-in failed. Please try again.');
-      setXLoading(false);
-    }
+    // Fast path: redirect straight to app-managed X OAuth (PKCE).
+    window.location.href = `/api/auth/x?redirectTo=${encodeURIComponent(redirectTo)}`;
   };
 
   return (
