@@ -29,28 +29,35 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${appUrl}/auth/login?error=x_invalid_state`);
   }
 
-  const clientId     = process.env.TWITTER_CLIENT_ID;
-  const clientSecret = process.env.TWITTER_CLIENT_SECRET;
+  const clientId     = process.env.TWITTER_CLIENT_ID || process.env.X_CLIENT_ID;
+  const clientSecret = process.env.TWITTER_CLIENT_SECRET || process.env.X_CLIENT_SECRET;
   const redirectUri  = `${appUrl}/api/auth/x/callback`;
 
-  if (!clientId || !clientSecret || !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!clientId || !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.redirect(`${appUrl}/auth/login?error=x_config_missing`);
   }
 
   try {
     // Exchange code for token
+    const tokenHeaders: Record<string, string> = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    if (clientSecret) {
+      tokenHeaders.Authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
+    }
+
+    const tokenBody = new URLSearchParams({
+      code,
+      grant_type: 'authorization_code',
+      redirect_uri: redirectUri,
+      code_verifier: codeVerifier,
+      ...(clientSecret ? {} : { client_id: clientId }),
+    });
+
     const tokenRes = await fetch('https://api.twitter.com/2/oauth2/token', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
-      },
-      body: new URLSearchParams({
-        code,
-        grant_type: 'authorization_code',
-        redirect_uri: redirectUri,
-        code_verifier: codeVerifier,
-      }),
+      headers: tokenHeaders,
+      body: tokenBody,
     });
 
     const tokenData = await tokenRes.json();
@@ -82,12 +89,12 @@ export async function GET(request: NextRequest) {
     const handle = `@${xUser.username}`;
     let userId: string;
 
-    // Check if user exists
-    const { data: existingUsers, error: listError } = await supabase.auth.admin.listUsers();
-    if (listError) {
-      console.error('List users error:', listError);
+    // Check if user exists (fast, no full-user scan)
+    const { data: userByEmail, error: byEmailErr } = await supabase.auth.admin.getUserByEmail(proxyEmail);
+    if (byEmailErr) {
+      console.error('Get user by email error:', byEmailErr);
     }
-    const existingUser = existingUsers?.users?.find(u => u.email === proxyEmail);
+    const existingUser = userByEmail?.user || null;
 
     if (existingUser) {
       userId = existingUser.id;
@@ -110,15 +117,19 @@ export async function GET(request: NextRequest) {
       }
       userId = newUser.user.id;
 
-      await supabase.from('profiles').upsert({
-        id: userId,
-        username: xUser.username,
-        display_name: displayName,
-        avatar_url: xUser.profile_image_url?.replace('_normal', '_400x400') || '',
-        twitter_handle: handle,
-        referral_code: 'CCH-' + userId.substring(0, 6).toUpperCase(),
-      }, { onConflict: 'id' });
     }
+
+    const profilePayload = {
+      id: userId,
+      username: xUser.username,
+      display_name: displayName,
+      avatar_url: xUser.profile_image_url?.replace('_normal', '_400x400') || '',
+      twitter_handle: handle,
+      referral_code: 'CCH-' + userId.substring(0, 6).toUpperCase(),
+    };
+
+    // Always keep profile data in sync with latest X AVI + handle.
+    await supabase.from('profiles').upsert(profilePayload, { onConflict: 'id' });
 
     // Store X OAuth tokens for backend calls
     const expiresAt = tokenData.expires_in ? new Date(Date.now() + Number(tokenData.expires_in) * 1000).toISOString() : null;
