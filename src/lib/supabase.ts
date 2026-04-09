@@ -31,32 +31,42 @@ function normalizeSupabaseUrl(maybeUrl: string | undefined) {
   return url;
 }
 
-function normalizeJwtKey(maybeKey: string | undefined, fallback: string) {
+function normalizeSupabaseKey(maybeKey: string | undefined, fallback: string, kind: "publishable" | "secret") {
   const key = (maybeKey || '').trim();
   if (!key) return fallback;
-  // Real Supabase keys are JWT-like (3 dot-separated segments).
-  if (/\[.*\]/.test(key) || /anon key/i.test(key) || /service role/i.test(key) || /your[_ -]?supabase/i.test(key)) return fallback;
-  if (key.split('.').length !== 3) return fallback;
-  return key;
+  // Avoid placeholder values accidentally copied into hosting dashboards.
+  if (/\[.*\]/.test(key) || /anon key/i.test(key) || /service role/i.test(key) || /your[_ -]?supabase/i.test(key)) {
+    return fallback;
+  }
+  // Legacy keys are JWT-like.
+  if (key.split('.').length === 3) return key;
+  // New key formats:
+  // - publishable: sb_publishable_...
+  // - secret:      sb_secret_...
+  if (kind === "publishable" && key.startsWith("sb_publishable_")) return key;
+  if (kind === "secret" && key.startsWith("sb_secret_")) return key;
+  return fallback;
 }
 
 // Support both "Next public" vars and Vercel/Supabase integration vars.
 const SUPABASE_URL = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL);
 
-const SUPABASE_ANON_KEY = normalizeJwtKey(
+const SUPABASE_ANON_KEY = normalizeSupabaseKey(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     process.env.SUPABASE_ANON_KEY ||
     // Back-compat: older env names
     (process.env as any).SUPABASE_ANON,
-  DEFAULT_SUPABASE_ANON_KEY
+  DEFAULT_SUPABASE_ANON_KEY,
+  "publishable"
 );
 
 const SUPABASE_SERVICE_KEY =
-  normalizeJwtKey(
+  normalizeSupabaseKey(
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
       process.env.SUPABASE_SECRET_KEY ||
       (process.env as any).SUPABASE_SERVICE_KEY,
-    SUPABASE_ANON_KEY
+    SUPABASE_ANON_KEY,
+    "secret"
   );
 
 let _supabaseAdmin: ReturnType<typeof createClient<Database>> | null = null;

@@ -208,6 +208,12 @@ export default function MoviesPage() {
             <Film size={20} className="text-yellow-400"/> CC Movie Hub
           </h1>
           <p className="text-zinc-500 text-xs mt-0.5">Watch trailers in-app · Join watch parties · Vote on next movie night</p>
+          <a
+            href="/cinema"
+            className="inline-flex mt-2 text-[11px] text-yellow-400 hover:underline"
+          >
+            Open Cruise Cinema (in-app path) ↗
+          </a>
         </div>
 
         {/* Tabs */}
