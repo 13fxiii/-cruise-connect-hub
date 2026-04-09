@@ -105,6 +105,19 @@ export default function MessagesPage() {
       </div>
 
       <div className="max-w-lg mx-auto">
+        <div className="px-4 py-2 space-y-2">
+          <QuickGroupCard
+            title="Cruise Connect Hangout Planners (CCHP)"
+            subtitle="Coordinate hosts, logistics, and schedules."
+            href="/messages/group/cchp"
+          />
+          <QuickGroupCard
+            title="Cruise Connect Hangouts"
+            subtitle="Open gist, updates, and meetup chatter."
+            href="/messages/group/hangouts"
+          />
+        </div>
+
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-yellow-400 animate-spin" /></div>
         ) : filtered.length === 0 ? (
@@ -152,5 +165,14 @@ export default function MessagesPage() {
       </div>
       <BottomNav />
     </div>
+  );
+}
+
+function QuickGroupCard({ title, subtitle, href }: { title: string; subtitle: string; href: string }) {
+  return (
+    <Link href={href} className="block rounded-xl border border-zinc-800 bg-zinc-900/60 p-3 active:bg-zinc-800/70">
+      <p className="text-white text-sm font-bold">{title}</p>
+      <p className="text-zinc-500 text-xs">{subtitle}</p>
+    </Link>
   );
 }
