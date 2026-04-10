@@ -5,12 +5,12 @@ import { Mic, Gamepad2, Wallet, Megaphone, ArrowRight, Users, TrendingUp, Gift, 
 export default function HomePage() {
   const FEATURES = [
     { icon: Mic,         label: "Live Spaces",  desc: "Audio rooms on X community",         href: "/spaces",   color: "text-red-400",    bg: "bg-red-400/10",    border: "border-red-400/20" },
-    { icon: Gamepad2,    label: "Games Hub",    desc: "Trivia, Ludo & tournaments",          href: "/games",    color: "text-green-400",  bg: "bg-green-400/10",  border: "border-green-400/20" },
+    { icon: Gamepad2,    label: "Entertainment Hub",    desc: "Games, Music & Movies in one place",          href: "/entertainment",    color: "text-green-400",  bg: "bg-green-400/10",  border: "border-green-400/20" },
     { icon: Wallet,      label: "CC Wallet",    desc: "Earn points & real Naira",            href: "/wallet",   color: "text-yellow-400", bg: "bg-yellow-400/10", border: "border-yellow-400/20" },
     { icon: Megaphone,   label: "PR / ADS",     desc: "Reach 3K+ members",                  href: "/ads",      color: "text-purple-400", bg: "bg-purple-400/10", border: "border-purple-400/20" },
-    { icon: Music,       label: "Music Hub",    desc: "Stream Naija on all platforms",       href: "/music",    color: "text-pink-400",   bg: "bg-pink-400/10",   border: "border-pink-400/20" },
-    { icon: Film,        label: "Movie Hub",    desc: "Watch parties & Nollywood",           href: "/movies",   color: "text-blue-400",   bg: "bg-blue-400/10",   border: "border-blue-400/20" },
-    { icon: ShoppingBag, label: "CC Hub Store",     desc: "Merch & community marketplace",       href: "/marketplace",     color: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/20" },
+    { icon: Music,       label: "Music Hub",    desc: "Playlists + Cruise Connect Radio",       href: "/music",    color: "text-pink-400",   bg: "bg-pink-400/10",   border: "border-pink-400/20" },
+    { icon: Film,        label: "Movie Hub",    desc: "Cruise Cinema watch parties",           href: "/movies",   color: "text-blue-400",   bg: "bg-blue-400/10",   border: "border-blue-400/20" },
+    { icon: ShoppingBag, label: "CC Marketplace",     desc: "Merch, PR/Ads, shop & vendors",       href: "/marketplace",     color: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/20" },
     { icon: Briefcase,   label: "Jobs Board",   desc: "Naija creative & tech gigs",          href: "/jobs",     color: "text-cyan-400",   bg: "bg-cyan-400/10",   border: "border-cyan-400/20" },
   ];
 
@@ -163,7 +163,11 @@ export default function HomePage() {
               <Link key={h} href={h} className="text-zinc-600 hover:text-zinc-400 text-xs transition-colors">{l}</Link>
             ))}
           </div>
-          <p className="text-zinc-700 text-xs">Built by @13fxiii_ · Est. 2024</p>
+          <p className="text-zinc-700 text-xs text-center sm:text-right leading-relaxed">
+            Created by <span className="text-zinc-500">FX〽️ (Augustine Fagbohun · @13fxiii_)</span>
+            <span className="hidden sm:inline"> · </span>
+            <span className="block sm:inline">Community X Account: <span className="text-zinc-500">@TheCruiseCH</span></span>
+          </p>
         </div>
       </footer>
     </main>
