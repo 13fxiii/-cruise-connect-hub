@@ -18,7 +18,7 @@ function getSafeRedirect(redirectTo?: string): string {
 }
 
 export async function GET(request: NextRequest) {
-  const clientId = process.env.TWITTER_CLIENT_ID;
+  const clientId = process.env.TWITTER_CLIENT_ID || process.env.X_CLIENT_ID;
   const origin = request.nextUrl.origin;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
   const redirectUri = `${appUrl}/api/auth/x/callback`;
@@ -38,7 +38,8 @@ export async function GET(request: NextRequest) {
     response_type: 'code',
     client_id: clientId,
     redirect_uri: redirectUri,
-    scope: 'tweet.read users.read offline.access',
+    // Includes permissions needed for posting, polls, and DMs from the app.
+    scope: 'tweet.read tweet.write users.read dm.read dm.write offline.access',
     state,
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',

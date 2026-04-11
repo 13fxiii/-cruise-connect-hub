@@ -18,8 +18,9 @@ function normalizeAnonKey(maybeKey: string | undefined) {
   const key = (maybeKey || '').trim();
   if (!key) return DEFAULT_SUPABASE_ANON_KEY;
   if (/\[.*\]/.test(key) || /anon key/i.test(key) || /your[_ -]?supabase/i.test(key)) return DEFAULT_SUPABASE_ANON_KEY;
-  if (key.split('.').length !== 3) return DEFAULT_SUPABASE_ANON_KEY;
-  return key;
+  if (key.split('.').length === 3) return key; // legacy JWT
+  if (key.startsWith('sb_publishable_')) return key; // new Supabase publishable format
+  return DEFAULT_SUPABASE_ANON_KEY;
 }
 
 const SUPABASE_URL = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL);
