@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       .select('id')
       .eq('user_id', user.id)
       .eq('checkin_date', today)
-      .single();
+      .maybeSingle();
 
     if (existing) return NextResponse.json({ error: 'Already checked in today', already: true }, { status: 400 });
 
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       .from('profiles')
       .select('current_streak, longest_streak, last_checkin, points')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
     const lastCheckin = profile?.last_checkin;
@@ -78,8 +78,8 @@ export async function GET(req: NextRequest) {
     const today = new Date().toISOString().split('T')[0];
 
     const [{ data: profile }, { data: todayCheckin }, { data: history }] = await Promise.all([
-      supabaseAdmin.from('profiles').select('current_streak, longest_streak, last_checkin, points').eq('id', user.id).single(),
-      supabaseAdmin.from('daily_checkins' as any).select('id').eq('user_id', user.id).eq('checkin_date', today).single(),
+      supabaseAdmin.from('profiles').select('current_streak, longest_streak, last_checkin, points').eq('id', user.id).maybeSingle(),
+      supabaseAdmin.from('daily_checkins' as any).select('id').eq('user_id', user.id).eq('checkin_date', today).maybeSingle(),
       supabaseAdmin.from('daily_checkins' as any).select('checkin_date, streak_day, points_earned').eq('user_id', user.id).order('checkin_date', { ascending: false }).limit(30),
     ]);
 

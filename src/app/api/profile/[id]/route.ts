@@ -11,7 +11,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     .from('profiles')
     .select('id, username, display_name, avatar_url, cover_url, bio, location, website, twitter_handle, level, points, current_streak, longest_streak, followers_count, following_count, created_at')
     .eq('id', params.id)
-    .single();
+    .maybeSingle();
 
   if (!profile) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .select('follower_id')
       .eq('follower_id', user.id)
       .eq('following_id', params.id)
-      .single();
+      .maybeSingle();
     is_following = !!follow;
   }
 

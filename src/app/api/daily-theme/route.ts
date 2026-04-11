@@ -12,7 +12,7 @@ export async function GET() {
       .from('daily_theme_log')
       .select('*, daily_theme_pool(*)')
       .eq('used_date', today)
-      .single();
+      .maybeSingle();
 
     let theme: any;
 

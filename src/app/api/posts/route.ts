@@ -12,9 +12,11 @@ export async function GET(req: Request) {
   let query = supabaseAdmin
     .from('posts')
     .select(`
-      id, content, created_at, author_id,
+      id, content, created_at, author_id, likes_count, replies_count,
+      media_urls, post_type, is_pinned, view_count,
       profiles!author_id(id, display_name, username, avatar_url, twitter_handle)
     `)
+    .eq('is_deleted', false)
     .order('created_at', { ascending: false })
     .limit(limit);
 
@@ -23,57 +25,61 @@ export async function GET(req: Request) {
   const { data, error } = await query;
   if (error) {
     console.error('Posts GET error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ posts: [], error: error.message }, { status: 200 });
   }
 
-  // Fetch like counts separately
+  // Fetch current user's liked posts
+  const user = await auth();
   const postIds = (data || []).map((p: any) => p.id);
-  let likeCounts: Record<string, number> = {};
-  if (postIds.length > 0) {
-    const { data: likes } = await supabaseAdmin
-      .from('post_likes')
+  let likedSet = new Set<string>();
+
+  if (user && postIds.length > 0) {
+    const { data: userLikes } = await supabaseAdmin
+      .from('likes')
       .select('post_id')
+      .eq('user_id', user.id)
       .in('post_id', postIds);
-    (likes || []).forEach((l: any) => {
-      likeCounts[l.post_id] = (likeCounts[l.post_id] || 0) + 1;
-    });
+    (userLikes || []).forEach((l: any) => likedSet.add(l.post_id));
   }
 
   const posts = (data || []).map((p: any) => ({
     ...p,
-    likes_count: likeCounts[p.id] || 0,
+    liked_by_me: likedSet.has(p.id),
   }));
 
   return NextResponse.json({ posts });
 }
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const user = await auth();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  if (!body.content?.trim()) {
-    return NextResponse.json({ error: 'Content required' }, { status: 400 });
-  }
-  if (body.content.length > 2000) {
-    return NextResponse.json({ error: 'Max 2000 characters' }, { status: 400 });
+  const { content, media_urls, post_type } = body;
+
+  if (!content?.trim()) {
+    return NextResponse.json({ error: 'Content is required' }, { status: 400 });
   }
 
   const { data, error } = await supabaseAdmin
     .from('posts')
     .insert({
-      author_id: session.user.id,
-      content:   body.content.trim(),
-      tags:      body.tags || [],
+      author_id: user.id,
+      content: content.trim(),
+      media_urls: media_urls || [],
+      post_type: post_type || 'text',
+      is_deleted: false,
     })
     .select(`
-      id, content, created_at, author_id,
+      id, content, created_at, author_id, likes_count, replies_count,
       profiles!author_id(id, display_name, username, avatar_url, twitter_handle)
     `)
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ post: { ...data, likes_count: 0 } }, { status: 201 });
+  if (error) {
+    console.error('Posts POST error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ post: data }, { status: 201 });
 }

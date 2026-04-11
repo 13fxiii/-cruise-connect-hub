@@ -10,11 +10,11 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { listing_id } = await req.json();
-    const { data: listing } = await supabaseAdmin.from('marketplace_listings' as any).select('*').eq('id', listing_id).single();
+    const { data: listing } = await supabaseAdmin.from('marketplace_listings' as any).select('*').eq('id', listing_id).maybeSingle();
     if (!listing) return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     if (listing.seller_id === user.id) return NextResponse.json({ error: 'Cannot buy your own listing' }, { status: 400 });
 
-    const { data: buyer } = await supabaseAdmin.from('profiles').select('wallet_balance').eq('id', user.id).single();
+    const { data: buyer } = await supabaseAdmin.from('profiles').select('wallet_balance').eq('id', user.id).maybeSingle();
     if (!buyer || buyer.wallet_balance < listing.price) return NextResponse.json({ error: 'Insufficient wallet balance' }, { status: 400 });
 
     const platformFee = Math.floor(listing.price * 0.05); // 5% fee
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     await supabaseAdmin.from('profiles').update({ wallet_balance: buyer.wallet_balance - listing.price }).eq('id', user.id);
 
     // Credit seller
-    const { data: seller } = await supabaseAdmin.from('profiles').select('wallet_balance').eq('id', listing.seller_id).single();
+    const { data: seller } = await supabaseAdmin.from('profiles').select('wallet_balance').eq('id', listing.seller_id).maybeSingle();
     if (seller) await supabaseAdmin.from('profiles').update({ wallet_balance: seller.wallet_balance + netAmount }).eq('id', listing.seller_id);
 
     // Record order

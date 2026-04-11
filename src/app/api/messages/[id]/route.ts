@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     // Mark as read
     await supabaseAdmin.from('dm_conversations' as any)
       .select('participant1, participant2')
-      .eq('id', params.id).single().then(({ data: conv }) => {
+      .eq('id', params.id).maybeSingle().then(({ data: conv }) => {
         if (!conv) return;
         const isP1 = conv.participant1 === user.id;
         supabaseAdmin.from('dm_conversations' as any)
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       .from('dm_messages' as any)
       .insert({ conversation_id: params.id, sender_id: user.id, content: content.trim() })
       .select('*, profiles!sender_id(id, username, display_name, avatar_url)')
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
 
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const { data: conv } = await supabaseAdmin
       .from('dm_conversations' as any)
       .select('participant1, participant2, unread_p1, unread_p2')
-      .eq('id', params.id).single();
+      .eq('id', params.id).maybeSingle();
 
     if (conv) {
       const isP1 = conv.participant1 === user.id;
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       }).eq('id', params.id);
 
       // Notify recipient
-      const { data: sender } = await supabaseAdmin.from('profiles').select('display_name, username').eq('id', user.id).single();
+      const { data: sender } = await supabaseAdmin.from('profiles').select('display_name, username').eq('id', user.id).maybeSingle();
       await supabaseAdmin.from('notifications').insert({
         user_id: recipientId, type: 'dm',
         title: `💬 New message from ${sender?.display_name || sender?.username || 'someone'}`,

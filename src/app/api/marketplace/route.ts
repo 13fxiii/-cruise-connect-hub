@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
         status: 'active',
       })
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return NextResponse.json({ listing: data });

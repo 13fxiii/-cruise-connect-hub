@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
             .from('profiles')
             .select('id')
             .eq('twitter_handle', `@${handle}`)
-            .single();
+            .maybeSingle();
 
           await supabaseAdmin.from('live_spaces').upsert({
             x_space_id: space.id,

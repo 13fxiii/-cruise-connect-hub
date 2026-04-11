@@ -63,11 +63,43 @@ const STATS = [
 /* ═══════════════════════════════════════════════════════════════
    MAIN ADMIN PAGE
 ═══════════════════════════════════════════════════════════════ */
+// Admin-only X handles — ONLY these accounts can access
+const ADMIN_HANDLES = ['13fxiii', '13fxiii_', 'thecruisech', 'TheCruiseCH'];
+
 export default function AdminPage() {
   const [tab, setTab]       = useState<Tab>("overview");
   const [ads, setAds]       = useState<AdSub[]>([]);
   const [loading, setLoading] = useState(false);
   const [actLoading, setActLoading] = useState<string|null>(null);
+  const [authorized, setAuthorized] = useState<boolean|null>(null);
+
+  useEffect(() => {
+    // Check if current user is an authorized admin
+    const checkAuth = async () => {
+      try {
+        const supabase = (await import('@/lib/supabase/client')).createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { setAuthorized(false); return; }
+
+        const meta = user.user_metadata || {};
+        const handle = (
+          meta.preferred_username ||
+          meta.username ||
+          meta.user_name ||
+          ''
+        ).toLowerCase().replace('@', '');
+
+        const isAdmin = ADMIN_HANDLES.map(h => h.toLowerCase()).includes(handle);
+
+        // Also check is_admin flag in profiles
+        const { data: profile } = await supabase
+          .from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
+
+        setAuthorized(isAdmin || profile?.is_admin === true);
+      } catch { setAuthorized(false); }
+    };
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     if (tab === "ads") fetchAds();
@@ -98,6 +130,37 @@ export default function AdminPage() {
     { id:"jobs",          label:"Jobs",             icon:Briefcase },
     { id:"members",       label:"Members",          icon:Users },
   ];
+
+  // Auth gate — loading state
+  if (authorized === null) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-8 h-8 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-zinc-500 text-sm">Checking access...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Auth gate — unauthorized
+  if (!authorized) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
+        <div className="text-center space-y-4 max-w-sm">
+          <div className="text-6xl">🚫</div>
+          <h1 className="text-white font-black text-xl">Access Denied</h1>
+          <p className="text-zinc-500 text-sm">
+            This area is for CC Hub admins only.<br />
+            If you think this is a mistake, DM <span className="text-yellow-400">@13fxiii_</span>
+          </p>
+          <a href="/feed" className="inline-block bg-yellow-400 text-black font-black px-6 py-3 rounded-xl text-sm">
+            Back to Feed 🚌
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">

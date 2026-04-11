@@ -50,14 +50,14 @@ export async function POST(req: NextRequest) {
     const { data: existing } = await supabaseAdmin
       .from('dm_conversations' as any)
       .select('id')
-      .eq('participant1', p1).eq('participant2', p2).single();
+      .eq('participant1', p1).eq('participant2', p2).maybeSingle();
 
     if (existing) return NextResponse.json({ conversation_id: existing.id });
 
     const { data, error } = await supabaseAdmin
       .from('dm_conversations' as any)
       .insert({ participant1: p1, participant2: p2 })
-      .select('id').single();
+      .select('id').maybeSingle();
 
     if (error) throw error;
     return NextResponse.json({ conversation_id: data.id });

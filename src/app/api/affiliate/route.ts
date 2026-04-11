@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const { data: profile } = await supabaseAdmin
     .from('profiles')
     .select('referral_code, points, wallet_balance, level')
-    .eq('id', user.id).single();
+    .eq('id', user.id).maybeSingle();
 
   // Referrals made
   const { data: referrals } = await supabaseAdmin

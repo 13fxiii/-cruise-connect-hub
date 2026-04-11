@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     if (!title || !description) return NextResponse.json({ error: 'Title and description required' }, { status: 400 });
 
     // Check user has enough points to propose (min 100)
-    const { data: profile } = await supabaseAdmin.from('profiles').select('points').eq('id', user.id).single();
+    const { data: profile } = await supabaseAdmin.from('profiles').select('points').eq('id', user.id).maybeSingle();
     if (!profile || (profile.points || 0) < 100) {
       return NextResponse.json({ error: 'You need at least 100 community points to submit a proposal' }, { status: 403 });
     }
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         voting_ends_at: new Date(Date.now() + 7 * 86400000).toISOString(),
       })
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return NextResponse.json({ proposal: data });
