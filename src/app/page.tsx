@@ -174,7 +174,7 @@ export default function HomePage() {
               <Link key={h} href={h} className="text-zinc-600 hover:text-zinc-400 text-xs transition-colors">{l}</Link>
             ))}
           </div>
-          <p className="text-zinc-700 text-xs">Built by @13fxiii_ · Est. 2024</p>
+          <p className="text-zinc-700 text-xs">Created by <span className="text-zinc-500">FX〽️ (Augustine Fagbohun)</span> · <a href="mailto:CruiseConnectHub@gmail.com" className="text-yellow-400/50 hover:text-yellow-400 transition-colors">CruiseConnectHub@gmail.com</a></p>
         </div>
       </footer>
     </main>
