@@ -3,23 +3,8 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertCircle, Download, Share2, ChevronRight, Loader2 } from 'lucide-react';
+import { AlertCircle, Download, Share2, ChevronRight, Loader2, CheckCircle2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-
-const INTERESTS = [
-  { id: 'music', label: 'Music' },
-  { id: 'gaming', label: 'Gaming' },
-  { id: 'movies', label: 'Movies' },
-  { id: 'business', label: 'Business' },
-  { id: 'afrobeats', label: 'Afrobeats' },
-  { id: 'tech', label: 'Tech' },
-  { id: 'fashion', label: 'Fashion' },
-  { id: 'sports', label: 'Sports' },
-  { id: 'comedy', label: 'Comedy' },
-  { id: 'art', label: 'Art' },
-  { id: 'food', label: 'Food' },
-  { id: 'travel', label: 'Travel' },
-];
 
 const COMMUNITY_RULES = {
   dos: [
@@ -52,7 +37,7 @@ const HOW_TO_USE = [
 ];
 
 // ── Community ID Card Component ──────────────────────────────────────────────
-function IDCard({ user, username, displayName, avatar, memberNumber }) {
+function IDCard({ user, username, displayName, avatar, memberNumber, idCode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const downloadCard = async () => {
@@ -70,7 +55,7 @@ function IDCard({ user, username, displayName, avatar, memberNumber }) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Canvas size: Twitter header ratio 3:1  (1500x500)
+    // Canvas size: Twitter header ratio 3:1 (1500x500)
     canvas.width = 1500;
     canvas.height = 500;
 
@@ -82,7 +67,7 @@ function IDCard({ user, username, displayName, avatar, memberNumber }) {
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, 1500, 500);
 
-    // Yellow accent bar top
+    // Yellow accent bars
     ctx.fillStyle = '#EAB308';
     ctx.fillRect(0, 0, 1500, 8);
     ctx.fillRect(0, 492, 1500, 8);
@@ -119,27 +104,28 @@ function IDCard({ user, username, displayName, avatar, memberNumber }) {
       img.onload = () => {
         ctx.drawImage(img, 90, 140, 220, 220);
         ctx.restore();
-        drawText(ctx, displayName, username, memberNumber);
+        drawText(ctx, displayName, username, memberNumber, idCode);
       };
       img.onerror = () => {
         ctx.restore();
         // Fallback: initials
         ctx.fillStyle = '#EAB308';
+        ctx.beginPath();
         ctx.arc(200, 250, 110, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = '#000';
         ctx.font = 'bold 72px Arial';
         ctx.textAlign = 'center';
         ctx.fillText((displayName || username || 'U')[0].toUpperCase(), 200, 275);
-        drawText(ctx, displayName, username, memberNumber);
+        drawText(ctx, displayName, username, memberNumber, idCode);
       };
       img.src = avatar;
     } else {
       ctx.restore();
-      drawText(ctx, displayName, username, memberNumber);
+      drawText(ctx, displayName, username, memberNumber, idCode);
     }
 
-    function drawText(ctx, displayName, username, memberNumber) {
+    function drawText(ctx, displayName, username, memberNumber, idCode) {
       // CC Hub branding
       ctx.textAlign = 'left';
       ctx.fillStyle = '#EAB308';
@@ -161,15 +147,15 @@ function IDCard({ user, username, displayName, avatar, memberNumber }) {
       ctx.font = 'bold 36px Arial';
       ctx.fillText('@' + (username || 'member'), 380, 285);
 
-      // Member number
+      // Member number & Code
       ctx.fillStyle = 'rgba(255,255,255,0.4)';
       ctx.font = '24px Arial';
-      ctx.fillText(`Member #${memberNumber}`, 380, 340);
+      ctx.fillText(`Member #${memberNumber}  |  ID: ${idCode || 'N/A'}`, 380, 340);
 
       // Bottom bar
       ctx.fillStyle = '#EAB308';
       ctx.font = 'bold 20px Arial';
-      ctx.fillText('cruise-connect-hub.vercel.app  |  @CCHub_  |  @13fxiii_', 380, 420);
+      ctx.fillText('cruise-connect-hub.vercel.app  |  @TheCruiseCH  |  @13fxiii_', 380, 420);
 
       // Barcode lines (decorative)
       ctx.fillStyle = 'rgba(234,179,8,0.3)';
@@ -179,7 +165,7 @@ function IDCard({ user, username, displayName, avatar, memberNumber }) {
         ctx.fillRect(bx + i * 6, 380, w, 60);
       }
     }
-  }, [avatar, displayName, username, memberNumber]);
+  }, [avatar, displayName, username, memberNumber, idCode]);
 
   return (
     <div className="space-y-3">
@@ -200,7 +186,7 @@ function IDCard({ user, username, displayName, avatar, memberNumber }) {
             if (navigator.share) {
               navigator.share({
                 title: 'Check me out on Cruise Connect Hub!',
-                text: `I just joined @CCHub_ — the hottest Naija community! Come cruise with us 🚌⚡`,
+                text: `I just joined @TheCruiseCH — the hottest Naija community! Come cruise with us 🚌⚡`,
                 url: 'https://cruise-connect-hub.vercel.app',
               });
             }
@@ -259,7 +245,6 @@ function WelcomeAnimation({ displayName, avatar, onDone }) {
 
       {/* Content */}
       <div className="relative flex flex-col items-center gap-6 px-8 text-center">
-
         {/* Logo + Bus emoji */}
         <div
           className="transition-all duration-700"
@@ -291,11 +276,11 @@ function WelcomeAnimation({ displayName, avatar, onDone }) {
           className="transition-all duration-700 delay-200 flex items-center gap-3 bg-zinc-900/80 border border-yellow-400/30 rounded-2xl px-5 py-3"
           style={{
             opacity: phase >= 3 ? 1 : 0,
-            transform: phase >= 3 ? 'translateY(0)' : 'translateY(20px)',
+            transform: phase >= 3 ? 'scale(1)' : 'scale(0.8)',
           }}
         >
           {avatar ? (
-            <img src={avatar} alt="" className="w-10 h-10 rounded-full border-2 border-yellow-400" />
+            <img src={avatar} className="w-10 h-10 rounded-full border border-yellow-400" alt="" />
           ) : (
             <div className="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center text-black font-black text-lg">
               {(displayName || 'U')[0].toUpperCase()}
@@ -342,14 +327,13 @@ function WelcomeAnimation({ displayName, avatar, onDone }) {
 
 // ── Main Onboarding Page ──────────────────────────────────────────────────────
 export default function OnboardingPage() {
-  // Steps: -1=welcome-anim, 0=rules, 1=interests, 2=id-card, 3=tutorial, 4=done
   const [step, setStep] = useState(-1);
-  const [interests, setInterests] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>({});
   const [memberNumber, setMemberNumber] = useState(1000);
+  const [idCode, setIdCode] = useState('');
   const [tutorialIdx, setTutorialIdx] = useState(0);
   const router = useRouter();
   const supabase = createClient();
@@ -374,22 +358,26 @@ export default function OnboardingPage() {
         avatar: xAvatar,
       });
 
-      // Count members for ID number
-      const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true });
-      setMemberNumber(1000 + (count || 0));
-
       // Check if already onboarded
       const { data: existingProfile } = await supabase
-        .from('profiles').select('onboarding_done, interests').eq('id', data.user.id).maybeSingle();
+        .from('profiles').select('onboarding_done, member_number, id_card_code').eq('id', data.user.id).maybeSingle();
 
-      if (existingProfile?.onboarding_done) {
-        router.replace('/feed');
+      if (existingProfile) {
+        setMemberNumber(existingProfile.member_number || 1000);
+        setIdCode(existingProfile.id_card_code || '');
+        if (existingProfile.onboarding_done) {
+          router.replace('/feed');
+        }
+      } else {
+        // Count members for ID number fallback
+        const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true });
+        setMemberNumber(1000 + (count || 0));
       }
     })();
   }, []);
 
   const handleFinish = async () => {
-    if (!user || interests.length === 0) return;
+    if (!user) return;
     setLoading(true);
     setError('');
 
@@ -404,15 +392,24 @@ export default function OnboardingPage() {
           x_display_name: profile.display_name,
           x_avatar_url: profile.avatar,
           avatar_url: profile.avatar,
-          interests,
+          onboarding_done: true,
         }),
       });
 
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed to save');
 
+      // Fetch updated profile to get member number and ID code
+      const { data: updatedProfile } = await supabase
+        .from('profiles').select('member_number, id_card_code').eq('id', user.id).single();
+      
+      if (updatedProfile) {
+        setMemberNumber(updatedProfile.member_number);
+        setIdCode(updatedProfile.id_card_code);
+      }
+
       setLoading(false);
-      setStep(2); // Show ID card
+      setStep(1); // Show ID card
     } catch (err: any) {
       setError(err?.message || 'Something went wrong. Please try again.');
       setLoading(false);
@@ -438,14 +435,14 @@ export default function OnboardingPage() {
         <div className="text-center">
           <div className="text-yellow-400 font-black text-sm tracking-wider mb-1">🚌 CRUISE CONNECT HUB〽️</div>
           <div className="flex items-center justify-center gap-1.5">
-            {['Rules', 'Vibe', 'Your ID', 'How It Works'].map((s, i) => (
+            {['Rules', 'Your ID', 'How It Works'].map((s, i) => (
               <div key={s} className="flex items-center gap-1.5">
                 <div className={`w-6 h-6 rounded-full text-[9px] font-black flex items-center justify-center transition-all ${
                   i < step ? 'bg-green-500 text-white' : i === step ? 'bg-yellow-400 text-black' : 'bg-zinc-800 text-zinc-600'
                 }`}>
                   {i < step ? '✓' : i + 1}
                 </div>
-                {i < 3 && <div className={`w-4 h-0.5 rounded-full ${i < step ? 'bg-green-500' : 'bg-zinc-800'}`} />}
+                {i < 2 && <div className={`w-4 h-0.5 rounded-full ${i < step ? 'bg-green-500' : 'bg-zinc-800'}`} />}
               </div>
             ))}
           </div>
@@ -503,63 +500,22 @@ export default function OnboardingPage() {
               </div>
 
               <button
-                onClick={() => setStep(1)}
+                onClick={handleFinish}
+                disabled={loading}
                 className="w-full bg-yellow-400 text-black font-black py-3 rounded-xl text-sm flex items-center justify-center gap-2"
               >
-                I Agree, Let's Ride 🚌 <ChevronRight className="w-4 h-4" />
+                {loading ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Setting you up...</>
+                ) : (
+                  <>I Agree, Let's Ride 🚌 <ChevronRight className="w-4 h-4" /></>
+                )}
               </button>
             </div>
           </div>
         )}
 
-        {/* ── STEP 1: INTERESTS ── */}
+        {/* ── STEP 1: COMMUNITY ID CARD ── */}
         {step === 1 && (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 space-y-4">
-            <div>
-              <h2 className="text-white font-black text-lg">Your Vibe 🔥</h2>
-              <p className="text-zinc-500 text-xs mt-0.5">Pick at least 1 interest (max 6)</p>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              {INTERESTS.map(({ id, label }) => (
-                <button
-                  key={id}
-                  onClick={() =>
-                    setInterests((p) =>
-                      p.includes(id) ? p.filter((x) => x !== id) : p.length < 6 ? [...p, id] : p
-                    )
-                  }
-                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all ${
-                    interests.includes(id)
-                      ? 'bg-yellow-400/20 border-yellow-400 text-yellow-400'
-                      : 'border-zinc-700 text-zinc-400'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={handleFinish}
-              disabled={interests.length === 0 || loading}
-              className="w-full bg-yellow-400 text-black font-black py-3 rounded-xl disabled:opacity-40 flex items-center justify-center gap-2 text-sm"
-            >
-              {loading ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Setting you up...</>
-              ) : (
-                <>Get My ID Card 🪪</>
-              )}
-            </button>
-
-            <button onClick={() => setStep(0)} className="w-full text-zinc-500 text-xs py-1">
-              ← Back
-            </button>
-          </div>
-        )}
-
-        {/* ── STEP 2: COMMUNITY ID CARD ── */}
-        {step === 2 && (
           <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 space-y-4">
             <div>
               <h2 className="text-white font-black text-lg">Your CC Hub ID 🪪</h2>
@@ -572,10 +528,11 @@ export default function OnboardingPage() {
               displayName={profile.display_name}
               avatar={profile.avatar}
               memberNumber={memberNumber}
+              idCode={idCode}
             />
 
             <button
-              onClick={() => setStep(3)}
+              onClick={() => setStep(2)}
               className="w-full bg-yellow-400 text-black font-black py-3 rounded-xl text-sm flex items-center justify-center gap-2"
             >
               Next: See How It Works <ChevronRight className="w-4 h-4" />
@@ -583,8 +540,8 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* ── STEP 3: HOW TO USE ── */}
-        {step === 3 && (
+        {/* ── STEP 2: HOW TO USE ── */}
+        {step === 2 && (
           <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 space-y-4">
             <div>
               <h2 className="text-white font-black text-lg">Your Control Room 🎛️</h2>

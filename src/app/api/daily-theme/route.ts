@@ -20,7 +20,6 @@ export async function GET() {
       theme = (existing as any).daily_theme_pool;
     } else {
       // Pick a random theme — prefer day_hint matching today, fallback to any
-      // Get recently used themes (last 14 days) to avoid repeats
       const { data: recentLogs } = await supabaseAdmin
         .from('daily_theme_log')
         .select('theme_id')
@@ -33,18 +32,23 @@ export async function GET() {
         .from('daily_theme_pool')
         .select('*')
         .eq('day_hint', dayOfWeek)
-        .eq('is_active', true)
-        .not('id', 'in', usedIds.length > 0 ? `(${usedIds.map((id: string) => `'${id}'`).join(',')})` : "('')");
+        .eq('is_active', true);
+      
+      if (usedIds.length > 0) {
+        candidates = (candidates || []).filter(c => !usedIds.includes(c.id));
+      }
 
-      // Fallback: any day theme if no day-specific ones
+      // Fallback: any active theme if no day-specific ones or all used
       if (!candidates || candidates.length === 0) {
         const { data: anyDay } = await supabaseAdmin
           .from('daily_theme_pool')
           .select('*')
-          .is('day_hint', null)
-          .eq('is_active', true)
-          .not('id', 'in', usedIds.length > 0 ? `(${usedIds.map((id: string) => `'${id}'`).join(',')})` : "('')");
+          .eq('is_active', true);
+        
         candidates = anyDay || [];
+        if (usedIds.length > 0) {
+          candidates = candidates.filter(c => !usedIds.includes(c.id));
+        }
       }
 
       // Last resort: use any theme even if recently used
@@ -77,33 +81,15 @@ export async function GET() {
       }
     }
 
-    // Get today's vote counts for MCM/WCW
-    const { data: votes } = await supabaseAdmin
-      .from('daily_votes')
-      .select('nominee_id, profiles!nominee_id(username, display_name, avatar_url)')
-      .eq('vote_date', today);
-
-    const tally: Record<string, any> = {};
-    (votes || []).forEach((v: any) => {
-      const uid = v.nominee_id;
-      if (!tally[uid]) tally[uid] = { count: 0, profile: (v as any).profiles };
-      tally[uid].count++;
+    return NextResponse.json({ 
+      theme, 
+      dayOfWeek, 
+      date: today,
+      announcements: [
+        { id: 1, text: "Welcome to the new Cruise Connect Hub〽️! 🚌", type: "system" },
+        { id: 2, text: "Awards 2026 tracking is now LIVE! 🏆", type: "update" }
+      ]
     });
-    const topVotes = Object.entries(tally)
-      .map(([id, d]) => ({ id, ...(d as any) }))
-      .sort((a: any, b: any) => b.count - a.count)
-      .slice(0, 5);
-
-    // Space topic suggestions for today
-    const { data: topics } = await supabaseAdmin
-      .from('space_topic_suggestions')
-      .select('*')
-      .or(`day_theme.eq.${dayOfWeek},day_theme.is.null`)
-      .eq('is_active', true)
-      .order('used_count', { ascending: true })
-      .limit(5);
-
-    return NextResponse.json({ theme, topVotes, topics: topics || [], dayOfWeek, date: today });
   } catch (err: any) {
     console.error('Daily theme error:', err);
     return NextResponse.json({ error: err.message }, { status: 500 });

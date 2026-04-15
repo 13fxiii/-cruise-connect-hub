@@ -3,12 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 
 import {
-  LayoutDashboard, Users, FileText, Megaphone, Briefcase, Music,
-  CheckCircle, XCircle, Loader2, RefreshCw, TrendingUp, DollarSign,
-  Zap, Bell, Bot, Sparkles, Copy, Check, Send, Wand2, Hash,
-  CalendarDays, Mic, Gamepad2, ShoppingBag, Star, ChevronDown,
-  BarChart2, Eye, Trash2, PenLine, Clock, Radio
-} from "lucide-react";
+  Users, BarChart3, Megaphone, Briefcase, 
+  Settings, ShieldAlert, Loader2, Send, 
+  Trophy, Twitter, LayoutDashboard, Search
+} from 'lucide-react';
 
 /* ── Types ─────────────────────────────────────────────────── */
 type Tab = "overview" | "autopost" | "ads" | "jobs" | "members" | "announcements";
@@ -65,6 +63,101 @@ const STATS = [
 ═══════════════════════════════════════════════════════════════ */
 // Admin-only X handles — ONLY these accounts can access
 const ADMIN_HANDLES = ['13fxiii', '13fxiii_', 'thecruisech', 'TheCruiseCH'];
+
+export default function AdminPage() {
+  const { user } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [profile, setProfile] = useState(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function checkAdmin() {
+      if (!user) return;
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      setProfile(prof);
+      const isHandleAdmin = prof?.x_username && ADMIN_HANDLES.includes(prof.x_username.toLowerCase());
+      const isRoleAdmin = prof?.role === 'admin' || prof?.is_admin === true;
+      
+      setIsAdmin(isHandleAdmin || isRoleAdmin);
+      setChecking(false);
+    }
+    checkAdmin();
+  }, [user]);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-yellow-400 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-center">
+        <ShieldAlert className="w-16 h-16 text-red-500 mb-4" />
+        <h1 className="text-2xl font-black text-white mb-2">RESTRICTED AREA</h1>
+        <p className="text-zinc-500 max-w-xs mb-6">
+          This section is for the Cruise Connect Hub admins only.
+        </p>
+        <button 
+          onClick={() => window.location.href = '/feed'}
+          className="bg-yellow-400 text-black font-black px-8 py-3 rounded-full"
+        >
+          Back to Feed
+        </button>
+        <p className="mt-8 text-zinc-700 text-xs">
+          If you think this is a mistake, DM <span className="text-yellow-400">@13fxiii_</span>
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] pb-24">
+      <AppHeader title="Admin Command Center 〽️" />
+      
+      {/* Admin Nav */}
+      <div className="flex overflow-x-auto gap-2 px-4 py-3 border-b border-zinc-900 no-scrollbar">
+        {[
+          { id: 'overview', icon: LayoutDashboard, label: 'Overview' },
+          { id: 'smm', icon: Twitter, label: 'X SMM' },
+          { id: 'awards', icon: Trophy, label: 'Awards' },
+          { id: 'members', icon: Users, label: 'Members' },
+          { id: 'ads', icon: Megaphone, label: 'Ads/PR' },
+          { id: 'jobs', icon: Briefcase, label: 'Jobs' },
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap transition-all ${
+              activeTab === tab.id ? 'bg-yellow-400 text-black' : 'bg-zinc-900 text-zinc-500'
+            }`}
+          >
+            <tab.icon className="w-4 h-4" />
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="p-4 max-w-4xl mx-auto">
+        {activeTab === 'overview' && <OverviewTab />}
+        {activeTab === 'smm' && <SMMTab />}
+        {activeTab === 'awards' && <AwardsTab />}
+        {activeTab === 'members' && <MembersTab />}
+        {activeTab === 'ads' && <div className="text-center py-12 text-zinc-500">Ads Management Coming Soon</div>}
+        {activeTab === 'jobs' && <div className="text-center py-12 text-zinc-500">Jobs Management Coming Soon</div>}
+      </div>
+    </div>
+  );
+}
 
 export default function AdminPage() {
   const [tab, setTab]       = useState<Tab>("overview");
@@ -232,6 +325,201 @@ export default function AdminPage() {
    OVERVIEW TAB
 ═══════════════════════════════════════════════════════════════ */
 function OverviewTab() {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+        <p className="text-zinc-500 text-[10px] font-black tracking-widest uppercase">Total Members</p>
+        <p className="text-2xl font-black text-white mt-1">3,142</p>
+        <p className="text-green-500 text-[10px] font-bold mt-1">+12 today</p>
+      </div>
+      <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+        <p className="text-zinc-500 text-[10px] font-black tracking-widest uppercase">Active Spaces</p>
+        <p className="text-2xl font-black text-white mt-1">2</p>
+        <p className="text-yellow-400 text-[10px] font-bold mt-1">450 listeners</p>
+      </div>
+      <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+        <p className="text-zinc-500 text-[10px] font-black tracking-widest uppercase">Wallet Volume</p>
+        <p className="text-2xl font-black text-white mt-1">₦420k</p>
+        <p className="text-zinc-500 text-[10px] font-bold mt-1">This month</p>
+      </div>
+      <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+        <p className="text-zinc-500 text-[10px] font-black tracking-widest uppercase">Ad Requests</p>
+        <p className="text-2xl font-black text-white mt-1">8</p>
+        <p className="text-red-400 text-[10px] font-bold mt-1">Pending review</p>
+      </div>
+    </div>
+  );
+}
+
+function SMMTab() {
+  const [content, setContent] = useState('');
+  const [posting, setPosting] = useState(false);
+
+  const postToX = async () => {
+    if (!content.trim()) return;
+    setPosting(true);
+    // Logic to post to X via backend
+    setTimeout(() => {
+      alert('Post scheduled to X and Hub! 🚀');
+      setContent('');
+      setPosting(false);
+    }, 1500);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800">
+        <h3 className="text-white font-black mb-4 flex items-center gap-2">
+          <Twitter className="w-5 h-5 text-blue-400" /> Community X SMM
+        </h3>
+        <textarea 
+          className="w-full bg-black rounded-xl p-4 text-white text-sm min-h-[120px] outline-none border border-zinc-800 focus:border-yellow-400 transition-all"
+          placeholder="What's the community update? This will post to the Hub AND @TheCruiseCH on X 🚌"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-[10px] text-zinc-600 font-bold">{280 - content.length} chars left</span>
+          <button 
+            onClick={postToX}
+            disabled={!content.trim() || posting}
+            className="bg-yellow-400 text-black font-black px-6 py-2.5 rounded-full text-xs flex items-center gap-2 disabled:opacity-40"
+          >
+            {posting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            Post to Hub & X
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800">
+        <h3 className="text-white font-black mb-3 text-sm">Recent X Performance</h3>
+        <div className="space-y-3">
+          {[
+            { label: 'Impressions', val: '1.2M', growth: '+15%' },
+            { label: 'Engagements', val: '45k', growth: '+8%' },
+            { label: 'Followers', val: '2.9k', growth: '+120' },
+          ].map(stat => (
+            <div key={stat.label} className="flex justify-between items-center py-2 border-b border-zinc-800 last:border-0">
+              <span className="text-zinc-400 text-xs font-bold">{stat.label}</span>
+              <div className="text-right">
+                <p className="text-white font-black text-sm">{stat.val}</p>
+                <p className="text-green-500 text-[9px] font-bold">{stat.growth}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AwardsTab() {
+  const categories = [
+    { id: 1, name: 'Cruise King/Queen', desc: 'Most active engager in the community', nominees: 5 },
+    { id: 2, name: 'Connect Plug', desc: 'Most referrals and new members brought in', nominees: 3 },
+    { id: 3, name: 'Vibe Master', desc: 'Top poster in the daily themes', nominees: 4 },
+    { id: 4, name: 'Game Champ', desc: 'Highest leaderboard points this year', nominees: 8 },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-white font-black text-lg">2026 Yearly Awards 🏆</h3>
+        <button className="bg-zinc-900 text-yellow-400 border border-yellow-400/30 px-4 py-2 rounded-xl text-[10px] font-black uppercase">
+          Add Category
+        </button>
+      </div>
+
+      <div className="grid gap-3">
+        {categories.map(cat => (
+          <div key={cat.id} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-yellow-400/10 rounded-full flex items-center justify-center">
+                <Trophy className="w-6 h-6 text-yellow-400" />
+              </div>
+              <div>
+                <h4 className="text-white font-black text-sm">{cat.name}</h4>
+                <p className="text-zinc-500 text-[10px]">{cat.desc}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-yellow-400 font-black text-xs">{cat.nominees} Nominees</p>
+              <button className="text-zinc-400 text-[10px] font-bold hover:text-white mt-1 underline">View All</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-yellow-400/5 border border-yellow-400/20 p-4 rounded-2xl">
+        <p className="text-yellow-400 font-black text-xs mb-1 uppercase tracking-widest">Auto-Tracking Active</p>
+        <p className="text-zinc-400 text-[10px] leading-relaxed">
+          Manus is currently tracking user engagement, referrals, and game scores to automatically generate the final nominee list by December 2026.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function MembersTab() {
+  const [search, setSearch] = useState('');
+  
+  return (
+    <div className="space-y-4">
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+        <input 
+          type="text"
+          className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl py-3 pl-12 pr-4 text-white text-sm outline-none focus:border-yellow-400 transition-all"
+          placeholder="Search by username or X handle..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      <div className="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
+        <table className="w-full text-left text-xs">
+          <thead>
+            <tr className="border-b border-zinc-800">
+              <th className="p-4 text-zinc-500 font-black uppercase tracking-widest">Member</th>
+              <th className="p-4 text-zinc-500 font-black uppercase tracking-widest">X Handle</th>
+              <th className="p-4 text-zinc-500 font-black uppercase tracking-widest">Role</th>
+              <th className="p-4 text-zinc-500 font-black uppercase tracking-widest text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              { name: 'Augustine F.', handle: '@13fxiii_', role: 'Admin', avatar: null },
+              { name: 'The Cruise Hub', handle: '@TheCruiseCH', role: 'Admin', avatar: null },
+              { name: 'Lagos Boy', handle: '@lagosking', role: 'Member', avatar: null },
+              { name: 'Naija Tech', handle: '@techcruise', role: 'Moderator', avatar: null },
+            ].map((m, i) => (
+              <tr key={i} className="border-b border-zinc-800/50 last:border-0">
+                <td className="p-4 flex items-center gap-3">
+                  <div className="w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center font-black text-[10px]">
+                    {m.name[0]}
+                  </div>
+                  <span className="text-white font-bold">{m.name}</span>
+                </td>
+                <td className="p-4 text-yellow-400 font-medium">{m.handle}</td>
+                <td className="p-4">
+                  <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase ${
+                    m.role === 'Admin' ? 'bg-red-500/20 text-red-400' : 
+                    m.role === 'Moderator' ? 'bg-blue-500/20 text-blue-400' : 'bg-zinc-800 text-zinc-500'
+                  }`}>
+                    {m.role}
+                  </span>
+                </td>
+                <td className="p-4 text-right">
+                  <button className="text-zinc-600 hover:text-white transition-colors">Manage</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">

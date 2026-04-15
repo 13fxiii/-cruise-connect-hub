@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
       x_avatar_url: resolvedAvatar,
       onboarding_done: true,
       is_admin: isAdmin,
+      role: isAdmin ? 'admin' : 'member',
       updated_at: new Date().toISOString(),
     };
 
