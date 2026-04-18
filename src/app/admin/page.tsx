@@ -5,7 +5,12 @@ import { useState, useEffect, useRef } from "react";
 import {
   Users, BarChart3, Megaphone, Briefcase, 
   Settings, ShieldAlert, Loader2, Send, 
-  Trophy, Twitter, LayoutDashboard, Search
+  Trophy, Twitter, LayoutDashboard, Search,
+  Bot, Sparkles, PenLine, Wand2, CheckCircle, Check,
+  Copy, Trash2, Radio, Clock, RefreshCw, XCircle,
+  Music, Gamepad2, CalendarDays, Hash, Mic, Star,
+  Bell, Zap, DollarSign, Eye, TrendingUp, BarChart2,
+  ChevronDown, ShoppingBag, FileText
 } from 'lucide-react';
 
 /* ── Types ─────────────────────────────────────────────────── */
@@ -63,101 +68,6 @@ const STATS = [
 ═══════════════════════════════════════════════════════════════ */
 // Admin-only X handles — ONLY these accounts can access
 const ADMIN_HANDLES = ['13fxiii', '13fxiii_', 'thecruisech', 'TheCruiseCH'];
-
-export default function AdminPage() {
-  const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [checking, setChecking] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [profile, setProfile] = useState(null);
-  const supabase = createClient();
-
-  useEffect(() => {
-    async function checkAdmin() {
-      if (!user) return;
-      const { data: prof } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      
-      setProfile(prof);
-      const isHandleAdmin = prof?.x_username && ADMIN_HANDLES.includes(prof.x_username.toLowerCase());
-      const isRoleAdmin = prof?.role === 'admin' || prof?.is_admin === true;
-      
-      setIsAdmin(isHandleAdmin || isRoleAdmin);
-      setChecking(false);
-    }
-    checkAdmin();
-  }, [user]);
-
-  if (checking) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-yellow-400 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-center">
-        <ShieldAlert className="w-16 h-16 text-red-500 mb-4" />
-        <h1 className="text-2xl font-black text-white mb-2">RESTRICTED AREA</h1>
-        <p className="text-zinc-500 max-w-xs mb-6">
-          This section is for the Cruise Connect Hub admins only.
-        </p>
-        <button 
-          onClick={() => window.location.href = '/feed'}
-          className="bg-yellow-400 text-black font-black px-8 py-3 rounded-full"
-        >
-          Back to Feed
-        </button>
-        <p className="mt-8 text-zinc-700 text-xs">
-          If you think this is a mistake, DM <span className="text-yellow-400">@13fxiii_</span>
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-[#0a0a0a] pb-24">
-      <AppHeader title="Admin Command Center 〽️" />
-      
-      {/* Admin Nav */}
-      <div className="flex overflow-x-auto gap-2 px-4 py-3 border-b border-zinc-900 no-scrollbar">
-        {[
-          { id: 'overview', icon: LayoutDashboard, label: 'Overview' },
-          { id: 'smm', icon: Twitter, label: 'X SMM' },
-          { id: 'awards', icon: Trophy, label: 'Awards' },
-          { id: 'members', icon: Users, label: 'Members' },
-          { id: 'ads', icon: Megaphone, label: 'Ads/PR' },
-          { id: 'jobs', icon: Briefcase, label: 'Jobs' },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap transition-all ${
-              activeTab === tab.id ? 'bg-yellow-400 text-black' : 'bg-zinc-900 text-zinc-500'
-            }`}
-          >
-            <tab.icon className="w-4 h-4" />
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="p-4 max-w-4xl mx-auto">
-        {activeTab === 'overview' && <OverviewTab />}
-        {activeTab === 'smm' && <SMMTab />}
-        {activeTab === 'awards' && <AwardsTab />}
-        {activeTab === 'members' && <MembersTab />}
-        {activeTab === 'ads' && <div className="text-center py-12 text-zinc-500">Ads Management Coming Soon</div>}
-        {activeTab === 'jobs' && <div className="text-center py-12 text-zinc-500">Jobs Management Coming Soon</div>}
-      </div>
-    </div>
-  );
-}
 
 export default function AdminPage() {
   const [tab, setTab]       = useState<Tab>("overview");
@@ -520,68 +430,6 @@ function MembersTab() {
     </div>
   );
 }
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-        {STATS.map(({ label, value, icon: Icon, color, change }) => (
-          <div key={label} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-zinc-700 transition-colors">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-zinc-500 text-xs">{label}</span>
-              <Icon size={14} className={color} />
-            </div>
-            <div className="text-xl font-black text-white">{value}</div>
-            <div className="text-zinc-600 text-[11px] mt-0.5">{change}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Quick actions */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-        <h3 className="text-white font-bold text-sm mb-3">Quick Actions</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {[
-            { label:"New Post",     icon:PenLine,    href:"/feed",        color:"bg-yellow-400/10 text-yellow-400 border-yellow-400/20" },
-            { label:"Live Space",   icon:Mic,        href:"/spaces",      color:"bg-red-400/10 text-red-400 border-red-400/20" },
-            { label:"Run Game",     icon:Gamepad2,   href:"/games",       color:"bg-purple-400/10 text-purple-400 border-purple-400/20" },
-            { label:"Post Bot",     icon:Bot,        href:"#",            color:"bg-green-400/10 text-green-400 border-green-400/20" },
-          ].map(({ label, icon: Icon, color }) => (
-            <button key={label}
-              className={`border ${color} rounded-xl p-3 flex flex-col items-center gap-1.5 text-xs font-bold hover:opacity-80 transition-opacity`}>
-              <Icon size={16} />
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Recent activity */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-        <h3 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-          <TrendingUp size={14} className="text-yellow-400" />
-          Recent Activity
-        </h3>
-        <div className="space-y-2.5">
-          {[
-            { text:"New ad submission from Splendor Cosmetics", time:"2m ago", dot:"bg-yellow-400" },
-            { text:"3 new members joined the community", time:"15m ago", dot:"bg-green-400" },
-            { text:"Game Night trivia — 47 players participated", time:"1h ago", dot:"bg-purple-400" },
-            { text:"Music submission from @ThrillSeekaEnt approved", time:"3h ago", dot:"bg-blue-400" },
-            { text:"Job listing: Senior React Dev — 12 applications", time:"5h ago", dot:"bg-orange-400" },
-          ].map(({ text, time, dot }) => (
-            <div key={text} className="flex items-start gap-2.5">
-              <div className={`w-1.5 h-1.5 rounded-full ${dot} mt-1.5 flex-shrink-0`} />
-              <div className="flex-1 min-w-0">
-                <p className="text-zinc-300 text-xs leading-snug">{text}</p>
-                <p className="text-zinc-600 text-[11px]">{time}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ═══════════════════════════════════════════════════════════════
    AI POST AUTOMATION TAB
 ═══════════════════════════════════════════════════════════════ */
@@ -955,36 +803,6 @@ function JobsTab() {
       <a href="/jobs" className="inline-flex items-center gap-1.5 bg-yellow-400 text-black font-black text-xs px-4 py-2 rounded-xl hover:bg-yellow-300 transition-colors">
         View Jobs Board →
       </a>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   MEMBERS TAB
-═══════════════════════════════════════════════════════════════ */
-function MembersTab() {
-  return (
-    <div className="space-y-3">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-        <h2 className="text-white font-black text-sm mb-3">Member Stats</h2>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { label:"Total Members", value:"3,000+", color:"text-blue-400" },
-            { label:"Active This Week", value:"847",   color:"text-green-400" },
-            { label:"New This Month",  value:"234",   color:"text-yellow-400" },
-            { label:"X Community",     value:"2,900+",color:"text-purple-400" },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="bg-zinc-800/60 rounded-xl p-3 text-center">
-              <div className={`text-xl font-black ${color}`}>{value}</div>
-              <div className="text-zinc-500 text-xs">{label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
-        <Users size={28} className="text-yellow-400 mx-auto mb-2" />
-        <p className="text-zinc-400 text-xs">Full member management (ban, promote, DM) coming in Phase 5</p>
-      </div>
     </div>
   );
 }

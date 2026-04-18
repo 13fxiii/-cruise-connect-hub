@@ -3,13 +3,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id: trackId } = await params;
+    const { data, error } = await supabaseAdmin
+      .from('artist_submissions' as any)
+      .select('*')
+      .eq('id', trackId)
+      .maybeSingle();
+    if (error) throw error;
+    return NextResponse.json({ track: data });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-
     const { action } = await req.json();
-    const trackId = params.id;
+    const { id: trackId } = await params;
 
     if (action === 'play') {
       await supabaseAdmin.from('artist_track_plays' as any).insert({ track_id: trackId, user_id: user?.id || null });

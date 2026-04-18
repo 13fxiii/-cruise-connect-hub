@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
 // GET /api/messages/[id] — get messages in conversation
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // POST /api/messages/[id] — send message
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
