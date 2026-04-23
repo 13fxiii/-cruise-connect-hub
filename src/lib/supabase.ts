@@ -9,10 +9,12 @@ const DEFAULT_SUPABASE_ANON_KEY =
 
 type SchemaName = Exclude<keyof Database, "__InternalSupabase">;
 function normalizeSchema(maybeSchema: string | undefined): SchemaName | undefined {
-  const schema = (maybeSchema || "").trim();
+  const schema = (maybeSchema || "").trim().replace(/\.+$/, '');
   if (!schema) return undefined;
   // Avoid placeholder values accidentally set in hosting dashboards.
   if (/\[.*\]/.test(schema) || /your[_ -]?schema/i.test(schema)) return undefined;
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(schema)) return undefined;
+  if (schema.toLowerCase() === 'public') return undefined;
   return schema as SchemaName;
 }
 

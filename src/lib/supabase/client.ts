@@ -27,9 +27,13 @@ const SUPABASE_ANON = normalizeAnonKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 type SchemaName = Exclude<keyof Database, "__InternalSupabase">;
 function normalizeSchema(maybeSchema: string | undefined): SchemaName | undefined {
-  const schema = (maybeSchema || "").trim();
+  const schema = (maybeSchema || "").trim().replace(/\.+$/, '');
   if (!schema) return undefined;
   if (/\[.*\]/.test(schema) || /your[_ -]?schema/i.test(schema)) return undefined;
+  // Ignore unsafe/misconfigured values often set in hosting dashboards.
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(schema)) return undefined;
+  // "public" can be invalid when PostgREST Exposed Schemas excludes it.
+  if (schema.toLowerCase() === 'public') return undefined;
   return schema as SchemaName;
 }
 
