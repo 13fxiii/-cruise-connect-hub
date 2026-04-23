@@ -31,7 +31,7 @@ Create `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5...
-NEXT_PUBLIC_APP_URL=https://cruiseconnect.hub
+NEXT_PUBLIC_APP_URL=https://cruise-connect-hub.vercel.app
 ```
 
 ### Step 3: Local Development
