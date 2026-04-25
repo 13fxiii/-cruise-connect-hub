@@ -2,19 +2,11 @@ import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
+import { normalizeSchema } from "@/lib/supabase/schema";
 
 const DEFAULT_SUPABASE_URL = 'https://xiyjgcoeljquryixmfut.supabase.co';
 const DEFAULT_SUPABASE_ANON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeWpnY29lbGpxdXJ5aXhtZnV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1NTMzNjAsImV4cCI6MjA4NTEyOTM2MH0.BnVAwvmor0JnjmFn0t4t5lTZU_fIoE3FNl1RYOK1_Hk';
-
-type SchemaName = Exclude<keyof Database, "__InternalSupabase">;
-function normalizeSchema(maybeSchema: string | undefined): SchemaName | undefined {
-  const schema = (maybeSchema || "").trim();
-  if (!schema) return undefined;
-  // Avoid placeholder values accidentally set in hosting dashboards.
-  if (/\[.*\]/.test(schema) || /your[_ -]?schema/i.test(schema)) return undefined;
-  return schema as SchemaName;
-}
 
 // IMPORTANT:
 // Do NOT default to "public" here. Some Supabase/PostgREST setups have a non-standard
