@@ -92,7 +92,7 @@ export default function MusicPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-24">
-      <AppHeader title="Music Hub" back />
+      <AppHeader title="Cruise Connect Music" back />
 
       {/* Tabs */}
       <div className="flex gap-1 mx-4 mt-4 mb-4 bg-zinc-900 p-1 rounded-2xl">

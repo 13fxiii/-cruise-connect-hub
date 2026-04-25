@@ -5,21 +5,21 @@ import BottomNav from "@/components/layout/BottomNav";
 
 const CARDS = [
   {
-    title: "Games",
+    title: "Cruise Connect Games",
     desc: "Tournaments, trivia, and quick play.",
     href: "/games",
     icon: Gamepad2,
     tone: "from-green-500/15 to-emerald-500/5 border-green-500/20 text-green-400",
   },
   {
-    title: "Music Hub",
+    title: "Cruise Connect Music",
     desc: "Cruise playlists + radio links.",
     href: "/music",
     icon: Music2,
     tone: "from-pink-500/15 to-purple-500/5 border-pink-500/20 text-pink-400",
   },
   {
-    title: "Movie Hub",
+    title: "Cruise Connect Movies",
     desc: "Community movie picks and watch nights.",
     href: "/movies",
     icon: Film,
@@ -30,11 +30,11 @@ const CARDS = [
 export default function EntertainmentHubPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-24">
-      <AppHeader title="Entertainment Hub" back />
+      <AppHeader title="Cruise Connect Entertainment" back />
       <main className="max-w-lg mx-auto px-4 pt-5">
         <div className="mb-4 rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-4">
           <p className="text-yellow-400 text-xs font-black tracking-wide">SIMPLE MODE</p>
-          <p className="text-white font-bold mt-1">One place for Games, Music, and Movies.</p>
+          <p className="text-white font-bold mt-1">One place for Cruise Connect Games, Music, and Movies.</p>
           <p className="text-zinc-400 text-sm mt-1">No clutter. Tap what you want and keep cruising.</p>
         </div>
 
