@@ -57,7 +57,7 @@
     "eslint-config-next": "^15.5.15",
     "postcss": "^8",
     "tailwindcss": "^3.4.0",
-    "typescript": "^5"
+    "typescript": "^6"
   },
   "build": {
     "appId": "com.cruiseconnect.hub",
