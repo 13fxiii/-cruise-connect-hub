@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { OAuth2 } from '@xdevplatform/xdk';
 
 function getSafeRedirect(redirectTo?: string): string {
   if (!redirectTo) return '/feed';
@@ -63,15 +64,29 @@ export async function GET(request: NextRequest) {
     const tokenData = await tokenRes.json();
     if (!tokenRes.ok || !tokenData.access_token) {
       console.error('X token error:', tokenData);
+    // Use XDK OAuth2 for token exchange
+    const oauth2Config = {
+      clientId,
+      clientSecret,
+      redirectUri,
+      scope: ['tweet.read', 'users.read', 'offline.access'],
+    };
+
+    const oauth2 = new OAuth2(oauth2Config);
+    const tokens = await oauth2.exchangeCode(code, codeVerifier);
+
+    if (!tokens.access_token) {
+      console.error('X token error: No access token');
       return NextResponse.redirect(`${appUrl}/auth/login?error=x_token_failed`);
     }
 
-    // Get X user info
-    const userRes = await fetch('https://api.twitter.com/2/users/me?user.fields=name,username,profile_image_url', {
-      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    // Get X user info using XDK
+    const { Client } = await import('@xdevplatform/xdk');
+    const client = new Client({ accessToken: tokens.access_token });
+    const userResponse = await client.users.getMe({
+      'user.fields': ['name', 'username', 'profile_image_url']
     });
-    const userData = await userRes.json();
-    const xUser = userData.data;
+    const xUser = userResponse.data;
 
     if (!xUser?.id) {
       return NextResponse.redirect(`${appUrl}/auth/login?error=x_user_failed`);
@@ -132,13 +147,13 @@ export async function GET(request: NextRequest) {
     await supabase.from('profiles').upsert(profilePayload, { onConflict: 'id' });
 
     // Store X OAuth tokens for backend calls
-    const expiresAt = tokenData.expires_in ? new Date(Date.now() + Number(tokenData.expires_in) * 1000).toISOString() : null;
+    const expiresAt = tokens.expires_at ? new Date(tokens.expires_at * 1000).toISOString() : null;
     await supabase.from('x_oauth_tokens').upsert({
       user_id: userId,
-      access_token: tokenData.access_token,
-      refresh_token: tokenData.refresh_token || null,
-      token_type: tokenData.token_type || 'bearer',
-      scope: tokenData.scope || null,
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token || null,
+      token_type: tokens.token_type || 'bearer',
+      scope: tokens.scope || null,
       expires_at: expiresAt,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' });

@@ -83,6 +83,17 @@ export default function HomePage() {
             Browse the Feed
           </Link>
         </div>
+        <p className="text-zinc-500 text-xs text-center mt-4">
+          By continuing you agree to the{' '}
+          <Link href="/terms" className="underline hover:text-white transition-colors">
+            Terms of Service
+          </Link>{' '}
+          and{' '}
+          <Link href="/privacy" className="underline hover:text-white transition-colors">
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </section>
 
       {/* Stats */}
@@ -168,6 +179,7 @@ export default function HomePage() {
             <span className="hidden sm:inline"> · </span>
             <span className="block sm:inline">Community X Account: <span className="text-zinc-500">@TheCruiseCH</span></span>
           </p>
+          <p className="text-zinc-700 text-xs">Created by <span className="text-zinc-500">FX〽️ (Augustine Fagbohun)</span> · <a href="mailto:CruiseConnectHub@gmail.com" className="text-yellow-400/50 hover:text-yellow-400 transition-colors">CruiseConnectHub@gmail.com</a></p>
         </div>
       </footer>
     </main>

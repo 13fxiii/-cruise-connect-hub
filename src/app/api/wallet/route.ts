@@ -12,7 +12,7 @@ export async function GET() {
     const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('wallet_balance, total_earned, total_spent, points, referral_code')
-      .eq('id', user.id).single();
+      .eq('id', user.id).maybeSingle();
 
     const { data: txns } = await supabaseAdmin
       .from('wallet_transactions')

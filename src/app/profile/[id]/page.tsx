@@ -1,6 +1,6 @@
 // @ts-nocheck
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -16,7 +16,10 @@ function timeAgo(iso: string) {
   return `${Math.floor(d / 86400000)}d`;
 }
 
-export default function PublicProfilePage({ params }: { params: { id: string } }) {
+export default function PublicProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const id = resolvedParams.id;
+
   const { user }           = useAuth();
   const [profile, setPf]   = useState<any>(null);
   const [posts, setPosts]  = useState<any[]>([]);
@@ -31,7 +34,7 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
       // Load by username or id
       const { data: pf } = await supabase.from('profiles')
         .select('*')
-        .or(`username.eq.${params.id},id.eq.${params.id}`)
+        .or(`username.eq.${id},id.eq.${id}`)
         .maybeSingle();
 
       if (!pf) { setLd(false); return; }
@@ -59,7 +62,7 @@ export default function PublicProfilePage({ params }: { params: { id: string } }
       setLd(false);
     };
     load();
-  }, [params.id, user]);
+  }, [id, user]);
 
   const toggleFollow = async () => {
     if (!user || !profile) return;

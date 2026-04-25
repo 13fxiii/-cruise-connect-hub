@@ -43,10 +43,21 @@ export default function LoginForm() {
       </button>
 
       <div className="mt-5 space-y-3">
+        <p className="text-zinc-500 text-xs text-center">
+          By continuing you agree to the{' '}
+          <Link href="/terms" className="underline">
+            Terms of Service
+          </Link>{' '}
+          and{' '}
+          <Link href="/privacy" className="underline">
+            Privacy Policy
+          </Link>
+          .
+        </p>
         <a
           href="https://x.com/i/flow/signup"
           target="_blank"
-          rel="noreferrer"
+          rel="noreferrer noopener"
           className="w-full block text-center border border-zinc-700 text-white font-bold py-2.5 rounded-xl hover:bg-zinc-900 transition-colors text-sm"
         >
           Create an X account

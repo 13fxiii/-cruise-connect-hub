@@ -60,7 +60,7 @@ export async function PATCH(req: NextRequest) {
   if (action === 'unban')  updates.is_banned = false;
   if (action === 'set_level') updates.level = value;
   if (action === 'add_points') {
-    const { data: p } = await supabaseAdmin.from('profiles').select('points').eq('id', member_id).single();
+    const { data: p } = await supabaseAdmin.from('profiles').select('points').eq('id', member_id).maybeSingle();
     if (p) updates.points = (p.points || 0) + parseInt(value);
   }
 

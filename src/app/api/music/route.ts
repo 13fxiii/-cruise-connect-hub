@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       supabaseAdmin.from('music_tracks').update({ play_count: supabaseAdmin.rpc('') }).eq('id', track_id)
     );
     // simple increment
-    const { data: t } = await supabaseAdmin.from('music_tracks').select('play_count').eq('id', track_id).single();
+    const { data: t } = await supabaseAdmin.from('music_tracks').select('play_count').eq('id', track_id).maybeSingle();
     if (t) await supabaseAdmin.from('music_tracks').update({ play_count: (t.play_count || 0) + 1 }).eq('id', track_id);
     return NextResponse.json({ success: true });
   }
@@ -62,12 +62,12 @@ export async function POST(req: NextRequest) {
     
     if (existing) {
       await supabaseAdmin.from('music_likes').delete().eq('user_id', user.id).eq('track_id', track_id);
-      const { data: t } = await supabaseAdmin.from('music_tracks').select('like_count').eq('id', track_id).single();
+      const { data: t } = await supabaseAdmin.from('music_tracks').select('like_count').eq('id', track_id).maybeSingle();
       if (t) await supabaseAdmin.from('music_tracks').update({ like_count: Math.max(0, (t.like_count || 0) - 1) }).eq('id', track_id);
       return NextResponse.json({ liked: false });
     } else {
       await supabaseAdmin.from('music_likes').insert({ user_id: user.id, track_id });
-      const { data: t } = await supabaseAdmin.from('music_tracks').select('like_count').eq('id', track_id).single();
+      const { data: t } = await supabaseAdmin.from('music_tracks').select('like_count').eq('id', track_id).maybeSingle();
       if (t) await supabaseAdmin.from('music_tracks').update({ like_count: (t.like_count || 0) + 1 }).eq('id', track_id);
       return NextResponse.json({ liked: true });
     }

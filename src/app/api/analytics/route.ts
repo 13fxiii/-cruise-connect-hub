@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       .from('creator_analytics' as any)
       .select('*')
       .eq('user_id', targetId)
-      .single();
+      .maybeSingle();
 
     // Wallet transactions for earnings breakdown
     const sinceDate = new Date(Date.now() - parseInt(range) * 86400000).toISOString();
@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
       .from('profiles')
       .select('wallet_balance, points, level, referral_code')
       .eq('id', targetId)
-      .single();
+      .maybeSingle();
 
     return NextResponse.json({
       analytics: analytics || {},

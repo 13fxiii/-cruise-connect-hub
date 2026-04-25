@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       .from('leaderboard_seasons')
       .select('*')
       .eq('status', 'active')
-      .single();
+      .maybeSingle();
 
     let query = supabaseAdmin
       .from('profiles')

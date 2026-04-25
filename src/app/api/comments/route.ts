@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       .from('post_comments' as any)
       .insert({ post_id, user_id: user.id, content: content.trim() })
       .select('*, profiles!user_id(id, username, display_name, avatar_url, twitter_handle)')
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return NextResponse.json({ comment: data });

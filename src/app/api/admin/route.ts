@@ -9,7 +9,7 @@ async function verifyAdmin(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
   const { data: profile } = await supabaseAdmin
-    .from('profiles').select('is_admin, role').eq('id', user.id).single();
+    .from('profiles').select('is_admin, role').eq('id', user.id).maybeSingle();
   if (!isAdminUser(user, profile as any)) return null;
   return user;
 }
