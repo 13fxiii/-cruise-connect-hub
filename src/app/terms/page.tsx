@@ -11,7 +11,7 @@ export default function TermsPage() {
   const lastUpdated = 'April 5, 2026';
   const appName = 'Cruise Connect Hub';
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cruise-connect-hub.vercel.app';
-  const contactEmail = 'fxiiii@icloud.com';
+  const contactEmail = 'CruiseConnectHub@gmail.com';
   const contactX = '@TheCruiseCH';
 
   const sections = [
@@ -272,4 +272,3 @@ export default function TermsPage() {
     </div>
   );
 }
-

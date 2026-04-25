@@ -55,6 +55,7 @@ export default function OnboardingPage() {
           .toLowerCase()
           .replace(/[^a-z0-9_]/g, '')
           .slice(0, 30),
+        twitter_handle: meta.username ? `@${meta.username}` : '',
       }));
 
       // If profile already complete, skip onboarding.
@@ -80,18 +81,7 @@ export default function OnboardingPage() {
   const field = (k: string) => (e: any) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
   const handleProfile = () => {
-    const u = form.username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
-    if (!form.display_name.trim()) {
-      setError('Display name is required');
-      return;
-    }
-    if (!u || u.length < 3) {
-      setError('Username must be at least 3 characters');
-      return;
-    }
-
     setError('');
-    setForm((f) => ({ ...f, username: u }));
     setStep(1);
   };
 
@@ -137,10 +127,6 @@ export default function OnboardingPage() {
 
       setStep(2);
       setLoading(false);
-
-      setTimeout(() => {
-        window.location.href = '/feed';
-      }, 900);
     } catch (err: any) {
       console.error('Onboarding error:', err);
       setError(err?.message || 'Something went wrong. Please try again.');
@@ -182,29 +168,14 @@ export default function OnboardingPage() {
         {/* STEP 0: PROFILE */}
         {step === 0 && (
           <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 space-y-3">
-            <h2 className="text-white font-black text-lg">Your Profile</h2>
+            <h2 className="text-white font-black text-lg">Welcome to the Bus 🚌</h2>
+            <p className="text-zinc-400 text-xs">Your X profile data is synced automatically.</p>
 
-            <div>
-              <label className="text-zinc-400 text-xs font-bold block mb-1.5">Display Name *</label>
-              <input className={inp} placeholder="Your Name" value={form.display_name} onChange={field('display_name')} />
-            </div>
-
-            <div>
-              <label className="text-zinc-400 text-xs font-bold block mb-1.5">Username *</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">@</span>
-                <input
-                  className={inp + ' pl-8'}
-                  placeholder="yourhandle"
-                  value={form.username}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 30),
-                    }))
-                  }
-                />
-              </div>
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs">
+              <p className="text-zinc-500">Display Name</p>
+              <p className="text-white font-bold">{form.display_name || 'Connected X User'}</p>
+              <p className="text-zinc-500 mt-2">Username</p>
+              <p className="text-yellow-400 font-bold">@{form.username || 'member'}</p>
             </div>
 
             <div>
@@ -229,7 +200,6 @@ export default function OnboardingPage() {
 
             <button
               onClick={handleProfile}
-              disabled={!form.display_name.trim() || !form.username.trim()}
               className="w-full bg-yellow-400 text-black font-black py-3 rounded-xl disabled:opacity-40 flex items-center justify-center gap-2 text-sm"
             >
               Continue <ChevronRight className="w-4 h-4" />
@@ -291,25 +261,42 @@ export default function OnboardingPage() {
         {step === 2 && (
           <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 text-center space-y-4">
             <div>
-              <h2 className="text-white font-black text-xl">You're in, {form.display_name}!</h2>
-              <p className="text-zinc-400 text-sm mt-1">Your profile is ready</p>
+              <h2 className="text-white font-black text-xl animate-pulse">WELCOME TO THE CRUISE CONNECT HUB〽️ BUS</h2>
+              <p className="text-zinc-400 text-sm mt-1">Hi {form.display_name || `@${form.username}`}, your profile is ready.</p>
             </div>
 
-            <div className="bg-zinc-900 rounded-2xl p-4">
-              <p className="text-zinc-400 text-xs mb-1">Your handle</p>
-              <p className="text-yellow-400 font-black text-lg">@{form.username}</p>
+            <div className="bg-zinc-900 rounded-2xl p-4 text-left">
+              <p className="text-zinc-300 text-xs font-bold mb-2">Community Rules — DOs ✅</p>
+              <ul className="text-zinc-400 text-xs space-y-1 list-disc pl-4">
+                <li>Respect everyone in the community.</li>
+                <li>Share useful updates, music, movies, and opportunities.</li>
+                <li>Report spam, scams, and abusive behavior.</li>
+              </ul>
+              <p className="text-zinc-300 text-xs font-bold mt-4 mb-2">DON’Ts ❌</p>
+              <ul className="text-zinc-400 text-xs space-y-1 list-disc pl-4">
+                <li>No harassment, hate speech, or impersonation.</li>
+                <li>No scam links, fake giveaways, or fraud.</li>
+                <li>No leaking private chats or personal data.</li>
+              </ul>
             </div>
 
             <div className="space-y-2">
+              <button
+                onClick={() => {
+                  window.location.href = '/community-id';
+                }}
+                className="w-full border border-yellow-400/40 text-yellow-400 font-black py-3 rounded-xl text-sm"
+              >
+                View, Download & Share Community ID
+              </button>
               <button
                 onClick={() => {
                   window.location.href = '/feed';
                 }}
                 className="w-full bg-yellow-400 text-black font-black py-3 rounded-xl text-sm"
               >
-                Enter the Hub
+                Enter the Hub (Quick Tour)
               </button>
-              <p className="text-zinc-600 text-xs">Redirecting you automatically...</p>
             </div>
           </div>
         )}
@@ -317,4 +304,3 @@ export default function OnboardingPage() {
     </div>
   );
 }
-

@@ -12,7 +12,7 @@ export default function PrivacyPage() {
   const appName    = 'Cruise & Connect Hub〽️';
   const appUrl     = process.env.NEXT_PUBLIC_APP_URL || 'https://cruise-connect-hub.vercel.app';
   const contactX   = '@TheCruiseCH on X';
-  const contactEmail = 'fxiiii@icloud.com';
+  const contactEmail = 'CruiseConnectHub@gmail.com';
 
   const sections = [
     {

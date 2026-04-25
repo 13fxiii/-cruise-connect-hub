@@ -9,9 +9,20 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const body_parsed = body;
     const { display_name, bio, twitter_handle, interests, location, website, avatar_url } = body;
-    let username = body.username;
+    const meta = user.user_metadata || {};
+
+    let username = (
+      body.username ||
+      meta.preferred_username ||
+      meta.username ||
+      (user.email || '').split('@')[0]
+    )
+      .toLowerCase()
+      .replace(/[^a-z0-9_]/g, '')
+      .slice(0, 30);
+
+    if (!username) username = `user_${user.id.slice(0, 6)}`;
 
     // Username uniqueness check
     if (username) {
@@ -38,12 +49,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const meta = user.user_metadata || {};
-    const fallbackUsername = (
-      meta.preferred_username ||
-      meta.username ||
-      (user.email || '').split('@')[0]
-    ).toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 30) || `user_${user.id.slice(0, 6)}`;
+    const fallbackDisplayName =
+      (display_name && display_name.trim()) ||
+      meta.full_name ||
+      meta.name ||
+      (meta.username ? `@${meta.username}` : null) ||
+      username;
 
     // UPSERT — handles both new + existing profiles
     const profileData: any = {
@@ -51,9 +62,8 @@ export async function POST(req: NextRequest) {
       updated_at: new Date().toISOString(),
       onboarding_done: true,
     };
-    if (display_name)          profileData.display_name   = display_name.trim();
-    if (username)              profileData.username       = username.toLowerCase().trim();
-    else if (!profileData.username) profileData.username  = fallbackUsername;
+    profileData.display_name = fallbackDisplayName;
+    profileData.username = username.toLowerCase().trim();
     if (bio)                   profileData.bio            = bio.trim();
     if (twitter_handle)        profileData.twitter_handle = twitter_handle.trim();
     if (interests)             profileData.interests      = interests;
