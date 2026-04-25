@@ -345,6 +345,27 @@ export default function OnboardingPage() {
 
       setUser(data.user);
       const meta = data.user.user_metadata || {};
+      setForm((f) => ({
+        ...f,
+        display_name: meta.full_name || meta.name || '',
+        username: (meta.username || meta.preferred_username || '')
+          .toLowerCase()
+          .replace(/[^a-z0-9_]/g, '')
+          .slice(0, 30),
+        twitter_handle: meta.username ? `@${meta.username}` : '',
+      }));
+
+      // If profile already complete, skip onboarding.
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name, username')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      if (profile?.display_name && profile?.username) {
+        router.replace('/feed');
+      }
+    })();
 
       // Pull X/Twitter data automatically
       const xDisplayName = meta.full_name || meta.name || meta.preferred_username || 'CC Member';
@@ -358,6 +379,10 @@ export default function OnboardingPage() {
         avatar: xAvatar,
       });
 
+  const handleProfile = () => {
+    setError('');
+    setStep(1);
+  };
       // Check if already onboarded
       const { data: existingProfile } = await supabase
         .from('profiles').select('onboarding_done, member_number, id_card_code').eq('id', data.user.id).maybeSingle();
@@ -458,6 +483,16 @@ export default function OnboardingPage() {
 
         {/* ── STEP 0: COMMUNITY RULES ── */}
         {step === 0 && (
+          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 space-y-3">
+            <h2 className="text-white font-black text-lg">Welcome to the Bus 🚌</h2>
+            <p className="text-zinc-400 text-xs">Your X profile data is synced automatically.</p>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs">
+              <p className="text-zinc-500">Display Name</p>
+              <p className="text-white font-bold">{form.display_name || 'Connected X User'}</p>
+              <p className="text-zinc-500 mt-2">Username</p>
+              <p className="text-yellow-400 font-bold">@{form.username || 'member'}</p>
+            </div>
           <div className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden">
             {/* User card at top */}
             <div className="bg-gradient-to-r from-yellow-400/10 to-transparent border-b border-zinc-800 p-4 flex items-center gap-3">
@@ -499,6 +534,12 @@ export default function OnboardingPage() {
                 ))}
               </div>
 
+            <button
+              onClick={handleProfile}
+              className="w-full bg-yellow-400 text-black font-black py-3 rounded-xl disabled:opacity-40 flex items-center justify-center gap-2 text-sm"
+            >
+              Continue <ChevronRight className="w-4 h-4" />
+            </button>
               <button
                 onClick={handleFinish}
                 disabled={loading}
@@ -544,6 +585,23 @@ export default function OnboardingPage() {
         {step === 2 && (
           <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 space-y-4">
             <div>
+              <h2 className="text-white font-black text-xl animate-pulse">WELCOME TO THE CRUISE CONNECT HUB〽️ BUS</h2>
+              <p className="text-zinc-400 text-sm mt-1">Hi {form.display_name || `@${form.username}`}, your profile is ready.</p>
+            </div>
+
+            <div className="bg-zinc-900 rounded-2xl p-4 text-left">
+              <p className="text-zinc-300 text-xs font-bold mb-2">Community Rules — DOs ✅</p>
+              <ul className="text-zinc-400 text-xs space-y-1 list-disc pl-4">
+                <li>Respect everyone in the community.</li>
+                <li>Share useful updates, music, movies, and opportunities.</li>
+                <li>Report spam, scams, and abusive behavior.</li>
+              </ul>
+              <p className="text-zinc-300 text-xs font-bold mt-4 mb-2">DON’Ts ❌</p>
+              <ul className="text-zinc-400 text-xs space-y-1 list-disc pl-4">
+                <li>No harassment, hate speech, or impersonation.</li>
+                <li>No scam links, fake giveaways, or fraud.</li>
+                <li>No leaking private chats or personal data.</li>
+              </ul>
               <h2 className="text-white font-black text-lg">Your Control Room 🎛️</h2>
               <p className="text-zinc-500 text-xs mt-0.5">
                 Here's everything the bus has to offer — tap through
@@ -573,6 +631,21 @@ export default function OnboardingPage() {
             {/* Navigation */}
             <div className="flex gap-2">
               <button
+                onClick={() => {
+                  window.location.href = '/community-id';
+                }}
+                className="w-full border border-yellow-400/40 text-yellow-400 font-black py-3 rounded-xl text-sm"
+              >
+                View, Download & Share Community ID
+              </button>
+              <button
+                onClick={() => {
+                  window.location.href = '/feed';
+                }}
+                className="w-full bg-yellow-400 text-black font-black py-3 rounded-xl text-sm"
+              >
+                Enter the Hub (Quick Tour)
+              </button>
                 onClick={() => setTutorialIdx((p) => Math.max(0, p - 1))}
                 disabled={tutorialIdx === 0}
                 className="flex-1 bg-zinc-900 border border-zinc-700 text-zinc-400 font-black py-3 rounded-xl text-sm disabled:opacity-30"
