@@ -39,6 +39,17 @@ export default function FeedPage() {
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
+    const reloadFeed = async () => {
+      await load();
+    };
+
+    const channel = supabase
+      .channel('feed-live-posts')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'posts' },
+        reloadFeed
+      )
     const channel = supabase
       .channel('feed-live-posts')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, load)
