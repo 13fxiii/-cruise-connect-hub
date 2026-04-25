@@ -50,6 +50,9 @@ export default function FeedPage() {
         { event: '*', schema: 'public', table: 'posts' },
         reloadFeed
       )
+    const channel = supabase
+      .channel('feed-live-posts')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, load)
       .subscribe();
 
     return () => {
