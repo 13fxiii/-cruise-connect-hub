@@ -4,14 +4,14 @@ import { Mic, Gamepad2, Wallet, Megaphone, ArrowRight, Users, TrendingUp, Gift, 
 
 export default function HomePage() {
   const FEATURES = [
-    { icon: Mic,         label: "Live Spaces",  desc: "Audio rooms on X community",         href: "/spaces",   color: "text-red-400",    bg: "bg-red-400/10",    border: "border-red-400/20" },
-    { icon: Gamepad2,    label: "Entertainment Hub",    desc: "Games, Music & Movies in one place",          href: "/entertainment",    color: "text-green-400",  bg: "bg-green-400/10",  border: "border-green-400/20" },
-    { icon: Wallet,      label: "CC Wallet",    desc: "Earn points & real Naira",            href: "/wallet",   color: "text-yellow-400", bg: "bg-yellow-400/10", border: "border-yellow-400/20" },
-    { icon: Megaphone,   label: "PR / ADS",     desc: "Reach 3K+ members",                  href: "/ads",      color: "text-purple-400", bg: "bg-purple-400/10", border: "border-purple-400/20" },
-    { icon: Music,       label: "Music Hub",    desc: "Playlists + Cruise Connect Radio",       href: "/music",    color: "text-pink-400",   bg: "bg-pink-400/10",   border: "border-pink-400/20" },
-    { icon: Film,        label: "Movie Hub",    desc: "Cruise Cinema watch parties",           href: "/movies",   color: "text-blue-400",   bg: "bg-blue-400/10",   border: "border-blue-400/20" },
-    { icon: ShoppingBag, label: "CC Marketplace",     desc: "Merch, PR/Ads, shop & vendors",       href: "/marketplace",     color: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/20" },
-    { icon: Briefcase,   label: "Jobs Board",   desc: "Naija creative & tech gigs",          href: "/jobs",     color: "text-cyan-400",   bg: "bg-cyan-400/10",   border: "border-cyan-400/20" },
+    { icon: Mic,         label: "Cruise Connect Live Spaces",  desc: "Audio rooms on X community",         href: "/spaces",   color: "text-red-400",    bg: "bg-red-400/10",    border: "border-red-400/20" },
+    { icon: Gamepad2,    label: "Cruise Connect Entertainment",    desc: "Games, Music & Movies in one place",          href: "/entertainment",    color: "text-green-400",  bg: "bg-green-400/10",  border: "border-green-400/20" },
+    { icon: Wallet,      label: "Cruise Connect Wallet",    desc: "Earn points & real Naira",            href: "/wallet",   color: "text-yellow-400", bg: "bg-yellow-400/10", border: "border-yellow-400/20" },
+    { icon: Megaphone,   label: "Cruise Connect PR/ADs",     desc: "Reach 3K+ members",                  href: "/ads",      color: "text-purple-400", bg: "bg-purple-400/10", border: "border-purple-400/20" },
+    { icon: Music,       label: "Cruise Connect Music",    desc: "Playlists + Cruise Connect Radio",       href: "/music",    color: "text-pink-400",   bg: "bg-pink-400/10",   border: "border-pink-400/20" },
+    { icon: Film,        label: "Cruise Connect Movies",    desc: "Cruise Cinema watch parties",           href: "/movies",   color: "text-blue-400",   bg: "bg-blue-400/10",   border: "border-blue-400/20" },
+    { icon: ShoppingBag, label: "Cruise Connect Store",     desc: "Merch, PR/Ads, shop & vendors",       href: "/marketplace",     color: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/20" },
+    { icon: Briefcase,   label: "Cruise Connect Jobs",   desc: "Naija creative & tech gigs",          href: "/jobs",     color: "text-cyan-400",   bg: "bg-cyan-400/10",   border: "border-cyan-400/20" },
   ];
 
   const STATS = [
@@ -112,8 +112,8 @@ export default function HomePage() {
       {/* Features Grid */}
       <section className="relative z-10 max-w-4xl mx-auto px-4 pb-14">
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-black text-white mb-1.5">Everything in One Bus 🚌</h2>
-          <p className="text-zinc-500 text-xs">8 features built for the culture</p>
+          <h2 className="text-2xl font-black text-white mb-1.5">Cruise Connect Platform 🚌</h2>
+          <p className="text-zinc-500 text-xs">Cruise Connect feature stack</p>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {FEATURES.map(({ icon: Icon, label, desc, href, color, bg, border }) => (
@@ -170,7 +170,7 @@ export default function HomePage() {
             <span className="text-zinc-500 text-xs">Cruise & Connect Hub〽️</span>
           </div>
           <div className="flex items-center gap-4 flex-wrap justify-center">
-            {[["Feed","/feed"],["Games","/games"],["Music","/music"],["Jobs","/jobs"],["ID Card","/community-id"]].map(([l,h]) => (
+            {[["Cruise Connect Feed","/feed"],["Cruise Connect Games","/games"],["Cruise Connect Music","/music"],["Cruise Connect Jobs","/jobs"],["Cruise Connect ID","/community-id"]].map(([l,h]) => (
               <Link key={h} href={h} className="text-zinc-600 hover:text-zinc-400 text-xs transition-colors">{l}</Link>
             ))}
           </div>
@@ -179,7 +179,6 @@ export default function HomePage() {
             <span className="hidden sm:inline"> · </span>
             <span className="block sm:inline">Community X Account: <span className="text-zinc-500">@TheCruiseCH</span></span>
           </p>
-          <p className="text-zinc-700 text-xs">Created by <span className="text-zinc-500">FX〽️ (Augustine Fagbohun)</span> · <a href="mailto:CruiseConnectHub@gmail.com" className="text-yellow-400/50 hover:text-yellow-400 transition-colors">CruiseConnectHub@gmail.com</a></p>
         </div>
       </footer>
     </main>
