@@ -39,6 +39,30 @@ export default function FeedPage() {
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
+    const channel = supabase
+      .channel('feed-live-posts')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'posts' },
+        async () => {
+          await load();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'posts' },
+        async () => {
+          await load();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [load]);
+
+  useEffect(() => {
     if (!user) return;
     supabase.from('profiles').select('avatar_url,display_name,username')
       .eq('id', user.id).single().then(({ data }) => setProf(data));
