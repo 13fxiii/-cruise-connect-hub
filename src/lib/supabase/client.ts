@@ -1,5 +1,6 @@
 import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from '@/types/database';
+import { normalizeSchema } from './utils';
 
 const DEFAULT_SUPABASE_URL = 'https://xiyjgcoeljquryixmfut.supabase.co';
 const DEFAULT_SUPABASE_ANON_KEY =
@@ -25,17 +26,6 @@ const SUPABASE_URL = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL |
 
 const SUPABASE_ANON = normalizeAnonKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY);
 
-type SchemaName = Exclude<keyof Database, "__InternalSupabase">;
-function normalizeSchema(maybeSchema: string | undefined): SchemaName | undefined {
-  const schema = (maybeSchema || "").trim().replace(/\.+$/, '');
-  if (!schema) return undefined;
-  if (/\[.*\]/.test(schema) || /your[_ -]?schema/i.test(schema)) return undefined;
-  // Ignore unsafe/misconfigured values often set in hosting dashboards.
-  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(schema)) return undefined;
-  // "public" can be invalid when PostgREST Exposed Schemas excludes it.
-  if (schema.toLowerCase() === 'public') return undefined;
-  return schema as SchemaName;
-}
 
 // Do not default to "public" to avoid "Invalid schema: public" when Supabase "Exposed schemas"
 // is configured to something else.

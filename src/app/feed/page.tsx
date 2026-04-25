@@ -41,20 +41,7 @@ export default function FeedPage() {
   useEffect(() => {
     const channel = supabase
       .channel('feed-live-posts')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'posts' },
-        async () => {
-          await load();
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'posts' },
-        async () => {
-          await load();
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, load)
       .subscribe();
 
     return () => {
