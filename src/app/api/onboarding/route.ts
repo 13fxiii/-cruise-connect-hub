@@ -1,159 +1,142 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+
+function sanitizeUsername(input: string) {
+  return input.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 30);
+}
+
+function safeInternalPath(path?: string | null) {
+  if (!path) return '/feed';
+  return path.startsWith('/') && !path.startsWith('//') ? path : '/feed';
+}
+
+export async function GET() {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      return NextResponse.json({ error: profileError.message }, { status: 500 });
+    }
+
+    const { data: card } = await supabase
+      .from('community_id_cards')
+      .select('card_number, qr_data, issued_at, is_active')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    return NextResponse.json({ profile, card: card || null });
+  } catch (error: any) {
+    return NextResponse.json({ error: error?.message || 'Unable to load onboarding data' }, { status: 500 });
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-    const body = await req.json();
-    const { display_name, bio, twitter_handle, interests, location, website, avatar_url } = body;
-    const meta = user.user_metadata || {};
-
-    let username = (
-      body.username ||
-      meta.preferred_username ||
-      meta.username ||
-      (user.email || '').split('@')[0]
-    )
-      .toLowerCase()
-      .replace(/[^a-z0-9_]/g, '')
-      .slice(0, 30);
-
-    if (!username) username = `user_${user.id.slice(0, 6)}`;
-
-    // Username uniqueness check
-    if (username) {
-      const { data: existing } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('username', username.toLowerCase())
-        .neq('id', user.id)
-        .maybeSingle();
-      if (existing) {
-        // Auto-append suffix instead of returning error (handles auto-creation flow)
-        const suffix = user.id.slice(0, 4);
-        const candidate = `${username.toLowerCase()}_${suffix}`.slice(0, 30);
-        // Check the new candidate too
-        const { data: alsoExists } = await supabase
-          .from('profiles').select('id')
-          .eq('username', candidate).neq('id', user.id).maybeSingle();
-        if (!alsoExists) {
-          // Use the suffixed version silently
-          username = candidate;
-        } else {
-          return NextResponse.json({ error: 'Username already taken' }, { status: 409 });
-        }
-      }
+    if (userError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const fallbackDisplayName =
-      (display_name && display_name.trim()) ||
-      meta.full_name ||
-      meta.name ||
-      (meta.username ? `@${meta.username}` : null) ||
-      username;
-
-    // UPSERT — handles both new + existing profiles
-    const profileData: any = {
-    const { interests, bio, location, website } = body;
-    let { username, display_name, avatar_url, x_username, x_display_name, x_avatar_url } = body;
-
+    const body = await req.json();
     const meta = user.user_metadata || {};
 
-    // Always pull from X metadata — never trust client-supplied values for these
-    const resolvedDisplayName = display_name
-      || meta.full_name || meta.name || meta.preferred_username || 'CC Member';
+    const rawUsername =
+      String(body?.username || meta.preferred_username || meta.user_name || meta.username || (user.email || '').split('@')[0] || 'member');
+    let username = sanitizeUsername(rawUsername);
+    if (!username) username = `user_${user.id.slice(0, 6)}`;
 
-    const resolvedAvatar = avatar_url
-      || meta.avatar_url || meta.picture || '';
-
-    const resolvedXUsername = x_username
-      || meta.preferred_username || meta.user_name || meta.username || '';
-
-    // Build a clean username
-    const rawUsername = username
-      || meta.preferred_username || meta.user_name || meta.username
-      || (user.email || '').split('@')[0]
-      || `user_${user.id.slice(0, 6)}`;
-
-    let cleanUsername = rawUsername
-      .toLowerCase()
-      .replace(/[^a-z0-9_]/g, '')
-      .slice(0, 28);
-
-    if (!cleanUsername) cleanUsername = `user_${user.id.slice(0, 8)}`;
-
-    // Ensure username uniqueness
-    const { data: existing } = await supabase
+    const { data: clash } = await supabase
       .from('profiles')
       .select('id')
-      .eq('username', cleanUsername)
+      .eq('username', username)
       .neq('id', user.id)
       .maybeSingle();
 
-    if (existing) {
-      cleanUsername = `${cleanUsername}_${user.id.slice(0, 4)}`;
+    if (clash) {
+      username = `${username.slice(0, 24)}_${user.id.slice(0, 4)}`;
     }
 
-    // Determine admin status
-    const isAdmin = ['13fxiii_', '13fxiii', 'thecruisech', 'TheCruiseCH'].includes(resolvedXUsername.toLowerCase());
+    const displayName =
+      String(body?.display_name || '').trim() ||
+      String(meta.full_name || meta.name || meta.preferred_username || '').trim() ||
+      `Member ${user.id.slice(0, 6)}`;
 
-    const profileData: Record<string, any> = {
+    const xUsername = sanitizeUsername(String(meta.preferred_username || meta.user_name || meta.username || body?.x_username || ''));
+    const avatar =
+      String(body?.avatar_url || '').trim() ||
+      String(meta.avatar_url || meta.picture || body?.x_avatar_url || '').trim() ||
+      '';
+
+    const referralCode = `CCH-${user.id.replace(/-/g, '').slice(0, 8).toUpperCase()}`;
+
+    const profilePayload: Record<string, any> = {
       id: user.id,
-      username: cleanUsername,
-      display_name: resolvedDisplayName,
-      avatar_url: resolvedAvatar,
-      avatar: resolvedAvatar,
-      x_username: resolvedXUsername,
-      x_display_name: resolvedDisplayName,
-      x_avatar_url: resolvedAvatar,
+      username,
+      display_name: displayName,
+      avatar_url: avatar || null,
+      avatar: avatar || null,
+      x_username: xUsername || null,
+      x_display_name: displayName,
+      x_avatar_url: avatar || null,
+      twitter_handle: xUsername ? `@${xUsername}` : null,
       onboarding_done: true,
-      is_admin: isAdmin,
-      role: isAdmin ? 'admin' : 'member',
+      bio: body?.bio?.trim() || null,
+      interests: Array.isArray(body?.interests) ? body.interests.slice(0, 12) : null,
+      location: body?.location?.trim() || null,
+      website: body?.website?.trim() || null,
+      referral_code: referralCode,
       updated_at: new Date().toISOString(),
     };
-    profileData.display_name = fallbackDisplayName;
-    profileData.username = username.toLowerCase().trim();
-    if (bio)                   profileData.bio            = bio.trim();
-    if (twitter_handle)        profileData.twitter_handle = twitter_handle.trim();
-    if (interests)             profileData.interests      = interests;
-    if (location)              profileData.location       = location.trim();
-    if (website)               profileData.website        = website.trim();
-    if (avatar_url)            profileData.avatar_url     = avatar_url.trim();
 
-    if (interests?.length) profileData.interests = interests;
-    if (bio)       profileData.bio = bio.trim();
-    if (location)  profileData.location = location.trim();
-    if (website)   profileData.website = website.trim();
-
-    const { error } = await supabase
-      .from('profiles')
-      .upsert(profileData, { onConflict: 'id' });
-
-    if (error) {
-      console.error('Onboarding upsert error:', error);
-      throw error;
+    const { error: upsertError } = await supabase.from('profiles').upsert(profilePayload, { onConflict: 'id' });
+    if (upsertError) {
+      return NextResponse.json({ error: upsertError.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, username: cleanUsername });
-  } catch (err: any) {
-    console.error('Onboarding API error:', err);
-    return NextResponse.json({ error: err.message || 'Something went wrong' }, { status: 500 });
-  }
-}
+    const cardNumber = `CCH-${new Date().getFullYear()}-${user.id.replace(/-/g, '').slice(0, 8).toUpperCase()}`;
+    const qrPayload = JSON.stringify({ user_id: user.id, username, card_number: cardNumber });
 
-export async function GET(req: NextRequest) {
-  try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    const { data: profile } = await supabase
-      .from('profiles').select('*').eq('id', user.id).maybeSingle();
-    return NextResponse.json({ profile: profile || null });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    const { error: cardError } = await supabase.from('community_id_cards').upsert(
+      {
+        user_id: user.id,
+        card_number: cardNumber,
+        qr_data: qrPayload,
+        is_active: true,
+      },
+      { onConflict: 'user_id' }
+    );
+
+    if (cardError) {
+      return NextResponse.json({ error: cardError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      username,
+      display_name: displayName,
+      card_number: cardNumber,
+      redirect_to: safeInternalPath(body?.redirect_to),
+    });
+  } catch (error: any) {
+    return NextResponse.json({ error: error?.message || 'Onboarding failed' }, { status: 500 });
   }
 }

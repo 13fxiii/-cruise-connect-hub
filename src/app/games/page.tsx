@@ -38,7 +38,7 @@ export default function GamesPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-24">
-      <AppHeader title="Play" back />
+      <AppHeader title="Cruise Connect Games" back />
 
       <div className="max-w-lg mx-auto px-4 pt-4">
         {/* Points banner */}
