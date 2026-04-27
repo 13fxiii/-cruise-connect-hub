@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
   if (body.action === "order") {
     const { product_id, quantity = 1, address } = body;
-    const { data: product } = await supabase.from("shop_products").select("price, stock").eq("id", product_id).single();
+    const { data: product } = await supabase.from("shop_products").select("price, stock").eq("id", product_id).maybeSingle();
     if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
     const total = product.price * quantity;

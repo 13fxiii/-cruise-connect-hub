@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
     // Check proposal is still active
     const { data: proposal } = await supabaseAdmin
-      .from('dao_proposals' as any).select('*').eq('id', proposal_id).single();
+      .from('dao_proposals' as any).select('*').eq('id', proposal_id).maybeSingle();
     if (!proposal) return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
     if (proposal.status !== 'active') return NextResponse.json({ error: 'Voting is closed' }, { status: 400 });
     if (new Date(proposal.voting_ends_at) < new Date()) return NextResponse.json({ error: 'Voting period has ended' }, { status: 400 });

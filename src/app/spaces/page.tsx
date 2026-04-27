@@ -33,7 +33,7 @@ export default function SpacesPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-24">
-      <AppHeader title="Live Spaces" action={
+      <AppHeader title="Cruise Connect Live Spaces" action={
         <Link href="/spaces/create" className="p-2 text-yellow-400"><Plus className="w-5 h-5" /></Link>
       } back />
 

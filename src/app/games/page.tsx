@@ -11,10 +11,16 @@ import { createClient } from '@/lib/supabase/client';
 const GAMES = [
   { id:'trivia', emoji:'🧠', title:'Trivia', desc:'Naija & General Knowledge', href:'/games/trivia', color:'bg-blue-500/10 border-blue-500/20', tag:'Popular', players:89 },
   { id:'uno',    emoji:'🃏', title:'UNO',    desc:'Classic card game vs bots',  href:'/games/uno',    color:'bg-red-500/10 border-red-500/20',  tag:'NEW 🔥', players:24 },
+  { id:'ludo',   emoji:'🎲', title:'Ludo',   desc:'Classic Naija board battle', href:'/games/ludo',   color:'bg-emerald-500/10 border-emerald-500/20', tag:'Squad', players:19 },
+  { id:'karaoke',emoji:'🎤', title:'Karaoke',desc:'Sing-along challenge mode',  href:'/games/karaoke',color:'bg-fuchsia-500/10 border-fuchsia-500/20', tag:'Live', players:14 },
   { id:'drawing',emoji:'🎨', title:'Draw & Guess', desc:'Draw Naija things',    href:'/games/drawing',color:'bg-pink-500/10 border-pink-500/20', tag:'🇳🇬 Naija', players:18 },
+  { id:'codenames',emoji:'🕵️', title:'Codenames', desc:'Team clues and mind games', href:'/games/codenames', color:'bg-cyan-500/10 border-cyan-500/20', tag:'Team', players:9 },
   { id:'werewolf',emoji:'🐺', title:'Werewolf', desc:'Social deduction (Plato-style)', href:'/games/werewolf', color:'bg-violet-500/10 border-violet-500/20', tag:'NEW', players:12 },
+  { id:'wordguess',emoji:'🔤', title:'Word Guess', desc:'Fast-paced guessing rounds', href:'/games/word-guess', color:'bg-sky-500/10 border-sky-500/20', tag:'Quick', players:11 },
+  { id:'spinwheel',emoji:'🎡', title:'Spin Wheel', desc:'Random dares and picks', href:'/games/spin-wheel', color:'bg-lime-500/10 border-lime-500/20', tag:'Party', players:16 },
   { id:'poll',   emoji:'📊', title:'Daily Poll',   desc:'Vote on today\'s topic',href:'/games/poll',   color:'bg-green-500/10 border-green-500/20', tag:'Today', players:0 },
   { id:'truth',  emoji:'💬', title:'Truth or Dare',desc:'Community T&D rounds', href:'/games/truth-dare', color:'bg-orange-500/10 border-orange-500/20', tag:'Hot', players:33 },
+  { id:'afterdark', emoji:'🌶️', title:'After Dark 18+', desc:'Adult party prompts (consent-first)', href:'/games/after-dark', color:'bg-rose-500/10 border-rose-500/20', tag:'18+', players:8 },
   { id:'tournament',emoji:'🏆',title:'Tournament', desc:'Compete for prizes',   href:'/games/tournament',color:'bg-yellow-500/10 border-yellow-500/20', tag:'₦100K', players:0 },
 ];
 
@@ -32,7 +38,7 @@ export default function GamesPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-24">
-      <AppHeader title="Play" back />
+      <AppHeader title="Cruise Connect Games" back />
 
       <div className="max-w-lg mx-auto px-4 pt-4">
         {/* Points banner */}

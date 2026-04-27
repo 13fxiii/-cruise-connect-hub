@@ -1,6 +1,6 @@
 // @ts-nocheck
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, use } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -12,7 +12,10 @@ function timeStamp(iso: string) {
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-export default function ConversationPage({ params }: { params: { id: string } }) {
+export default function ConversationPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const id = resolvedParams.id;
+  
   const { user }        = useAuth();
   const router          = useRouter();
   const [messages, setM]= useState<any[]>([]);
@@ -26,14 +29,14 @@ export default function ConversationPage({ params }: { params: { id: string } })
 
   useEffect(() => {
     if (!user) return;
-    fetch(`/api/messages/${params.id}`)
+    fetch(`/api/messages/${id}`)
       .then(r => r.json())
       .then(d => {
         setM(d.messages || []);
         setOther(d.other_user || null);
         setLd(false);
       });
-  }, [user, params.id]);
+  }, [user, id]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -43,16 +46,16 @@ export default function ConversationPage({ params }: { params: { id: string } })
   // Realtime subscription
   useEffect(() => {
     if (!user) return;
-    const ch = supabase.channel(`dm-${params.id}`)
+    const ch = supabase.channel(`dm-${id}`)
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'dm_messages',
-        filter: `conversation_id=eq.${params.id}`,
+        filter: `conversation_id=eq.${id}`,
       }, payload => {
         setM(prev => [...prev, payload.new]);
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [user, params.id]);
+  }, [user, id]);
 
   const send = async () => {
     if (!text.trim() || sending) return;
@@ -63,7 +66,7 @@ export default function ConversationPage({ params }: { params: { id: string } })
     const optimistic = { id: `opt-${Date.now()}`, sender_id: user?.id, content, created_at: new Date().toISOString() };
     setM(prev => [...prev, optimistic]);
     try {
-      await fetch(`/api/messages/${params.id}`, {
+      await fetch(`/api/messages/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content }),
@@ -139,7 +142,6 @@ export default function ConversationPage({ params }: { params: { id: string } })
       <div className="border-t border-zinc-900 bg-black/95 backdrop-blur-md px-4 py-3 flex items-center gap-3"
         style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 80px)' }}>
         <input
-          ref={inputRef}
           className="flex-1 bg-zinc-900 border border-zinc-800 rounded-full px-4 py-3 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-yellow-400/50"
           placeholder="Message…"
           value={text}

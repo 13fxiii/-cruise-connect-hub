@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
         source: 'app',
       })
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
 

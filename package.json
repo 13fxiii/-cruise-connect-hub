@@ -35,9 +35,10 @@
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.3",
     "@vercel/speed-insights": "^2.0.0",
+    "@xdevplatform/xdk": "^0.5.0",
     "date-fns": "^3.6.0",
     "lucide-react": "^0.378.0",
-    "next": "14.2.29",
+    "next": "^15.5.15",
     "next-auth": "^5.0.0-beta.30",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -49,10 +50,10 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10",
-    "electron": "^35.7.5",
-    "electron-builder": "^24.13.3",
+    "electron": "^40.0.0",
+    "electron-builder": "^26.8.1",
     "eslint": "^8",
-    "eslint-config-next": "16.2.1",
+    "eslint-config-next": "^15.5.15",
     "postcss": "^8",
     "tailwindcss": "^3.4.0",
     "typescript": "^5"
@@ -160,5 +161,13 @@
       "repo": "-cruise-connect-hub"
     }
   },
-  "main": "electron/main.js"
+  "main": "electron/main.js",
+  "overrides": {
+    "brace-expansion": "^1.1.13",
+    "picomatch": "^2.3.2",
+    "@xmldom/xmldom": "^0.8.11",
+    "lodash": "^4.17.21",
+    "tar": "^7.5.12",
+    "glob": "^10.4.5"
+  }
 }

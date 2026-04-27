@@ -1,103 +1,95 @@
-// @ts-nocheck
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertCircle, ChevronRight, Loader2, QrCode } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
-const INTERESTS = [
-  { id: 'music', label: 'Music' },
-  { id: 'gaming', label: 'Gaming' },
-  { id: 'movies', label: 'Movies' },
-  { id: 'business', label: 'Business' },
-  { id: 'afrobeats', label: 'Afrobeats' },
-  { id: 'tech', label: 'Tech' },
-  { id: 'fashion', label: 'Fashion' },
-  { id: 'sports', label: 'Sports' },
-  { id: 'comedy', label: 'Comedy' },
-  { id: 'art', label: 'Art' },
-  { id: 'food', label: 'Food' },
-  { id: 'travel', label: 'Travel' },
-];
-
-const STEPS = ['Profile', 'Interests', 'Done'];
+type OnboardingState = {
+  display_name: string;
+  username: string;
+  bio: string;
+  location: string;
+  website: string;
+  avatar_url: string;
+};
 
 export default function OnboardingPage() {
-  const [step, setStep] = useState(0);
-  const [form, setForm] = useState({ display_name: '', username: '', twitter_handle: '', bio: '' });
-  const [interests, setInterests] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [user, setUser] = useState<any>(null);
   const router = useRouter();
   const supabase = createClient();
 
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState('');
+  const [state, setState] = useState<OnboardingState>({
+    display_name: '',
+    username: '',
+    bio: '',
+    location: '',
+    website: '',
+    avatar_url: '',
+  });
+
   useEffect(() => {
-    let cancelled = false;
+    let active = true;
 
     (async () => {
       const { data } = await supabase.auth.getUser();
-      if (cancelled) return;
+      const user = data.user;
 
-      if (!data.user) {
+      if (!user) {
         router.replace('/auth/login');
         return;
       }
 
-      setUser(data.user);
+      const meta = user.user_metadata || {};
+      const fallbackUsername = String(meta.preferred_username || meta.user_name || meta.username || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, '')
+        .slice(0, 30);
 
-      const meta = data.user.user_metadata || {};
-      setForm((f) => ({
-        ...f,
-        display_name: meta.full_name || meta.name || '',
-        username: (meta.username || meta.preferred_username || '')
-          .toLowerCase()
-          .replace(/[^a-z0-9_]/g, '')
-          .slice(0, 30),
-      }));
+      const profileRes = await fetch('/api/onboarding', { cache: 'no-store' });
+      const profileJson = await profileRes.json();
+      const profile = profileJson?.profile || null;
 
-      // If profile already complete, skip onboarding.
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('display_name, username')
-        .eq('id', data.user.id)
-        .maybeSingle();
+      if (!active) return;
 
-      if (profile?.display_name && profile?.username) {
+      if (profile?.onboarding_done && profile?.username && profile?.display_name) {
         router.replace('/feed');
+        return;
       }
-    })();
+
+      setState({
+        display_name: profile?.display_name || meta.full_name || meta.name || '',
+        username: profile?.username || fallbackUsername,
+        bio: profile?.bio || '',
+        location: profile?.location || '',
+        website: profile?.website || profile?.website_url || '',
+        avatar_url: profile?.avatar_url || meta.avatar_url || meta.picture || '',
+      });
+
+      setLoading(false);
+    })().catch((e) => {
+      setError(e?.message || 'Unable to load onboarding.');
+      setLoading(false);
+    });
 
     return () => {
-      cancelled = true;
+      active = false;
     };
-  }, [router, supabase]);
+  }, [router, supabase.auth]);
 
-  const inp =
-    'w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-yellow-400 transition-colors placeholder-zinc-600';
+  const usernamePreview = useMemo(
+    () => state.username.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 30),
+    [state.username]
+  );
 
-  const field = (k: string) => (e: any) => setForm((p) => ({ ...p, [k]: e.target.value }));
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (saving) return;
 
-  const handleProfile = () => {
-    const u = form.username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
-    if (!form.display_name.trim()) {
-      setError('Display name is required');
-      return;
-    }
-    if (!u || u.length < 3) {
-      setError('Username must be at least 3 characters');
-      return;
-    }
-
-    setError('');
-    setForm((f) => ({ ...f, username: u }));
-    setStep(1);
-  };
-
-  const handleFinish = async () => {
-    if (!user || interests.length === 0) return;
-    setLoading(true);
+    setSaving(true);
     setError('');
 
     try {
@@ -105,216 +97,132 @@ export default function OnboardingPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: form.username,
-          display_name: form.display_name.trim(),
-          twitter_handle: form.twitter_handle.trim(),
-          bio: form.bio.trim(),
-          interests,
+          ...state,
+          username: usernamePreview,
+          redirect_to: '/feed',
         }),
       });
-
       const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Could not finish onboarding.');
 
-      if (!res.ok) {
-        // Username taken — suggest a fix
-        if (res.status === 409) {
-          setError(`@${form.username} is taken. Try @${form.username}_${user.id.slice(0, 4)}`);
-          setStep(0);
-          setLoading(false);
-          return;
-        }
-        throw new Error(json.error || 'Failed to save profile');
-      }
-
-      // Verify it actually saved (don’t leave user stuck on /onboarding).
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id, username')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (!profile) throw new Error('Profile saved but not found. Please try again.');
-
-      setStep(2);
-      setLoading(false);
-
-      setTimeout(() => {
-        window.location.href = '/feed';
-      }, 900);
+      setDone(true);
+      setTimeout(() => router.replace('/feed'), 900);
     } catch (err: any) {
-      console.error('Onboarding error:', err);
-      setError(err?.message || 'Something went wrong. Please try again.');
-      setLoading(false);
+      setError(err?.message || 'Could not finish onboarding.');
+    } finally {
+      setSaving(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <Loader2 className="w-6 h-6 text-yellow-400 animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-6">
-          <div className="text-yellow-400 font-black text-sm tracking-wider">CRUISE CONNECT HUB</div>
+    <div className="min-h-screen bg-[#0a0a0a] text-white px-4 py-8">
+      <div className="max-w-md mx-auto">
+        <div className="mb-6">
+          <p className="text-yellow-400 text-xs font-black tracking-widest">CRUISE CONNECT HUB</p>
+          <h1 className="text-2xl font-black mt-1">Finish your onboarding</h1>
+          <p className="text-zinc-400 text-sm mt-2">
+            Your account is already connected. Confirm your profile and join the feed.
+          </p>
         </div>
 
-        {/* Step dots */}
-        <div className="flex items-center justify-center gap-2 mb-6">
-          {STEPS.map((s, i) => (
-            <div key={s} className="flex items-center gap-2">
-              <div
-                className={`w-7 h-7 rounded-full text-[11px] font-black flex items-center justify-center transition-all ${
-                  i < step ? 'bg-green-500 text-white' : i === step ? 'bg-yellow-400 text-black' : 'bg-zinc-800 text-zinc-600'
-                }`}
-              >
-                {i < step ? '✓' : i + 1}
-              </div>
-              {i < STEPS.length - 1 && <div className={`w-6 h-0.5 rounded-full ${i < step ? 'bg-green-500' : 'bg-zinc-800'}`} />}
-            </div>
-          ))}
-        </div>
-
-        {/* Error banner */}
         {error && (
-          <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 rounded-xl mb-4">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="mb-4 p-3 rounded-xl border border-red-400/30 bg-red-400/10 flex gap-2 text-red-300 text-sm">
+            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        {/* STEP 0: PROFILE */}
-        {step === 0 && (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 space-y-3">
-            <h2 className="text-white font-black text-lg">Your Profile</h2>
-
-            <div>
-              <label className="text-zinc-400 text-xs font-bold block mb-1.5">Display Name *</label>
-              <input className={inp} placeholder="Your Name" value={form.display_name} onChange={field('display_name')} />
-            </div>
-
-            <div>
-              <label className="text-zinc-400 text-xs font-bold block mb-1.5">Username *</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">@</span>
-                <input
-                  className={inp + ' pl-8'}
-                  placeholder="yourhandle"
-                  value={form.username}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 30),
-                    }))
-                  }
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-zinc-400 text-xs font-bold block mb-1.5">
-                X / Twitter Handle <span className="text-zinc-600">(optional)</span>
-              </label>
-              <input className={inp} placeholder="@yourhandle" value={form.twitter_handle} onChange={field('twitter_handle')} />
-            </div>
-
-            <div>
-              <label className="text-zinc-400 text-xs font-bold block mb-1.5">
-                Bio <span className="text-zinc-600">(optional)</span>
-              </label>
-              <textarea
-                className={inp + ' resize-none'}
-                rows={2}
-                placeholder="Tell the community about yourself..."
-                value={form.bio}
-                onChange={field('bio')}
-              />
-            </div>
-
-            <button
-              onClick={handleProfile}
-              disabled={!form.display_name.trim() || !form.username.trim()}
-              className="w-full bg-yellow-400 text-black font-black py-3 rounded-xl disabled:opacity-40 flex items-center justify-center gap-2 text-sm"
-            >
-              Continue <ChevronRight className="w-4 h-4" />
-            </button>
+        {done && (
+          <div className="mb-4 p-3 rounded-xl border border-green-400/30 bg-green-400/10 flex gap-2 text-green-300 text-sm">
+            <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>Onboarding complete. Redirecting to feed…</span>
           </div>
         )}
 
-        {/* STEP 1: INTERESTS */}
-        {step === 1 && (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 space-y-4">
-            <div>
-              <h2 className="text-white font-black text-lg">Your Vibe</h2>
-              <p className="text-zinc-500 text-xs mt-0.5">Pick at least 1 interest (max 6)</p>
-            </div>
+        <form onSubmit={onSubmit} className="space-y-3 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+          <Field
+            label="Display name"
+            value={state.display_name}
+            onChange={(value) => setState((s) => ({ ...s, display_name: value }))}
+            required
+          />
 
-            <div className="grid grid-cols-3 gap-2">
-              {INTERESTS.map(({ id, label }) => (
-                <button
-                  key={id}
-                  onClick={() =>
-                    setInterests((p) =>
-                      p.includes(id) ? p.filter((x) => x !== id) : p.length < 6 ? [...p, id] : p
-                    )
-                  }
-                  className={`py-2 px-2 rounded-xl text-xs font-bold border transition-all ${
-                    interests.includes(id)
-                      ? 'bg-yellow-400/20 border-yellow-400 text-yellow-400'
-                      : 'border-zinc-700 text-zinc-400'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+          <Field
+            label="Username"
+            value={state.username}
+            onChange={(value) => setState((s) => ({ ...s, username: value }))}
+            hint={`Will be saved as @${usernamePreview || 'member'}`}
+            required
+          />
 
-            <button
-              onClick={handleFinish}
-              disabled={interests.length === 0 || loading}
-              className="w-full bg-yellow-400 text-black font-black py-3 rounded-xl disabled:opacity-40 flex items-center justify-center gap-2 text-sm"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> Creating your profile...
-                </>
-              ) : (
-                <>
-                  Finish Setup <QrCode className="w-4 h-4" />
-                </>
-              )}
-            </button>
+          <Field
+            label="Avatar URL"
+            value={state.avatar_url}
+            onChange={(value) => setState((s) => ({ ...s, avatar_url: value }))}
+          />
 
-            <button onClick={() => setStep(0)} className="w-full text-zinc-500 text-xs py-2">
-              Back
-            </button>
-          </div>
-        )}
+          <Field
+            label="Bio"
+            value={state.bio}
+            onChange={(value) => setState((s) => ({ ...s, bio: value }))}
+          />
 
-        {/* STEP 2: DONE */}
-        {step === 2 && (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 text-center space-y-4">
-            <div>
-              <h2 className="text-white font-black text-xl">You're in, {form.display_name}!</h2>
-              <p className="text-zinc-400 text-sm mt-1">Your profile is ready</p>
-            </div>
+          <Field
+            label="Location"
+            value={state.location}
+            onChange={(value) => setState((s) => ({ ...s, location: value }))}
+          />
 
-            <div className="bg-zinc-900 rounded-2xl p-4">
-              <p className="text-zinc-400 text-xs mb-1">Your handle</p>
-              <p className="text-yellow-400 font-black text-lg">@{form.username}</p>
-            </div>
+          <Field
+            label="Website"
+            value={state.website}
+            onChange={(value) => setState((s) => ({ ...s, website: value }))}
+          />
 
-            <div className="space-y-2">
-              <button
-                onClick={() => {
-                  window.location.href = '/feed';
-                }}
-                className="w-full bg-yellow-400 text-black font-black py-3 rounded-xl text-sm"
-              >
-                Enter the Hub
-              </button>
-              <p className="text-zinc-600 text-xs">Redirecting you automatically...</p>
-            </div>
-          </div>
-        )}
+          <button
+            type="submit"
+            disabled={saving || !state.display_name.trim() || !usernamePreview}
+            className="w-full mt-2 rounded-xl bg-yellow-400 text-black font-black py-3 disabled:opacity-60"
+          >
+            {saving ? 'Saving…' : 'Continue to Cruise Connect'}
+          </button>
+        </form>
       </div>
     </div>
   );
 }
 
+function Field({
+  label,
+  value,
+  onChange,
+  required = false,
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;
+  hint?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="block text-xs text-zinc-400 mb-1">{label}</span>
+      <input
+        required={required}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm outline-none focus:border-yellow-400"
+      />
+      {hint ? <span className="block mt-1 text-[11px] text-zinc-500">{hint}</span> : null}
+    </label>
+  );
+}

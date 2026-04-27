@@ -8,8 +8,9 @@ const TAGS = ["Music","Afrobeats","Gaming","Business","Trivia","Movies","Discuss
 
 export default function CreateSpacePage() {
   const [form, setForm] = useState({
-    title:"", description:"", twitter_space_url:"", type:"live", scheduled_at:"", tags:[] as string[],
+    title:"", description:"", x_space_url:"", type:"live", scheduled_at:"", tags:[] as string[],
   });
+  const [autoPostToX, setAutoPostToX] = useState(true);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [err, setErr] = useState("");
@@ -30,6 +31,19 @@ export default function CreateSpacePage() {
         method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("Failed");
+      if (autoPostToX) {
+        const whenText = form.type === "scheduled" && form.scheduled_at
+          ? `\n🗓️ ${new Date(form.scheduled_at).toLocaleString()}`
+          : "";
+        const linkText = form.x_space_url ? `\n🔗 ${form.x_space_url}` : "";
+        await fetch("/api/x/post", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: `🎙️ ${form.title}\n${form.description || "Join us on Cruise Connect Hub"}${whenText}${linkText}\n\n@TheCruiseCH`,
+          }),
+        });
+      }
       setDone(true);
     } catch { setErr("Something went wrong. Try again."); }
     finally { setLoading(false); }
@@ -43,7 +57,7 @@ export default function CreateSpacePage() {
           <CheckCircle className="w-10 h-10 text-green-400"/>
         </div>
         <h2 className="text-2xl font-black text-white mb-2">Space Created!</h2>
-        <p className="text-zinc-400 mb-8">Your space is live in the community hub. Share your X Space link so members can join.</p>
+        <p className="text-zinc-400 mb-8">Your space is live in the community hub. If connected, your announcement has been posted on X automatically.</p>
         <Link2 href="/spaces" className="bg-yellow-400 text-black font-black px-8 py-3 rounded-full hover:bg-yellow-300 transition-colors">
           Back to Spaces
         </Link2>
@@ -99,11 +113,21 @@ export default function CreateSpacePage() {
             <div className="relative">
               <Link className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"/>
               <input type="url" placeholder="https://x.com/i/spaces/..."
-                value={form.twitter_space_url} onChange={e=>setForm(p=>({...p,twitter_space_url:e.target.value}))}
+                value={form.x_space_url} onChange={e=>setForm(p=>({...p,x_space_url:e.target.value}))}
                 className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-10 pr-4 py-3 text-white text-sm outline-none focus:border-yellow-500 transition-colors placeholder:text-zinc-600"/>
             </div>
-            <p className="text-xs text-zinc-500 mt-1">Start your X Space first, then paste the link here</p>
+            <p className="text-xs text-zinc-500 mt-1">Optional. Add your X Space link and the app can announce it automatically.</p>
           </div>
+
+          <label className="flex items-center gap-2 text-xs text-zinc-300">
+            <input
+              type="checkbox"
+              checked={autoPostToX}
+              onChange={(e) => setAutoPostToX(e.target.checked)}
+              className="accent-yellow-400"
+            />
+            Auto-post this Space announcement to X
+          </label>
 
           {form.type === "scheduled" && (
             <div>

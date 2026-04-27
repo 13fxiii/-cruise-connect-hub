@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     if (action === 'follow') {
       await supabaseAdmin.from('follows').insert({ follower_id: user.id, following_id: target_id }).then(() => {});
       // Notify
-      const { data: me } = await supabaseAdmin.from('profiles').select('display_name, username').eq('id', user.id).single();
+      const { data: me } = await supabaseAdmin.from('profiles').select('display_name, username').eq('id', user.id).maybeSingle();
       await supabaseAdmin.from('notifications').insert({
         recipient_id: target_id,
         type: 'follow',

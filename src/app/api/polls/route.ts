@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     if (voteError) return NextResponse.json({ error: "Already voted" }, { status: 400 });
 
     // Update vote count in options JSONB
-    const { data: poll } = await supabase.from("polls").select("options, total_votes").eq("id", poll_id).single();
+    const { data: poll } = await supabase.from("polls").select("options, total_votes").eq("id", poll_id).maybeSingle();
     if (poll) {
       const options = (poll.options as any[]).map((o: any) =>
         o.id === option_id ? { ...o, votes: (o.votes || 0) + 1 } : o

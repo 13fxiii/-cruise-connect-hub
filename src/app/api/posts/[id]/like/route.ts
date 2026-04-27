@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
 
-export async function POST(_: Request, { params }: { params: { id: string } }) {
+export async function POST(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -26,7 +26,7 @@ export async function POST(_: Request, { params }: { params: { id: string } }) {
   return NextResponse.json({ liked: true });
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 

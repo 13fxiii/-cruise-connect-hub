@@ -4,12 +4,12 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'Terms of Service for Cruise & Connect Hub — rules and terms that govern use of the platform.',
+  description: 'Terms of Service for Cruise Connect Hub〽️ — rules and terms that govern use of the platform.',
 };
 
 export default function TermsPage() {
   const lastUpdated = 'April 5, 2026';
-  const appName = 'Cruise & Connect Hub〽️';
+  const appName = 'Cruise Connect Hub〽️';
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cruise-connect-hub.vercel.app';
   const privacyUrl = process.env.NEXT_PUBLIC_PRIVACY_POLICY_URL || `${appUrl}/privacy`;
 
@@ -79,7 +79,7 @@ export default function TermsPage() {
             <div className="relative w-9 h-9 rounded-xl overflow-hidden ring-2 ring-yellow-400/30">
               <Image src="/logo.jpeg" alt="CC Hub" fill sizes="36px" className="object-cover" />
             </div>
-            <span className="text-white font-black text-sm hidden sm:block">CC Hub〽️</span>
+            <span className="text-white font-black text-sm hidden sm:block">Cruise Connect Hub〽️</span>
           </Link>
           <Link href="/" className="text-zinc-400 hover:text-white text-sm transition-colors">
             ← Back to app

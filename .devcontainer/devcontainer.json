@@ -1,0 +1,53 @@
+{
+  "name": "Cruise Connect Hub",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/supabase-cli:1": {}
+  },
+  "onCreateCommand": "npm ci --include=dev --no-audit --prefer-offline",
+  "postCreateCommand": "node --version && npm --version",
+  "postStartCommand": "echo 'Cruise Connect Hub dev container ready. Run npm run dev to start Next.js.'",
+  "forwardPorts": [
+    3000,
+    54321,
+    54322,
+    54323
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js",
+      "onAutoForward": "openPreview"
+    },
+    "54321": {
+      "label": "Supabase API"
+    },
+    "54322": {
+      "label": "Supabase DB"
+    },
+    "54323": {
+      "label": "Supabase Studio"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "supabase.vscode-supabase",
+        "ms-vscode.vscode-typescript-next",
+        "GitHub.vscode-pull-request-github"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "files.eol": "\n",
+        "typescript.tsdk": "node_modules/typescript/lib"
+      }
+    }
+  },
+  "remoteUser": "node"
+}

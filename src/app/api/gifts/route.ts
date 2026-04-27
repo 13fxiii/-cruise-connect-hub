@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       .from('gift_types')
       .select('*')
       .eq('id', gift_type_id)
-      .single();
+      .maybeSingle();
 
     if (!giftType) return NextResponse.json({ error: 'Invalid gift type' }, { status: 400 });
 
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       .from('profiles')
       .select('wallet_balance')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (!senderProfile || senderProfile.wallet_balance < giftType.value) {
       return NextResponse.json({ error: 'Insufficient wallet balance' }, { status: 400 });
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       .from('profiles')
       .select('wallet_balance')
       .eq('id', receiver_id)
-      .single();
+      .maybeSingle();
 
     if (receiverProfile) {
       await supabaseAdmin
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
         message: message || '',
       })
       .select()
-      .single();
+      .maybeSingle();
 
     // Record wallet transactions
     await supabaseAdmin.from('wallet_transactions').insert([

@@ -8,10 +8,11 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacyPage() {
-  const lastUpdated = 'March 15, 2026';
+  const lastUpdated = 'April 5, 2026';
   const appName    = 'Cruise & Connect Hub〽️';
   const appUrl     = process.env.NEXT_PUBLIC_APP_URL || 'https://cruise-connect-hub.vercel.app';
-  const contact    = '@TheCruiseCH on X';
+  const contactX   = '@TheCruiseCH on X';
+  const contactEmail = 'CruiseConnectHub@gmail.com';
 
   const sections = [
     {
@@ -180,7 +181,7 @@ export default function PrivacyPage() {
       content: [
         {
           sub: 'Get in Touch',
-          body: `If you have questions, concerns, or requests about this Privacy Policy or your data, reach us at ${contact} or through the community at ${appUrl}.`,
+          body: `If you have questions, concerns, or requests about this Privacy Policy or your data, email ${contactEmail} or reach us at ${contactX}. You can also contact us through the community at ${appUrl}.`,
         },
       ],
     },
@@ -258,17 +259,25 @@ export default function PrivacyPage() {
           <p className="text-zinc-400 text-sm mb-3">
             Questions about this policy?
           </p>
-          <a
-            href="https://x.com/TheCruiseCH"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-yellow-400 text-black font-black text-sm px-6 py-2.5 rounded-xl hover:bg-yellow-300 transition-colors"
-          >
-            <svg className="w-4 h-4 fill-black" viewBox="0 0 24 24">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-            </svg>
-            Contact @TheCruiseCH
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href={`mailto:${contactEmail}`}
+              className="inline-flex items-center justify-center gap-2 bg-yellow-400 text-black font-black text-sm px-6 py-2.5 rounded-xl hover:bg-yellow-300 transition-colors w-full sm:w-auto"
+            >
+              Email Support
+            </a>
+            <a
+              href="https://x.com/TheCruiseCH"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 border border-zinc-700 text-white font-black text-sm px-6 py-2.5 rounded-xl hover:bg-zinc-800 transition-colors w-full sm:w-auto"
+            >
+              <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              Contact @TheCruiseCH
+            </a>
+          </div>
           <p className="text-zinc-600 text-xs mt-4">
             © 2026 Cruise & Connect Hub〽️ · All rights reserved
           </p>
