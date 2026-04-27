@@ -654,7 +654,7 @@ function AnnouncementsTab() {
     { label:"📣 New Feature",     text:"📣 BIG ANNOUNCEMENT!\n\nNew feature just dropped on the CC Hub app 🚀\n\nCheck it out 👇\nhttps://cruise-connect-hub.vercel.app\n\n#CruiseConnect #CCHub" },
     { label:"🏆 Winner",          text:"🏆 WE HAVE A WINNER!\n\nBig ups to today's champion 👑\n\nWant to be next? Join the hub 👇\nhttps://cruise-connect-hub.vercel.app/games\n\n#CruiseConnect #CCHub #NaijaWinner" },
     { label:"🎂 Anniversary",     text:"🎂 1 YEAR OF CRUISING!\n\nOne year. 3,000+ members. Infinite gists.\n\nThank you for riding with us 🙏🚌\n\nhttps://cruise-connect-hub.vercel.app\n\n#CruiseConnect #CCHub #NaijaCommunity" },
-    { label:"💼 Job Alert",       text:"💼 JOB ALERT!\n\nNew opportunity just posted on CC Hub Jobs Board.\n\nNaija creatives & tech folks — this one's for you 👇\nhttps://cruise-connect-hub.vercel.app/jobs\n\n#CruiseConnect #CCHub #NaijaJobs" },
+    { label:"💼 Job Alert",       text:"💼 JOB ALERT!\n\nNew opportunity just posted on CC Hub Cruise Connect Jobs.\n\nNaija creatives & tech folks — this one's for you 👇\nhttps://cruise-connect-hub.vercel.app/jobs\n\n#CruiseConnect #CCHub #NaijaJobs" },
   ];
 
   const copy = () => {
@@ -801,7 +801,7 @@ function JobsTab() {
       <h2 className="text-white font-black text-sm mb-1">Jobs Management</h2>
       <p className="text-zinc-500 text-xs mb-4">Review and manage job listings from the community.</p>
       <a href="/jobs" className="inline-flex items-center gap-1.5 bg-yellow-400 text-black font-black text-xs px-4 py-2 rounded-xl hover:bg-yellow-300 transition-colors">
-        View Jobs Board →
+        View Cruise Connect Jobs →
       </a>
     </div>
   );

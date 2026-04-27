@@ -32,7 +32,26 @@ NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5...
 NEXT_PUBLIC_APP_URL=https://cruise-connect-hub.vercel.app
+NEXT_PUBLIC_TERMS_OF_SERVICE_URL=https://cruise-connect-hub.vercel.app/terms
+NEXT_PUBLIC_PRIVACY_POLICY_URL=https://cruise-connect-hub.vercel.app/privacy
 ```
+
+
+### ✅ Vercel + Supabase (important)
+
+Use **one Supabase project per Vercel environment**.
+
+Do **not** keep mixed values from two projects in the same environment.
+
+For each Vercel environment (Production / Preview / Development), set only one consistent set:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+Optional integration vars can exist, but must point to the **same** project ref as `NEXT_PUBLIC_SUPABASE_URL`.
+
+If `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_URL` conflict, app startup will now fail in production with a clear error so bad deployments are caught early.
 
 ### Step 3: Local Development
 ```bash
@@ -55,9 +74,17 @@ vercel env add NEXT_PUBLIC_SUPABASE_URL
 vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
 vercel env add SUPABASE_SERVICE_ROLE_KEY
 vercel env add NEXT_PUBLIC_APP_URL
+vercel env add NEXT_PUBLIC_TERMS_OF_SERVICE_URL
+vercel env add NEXT_PUBLIC_PRIVACY_POLICY_URL
 
 # Deploy to production
 vercel --prod
+```
+
+If you also build from GitHub Actions, mirror these in GitHub Actions secrets:
+```bash
+gh secret set NEXT_PUBLIC_TERMS_OF_SERVICE_URL --body "https://cruise-connect-hub.vercel.app/terms"
+gh secret set NEXT_PUBLIC_PRIVACY_POLICY_URL --body "https://cruise-connect-hub.vercel.app/privacy"
 ```
 
 ### Step 5: Twitter/X OAuth Final Config

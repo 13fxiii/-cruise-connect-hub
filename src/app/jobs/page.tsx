@@ -67,11 +67,11 @@ export default function JobsPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <AppHeader title="Jobs Board" back />
+      <AppHeader title="Cruise Connect Jobs" back />
       
       <main className="max-w-5xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-white flex items-center gap-3"><Briefcase className="text-yellow-400 w-8 h-8"/>Jobs Board</h1>
+          <h1 className="text-3xl font-black text-white flex items-center gap-3"><Briefcase className="text-yellow-400 w-8 h-8"/>Cruise Connect Jobs</h1>
           <p className="text-zinc-400 mt-1">Find opportunities · Post roles · Build your career in the community</p>
         </div>
 

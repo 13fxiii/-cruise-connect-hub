@@ -41,26 +41,13 @@ export default function FeedPage() {
   useEffect(() => {
     const channel = supabase
       .channel('feed-live-posts')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'posts' },
-        async () => {
-          await load();
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'posts' },
-        async () => {
-          await load();
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, load)
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [load]);
+  }, [load, supabase]);
 
   useEffect(() => {
     if (!user) return;
@@ -143,6 +130,7 @@ export default function FeedPage() {
       <div className="max-w-lg mx-auto">
         {/* Daily theme banner */}
         <DailyTheme />
+        <CommunityReminders />
 
         {loading ? (
           <div className="flex justify-center py-16">
@@ -186,6 +174,32 @@ function DailyTheme() {
       <div className="min-w-0">
         <p className="text-yellow-400 font-black text-xs tracking-wider">TODAY'S THEME</p>
         <p className="text-white font-bold text-sm truncate">{theme.theme}</p>
+      </div>
+    </div>
+  );
+}
+
+function CommunityReminders() {
+  const items = [
+    { label: "Listening Party", emoji: "🎧", when: "Tonight · 9:00 PM" },
+    { label: "Movie Night", emoji: "🎬", when: "Friday · 8:30 PM" },
+    { label: "Hangout", emoji: "🚌", when: "Saturday · 5:00 PM" },
+    { label: "Tournament", emoji: "🏆", when: "Sunday · 4:00 PM" },
+  ];
+
+  return (
+    <div className="mx-4 mt-3 mb-2 bg-zinc-900 border border-zinc-800 rounded-2xl p-3.5">
+      <p className="text-zinc-300 text-xs font-black tracking-wide mb-2">UP NEXT</p>
+      <div className="space-y-1.5">
+        {items.map((it) => (
+          <div key={it.label} className="flex items-center justify-between text-xs">
+            <p className="text-zinc-200">
+              <span className="mr-1">{it.emoji}</span>
+              {it.label}
+            </p>
+            <p className="text-zinc-500">{it.when}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

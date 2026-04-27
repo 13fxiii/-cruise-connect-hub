@@ -2,6 +2,16 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getAdminAllowlist, isAdminAllowlisted } from '@/lib/authz';
 
+function parseHandleAllowlist(input: string | undefined) {
+  return new Set(
+    (input || '@TheCruiseCH,@13fxiii_')
+      .split(/[,\n]/g)
+      .map((v) => v.trim().toLowerCase())
+      .filter(Boolean)
+      .map((v) => (v.startsWith('@') ? v : `@${v}`))
+  );
+}
+
 const SUPABASE_URL =
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
   process.env.SUPABASE_URL ||
@@ -44,13 +54,17 @@ export async function updateSession(request: NextRequest) {
     if (allow.configured) {
       isAdmin = isAdminAllowlisted(user);
     } else {
+      const adminHandles = parseHandleAllowlist(process.env.ADMIN_X_HANDLES);
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('is_admin, role')
+        .select('is_admin, role, twitter_handle')
         .eq('id', user.id)
         .maybeSingle();
       if (!error) {
-        isAdmin = Boolean(profile?.is_admin) || profile?.role === 'admin';
+        const handle = (profile?.twitter_handle || '').trim().toLowerCase();
+        isAdmin = adminHandles.size > 0
+          ? adminHandles.has(handle)
+          : (Boolean(profile?.is_admin) || profile?.role === 'admin');
       }
     }
 
