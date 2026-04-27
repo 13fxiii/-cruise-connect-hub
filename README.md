@@ -34,6 +34,23 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5...
 NEXT_PUBLIC_APP_URL=https://cruise-connect-hub.vercel.app
 ```
 
+
+### ✅ Vercel + Supabase (important)
+
+Use **one Supabase project per Vercel environment**.
+
+Do **not** keep mixed values from two projects in the same environment.
+
+For each Vercel environment (Production / Preview / Development), set only one consistent set:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+Optional integration vars can exist, but must point to the **same** project ref as `NEXT_PUBLIC_SUPABASE_URL`.
+
+If `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_URL` conflict, app startup will now fail in production with a clear error so bad deployments are caught early.
+
 ### Step 3: Local Development
 ```bash
 npm install

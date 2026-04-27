@@ -161,7 +161,6 @@ export async function POST(req: NextRequest) {
         .insert({
           author_id: seedAuthorId,
           content,
-          tags: ["x-community", "xai-sync"],
         })
         .select("id, content")
         .single();
