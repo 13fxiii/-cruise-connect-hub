@@ -108,6 +108,7 @@ export async function POST(req: NextRequest) {
     };
 
     const { error: upsertError } = await supabase.from('profiles').upsert(profilePayload as any, { onConflict: 'id' });
+    const { error: upsertError } = await supabase.from('profiles').upsert(profilePayload, { onConflict: 'id' });
     if (upsertError) {
       return NextResponse.json({ error: upsertError.message }, { status: 500 });
     }
