@@ -25,15 +25,19 @@ export async function auth() {
     });
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
+    const normalizedUser = {
+      id: user.id,
+      email: user.email,
+      name: user.user_metadata?.full_name || user.user_metadata?.name,
+      image: user.user_metadata?.avatar_url,
+      role: user.user_metadata?.role || 'member',
+      twitterHandle: user.user_metadata?.preferred_username,
+    };
     return {
+      ...normalizedUser,
       user: {
-        id: user.id,
-        email: user.email,
-        name: user.user_metadata?.full_name || user.user_metadata?.name,
-        image: user.user_metadata?.avatar_url,
-        role: user.user_metadata?.role || 'member',
-        twitterHandle: user.user_metadata?.preferred_username,
-      }
+        ...normalizedUser,
+      },
     };
   } catch {
     return null;

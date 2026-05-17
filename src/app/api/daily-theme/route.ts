@@ -1,8 +1,28 @@
-// @ts-nocheck
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { SUPABASE_SERVICE_ROLE_KEY } from '@/lib/supabase/config';
+
+const fallbackTheme = {
+  id: 'foundation-default',
+  title: 'Cruise Connect',
+  prompt: 'Welcome to Cruise Connect Hub',
+  day_hint: null,
+  is_active: true,
+};
 
 export async function GET() {
+  if (!SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json({
+      theme: fallbackTheme,
+      dayOfWeek: new Date().getDay(),
+      date: new Date().toISOString().split('T')[0],
+      announcements: [
+        { id: 1, text: "Welcome to the new Cruise Connect Hub〽️! 🚌", type: "system" },
+        { id: 2, text: "Awards 2026 tracking is now LIVE! 🏆", type: "update" }
+      ]
+    });
+  }
+
   try {
     const today = new Date().toISOString().split('T')[0];
     const dayOfWeek = new Date().getDay(); // 0-6

@@ -14,10 +14,9 @@ function assertNoConflict(nameA: string, valueA: string | undefined, nameB: stri
   console.warn(msg);
 }
 
-function requireValue(label: string, value: string | undefined) {
-  if (value) return value;
-  throw new Error(`[supabase] Missing required environment variable: ${label}`);
-}
+const FOUNDATION_SUPABASE_URL = 'https://xiyjgcoeljquryixmfut.supabase.co';
+const FOUNDATION_SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeWpnY29lbGpxdXJ5aXhtZnV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1NTMzNjAsImV4cCI6MjA4NTEyOTM2MH0.BnVAwvmor0JnjmFn0t4t5lTZU_fIoE3FNl1RYOK1_Hk';
 
 const env = {
   NEXT_PUBLIC_SUPABASE_URL: clean(process.env.NEXT_PUBLIC_SUPABASE_URL),
@@ -40,15 +39,13 @@ assertNoConflict(
   env.SUPABASE_ANON_KEY
 );
 
-export const SUPABASE_URL = requireValue(
-  'NEXT_PUBLIC_SUPABASE_URL (or SUPABASE_URL)',
-  env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL
-);
+export const SUPABASE_URL = env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL || FOUNDATION_SUPABASE_URL;
 
-export const SUPABASE_ANON_KEY = requireValue(
-  'NEXT_PUBLIC_SUPABASE_ANON_KEY (or SUPABASE_ANON_KEY)',
-  env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || env.SUPABASE_ANON
-);
+export const SUPABASE_ANON_KEY =
+  env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  env.SUPABASE_ANON_KEY ||
+  env.SUPABASE_ANON ||
+  FOUNDATION_SUPABASE_ANON_KEY;
 
 export const SUPABASE_SERVICE_ROLE_KEY =
   env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_KEY;

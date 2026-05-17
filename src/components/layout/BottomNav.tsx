@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { shouldHideAppChrome } from '@/lib/routeVisibility';
 import { Rss, Radio, Gamepad2, MessageCircle, Plus } from 'lucide-react';
 
 const TABS = [
@@ -17,12 +18,7 @@ export default function BottomNav() {
   const { user } = useAuth();
   const [unreadDMs, setUnreadDMs] = useState(0);
 
-  // Hide nav on auth + onboarding flows.
-  const shouldHide =
-    pathname === "/" ||
-    pathname.startsWith("/auth") ||
-    pathname.startsWith("/onboarding") ||
-    pathname.startsWith("/rules");
+  const shouldHide = shouldHideAppChrome(pathname);
 
   useEffect(() => {
     if (!user || shouldHide) return;

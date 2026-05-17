@@ -108,9 +108,32 @@ export async function POST(req: NextRequest) {
     };
 
     const { error: upsertError } = await supabase.from('profiles').upsert(profilePayload as any, { onConflict: 'id' });
-    const { error: upsertError } = await supabase.from('profiles').upsert(profilePayload, { onConflict: 'id' });
     if (upsertError) {
-      return NextResponse.json({ error: upsertError.message }, { status: 500 });
+      const missingColumn =
+        upsertError.code === '42703' ||
+        /column .* does not exist/i.test(upsertError.message || '') ||
+        /Could not find .* column/i.test(upsertError.message || '');
+
+      if (!missingColumn) {
+        return NextResponse.json({ error: upsertError.message }, { status: 500 });
+      }
+
+      const fallbackProfileData = {
+        id: user.id,
+        username,
+        display_name: displayName,
+        avatar_url: avatar || null,
+        twitter_handle: xUsername ? `@${xUsername}` : null,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error: fallbackError } = await supabase
+        .from('profiles')
+        .upsert(fallbackProfileData, { onConflict: 'id' });
+
+      if (fallbackError) {
+        return NextResponse.json({ error: fallbackError.message }, { status: 500 });
+      }
     }
 
     const cardNumber = `CCH-${new Date().getFullYear()}-${user.id.replace(/-/g, '').slice(0, 8).toUpperCase()}`;
