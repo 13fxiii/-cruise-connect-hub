@@ -25,11 +25,17 @@ commands = [
 
 [checks]
 commands = [
+  "bash .codex/guards/preinstall.sh",
+  "bash .codex/guards/prebuild.sh",
+  "bash .codex/intelligence/risk-score.sh",
   "npm run build",
-  "npm run lint"
+  "npm run lint",
+  "bash .codex/engine/monitor.sh"
 ]
 
 [pr]
 commit_message_style = "conventional"
 require_summary = true
 require_test_results = true
+
+model_instructions_file = ".codex/rules/ship.md"

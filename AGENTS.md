@@ -34,8 +34,12 @@ Keep changes small, deploy-safe, and production-focused.
 ## Required Checks Before PR
 Run these before opening/updating a PR:
 1. `npm ci`
-2. `npm run build`
-3. `npm run lint`
+2. `bash .codex/guards/preinstall.sh`
+3. `bash .codex/guards/prebuild.sh`
+4. `bash .codex/intelligence/risk-score.sh`
+5. `npm run build`
+6. `npm run lint`
+7. `bash .codex/engine/monitor.sh`
 
 If a check fails, include the exact failure and smallest fix needed.
 
