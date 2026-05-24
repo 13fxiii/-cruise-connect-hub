@@ -48,7 +48,7 @@ function CardUI({ card, onClick, small = false, faceDown = false }: { card: Card
   if (faceDown) return (
     <div className={`${small ? "w-8 h-12" : "w-16 h-24"} bg-gradient-to-br from-zinc-800 to-zinc-900 border-2 border-zinc-700 rounded-lg flex items-center justify-center cursor-default`}>
       <div className="w-3/4 h-3/4 border-2 border-zinc-600 rounded flex items-center justify-center">
-        <span className="text-zinc-500 font-black text-xs">UNO</span>
+        <span className="text-zinc-500 font-black text-xs">CRUISE CARDS</span>
       </div>
     </div>
   );
@@ -231,7 +231,7 @@ export default function UnoPage() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <Link href="/games" className="text-zinc-500 hover:text-white text-sm">← Games</Link>
-            <h1 className="text-2xl font-black text-white">UNO 🃏</h1>
+            <h1 className="text-2xl font-black text-white">Cruise Cards 🃏</h1>
           </div>
           <button onClick={startGame} className="bg-yellow-400 text-black font-black px-4 py-2 rounded-full text-sm hover:bg-yellow-300">
             {started ? "Restart" : "Start Game"}
@@ -241,7 +241,7 @@ export default function UnoPage() {
         {!started ? (
           <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-8 text-center">
             <div className="text-6xl mb-4">🃏</div>
-            <h2 className="text-white font-black text-2xl mb-2">UNO!</h2>
+            <h2 className="text-white font-black text-2xl mb-2">Cruise Cards!</h2>
             <p className="text-zinc-400 text-sm mb-6">Play against 3 bots. First to empty their hand wins. Match color or number, call UNO on your last card!</p>
             <button onClick={startGame} className="bg-yellow-400 text-black font-black px-8 py-3 rounded-full hover:bg-yellow-300">
               Deal Cards 🃏

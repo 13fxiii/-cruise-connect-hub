@@ -168,7 +168,7 @@ export default function DrawingPage() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <Link href="/games" className="text-zinc-500 hover:text-white text-sm">← Games</Link>
-            <h1 className="text-2xl font-black text-white">Drawing Game 🎨</h1>
+            <h1 className="text-2xl font-black text-white">Cruise Sketch 🎨</h1>
           </div>
           {phase !== "lobby" && (
             <div className={`px-3 py-1.5 rounded-full text-sm font-black ${timeLeft <= 10 ? "bg-red-500 text-white animate-pulse" : "bg-zinc-800 text-white"}`}>

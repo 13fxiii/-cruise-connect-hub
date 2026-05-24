@@ -2,11 +2,18 @@ import { normalizeSchema } from './utils';
 
 function clean(value?: string | null) {
   const v = (value || '').trim();
+  if (!v || v.includes('...')) return undefined;
   return v.length ? v : undefined;
 }
 
+function comparable(name: string, value: string | undefined) {
+  if (!value) return value;
+  if (name.includes('URL')) return value.replace(/\/+$/, '');
+  return value;
+}
+
 function assertNoConflict(nameA: string, valueA: string | undefined, nameB: string, valueB: string | undefined) {
-  if (!valueA || !valueB || valueA === valueB) return;
+  if (!valueA || !valueB || comparable(nameA, valueA) === comparable(nameB, valueB)) return;
   const msg = `[supabase] Conflicting env values: ${nameA} and ${nameB}. Keep only one Supabase project linked to this Vercel environment.`;
   if (process.env.NODE_ENV === 'production') {
     throw new Error(msg);

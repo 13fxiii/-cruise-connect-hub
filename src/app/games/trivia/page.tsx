@@ -109,7 +109,7 @@ export default function TriviaPage() {
             <Link href="/games" className="text-zinc-400 hover:text-white text-sm transition-colors">← Back to Games</Link>
             <div className="text-center space-y-2">
               <div className="text-6xl mb-4">🧠</div>
-              <h1 className="text-4xl font-black text-white">Trivia Challenge</h1>
+              <h1 className="text-4xl font-black text-white">Cruise Quiz Challenge</h1>
               <p className="text-zinc-400">10 Questions · Naija Knowledge · Earn Points</p>
             </div>
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">

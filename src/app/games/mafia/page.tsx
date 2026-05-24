@@ -120,7 +120,7 @@ export default function MafiaPage() {
       <main className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <Link href="/games" className="text-zinc-500 hover:text-white text-sm">← Games</Link>
-          <h1 className="text-2xl font-black text-white">Mafia / Werewolf 🔪</h1>
+          <h1 className="text-2xl font-black text-white">Cruise Wolves 🔪</h1>
         </div>
 
         {/* LOBBY */}
