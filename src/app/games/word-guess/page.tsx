@@ -157,7 +157,7 @@ export default function WordGuessingPage() {
         <div className="flex items-center justify-between mb-6">
           <Link href="/games" className="text-zinc-400 hover:text-white transition-colors text-sm">← Games</Link>
           <div className="text-center">
-            <h1 className="text-xl font-black text-white">Naija Wordle 🇳🇬</h1>
+            <h1 className="text-xl font-black text-white">Cruise Word Rush 🇳🇬</h1>
             <p className="text-zinc-500 text-xs">Guess the Naija word</p>
           </div>
           <button onClick={initGame} className="text-zinc-400 hover:text-white transition-colors">

@@ -165,7 +165,7 @@ export default function LudoPage() {
         </Link>
         <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
           <div className="text-6xl mb-4">🎲</div>
-          <h1 className="text-3xl font-black text-white mb-2">Ludo Board</h1>
+          <h1 className="text-3xl font-black text-white mb-2">Cruise Ludo Board</h1>
           <p className="text-zinc-400 mb-8">Classic Ludo — 2 to 4 players. Get all 4 pieces home to win!</p>
           <p className="text-sm font-bold text-zinc-300 mb-3">Select Number of Players</p>
           <div className="flex justify-center gap-4 mb-8">

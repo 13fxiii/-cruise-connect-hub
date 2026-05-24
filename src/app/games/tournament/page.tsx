@@ -203,7 +203,7 @@ export default function TournamentPage() {
         <div className="flex items-start justify-between mb-8">
           <div>
             <h1 className="text-3xl font-black text-white flex items-center gap-3">
-              <Trophy className="text-yellow-400 w-8 h-8"/> Tournaments
+              <Trophy className="text-yellow-400 w-8 h-8"/> Cruise Tournaments
             </h1>
             <p className="text-zinc-400 mt-1">Bracket-style competitions · Real Naira prizes · Community glory</p>
           </div>

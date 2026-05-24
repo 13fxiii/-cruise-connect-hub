@@ -127,7 +127,7 @@ export default function KaraokePage() {
         {phase === "lobby" && (
           <>
             <div>
-              <h1 className="text-2xl font-black text-white flex items-center gap-2">🎤 Karaoke</h1>
+              <h1 className="text-2xl font-black text-white flex items-center gap-2">🎤 Cruise Mic</h1>
               <p className="text-zinc-400 text-sm">Naija & Afrobeats competition mode</p>
             </div>
 

@@ -116,7 +116,7 @@ export default function CodenamesPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-black text-white flex items-center gap-2">
-              🕵️ Codenames
+              🕵️ Cruise Clues
             </h1>
             <p className="text-zinc-500 text-xs">Naija Edition — guess your team's words!</p>
           </div>

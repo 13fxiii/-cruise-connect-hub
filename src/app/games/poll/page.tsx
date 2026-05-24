@@ -89,7 +89,7 @@ export default function PollLeaguePage() {
       <main className="max-w-2xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <Link href="/games" className="text-zinc-400 hover:text-white text-sm">← Games</Link>
-          <h1 className="text-xl font-black text-white flex items-center gap-2"><BarChart2 className="w-5 h-5 text-purple-400"/>Poll League</h1>
+          <h1 className="text-xl font-black text-white flex items-center gap-2"><BarChart2 className="w-5 h-5 text-purple-400"/>Cruise Vote League</h1>
           <div className="text-right">
             <div className="text-yellow-400 font-black text-lg">{myPoints}</div>
             <div className="text-zinc-500 text-xs">points</div>
