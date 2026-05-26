@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import BottomNav from "@/components/layout/BottomNav";
 import InstallBanner from "@/components/layout/InstallBanner";
 import AuthProvider from "@/components/auth/AuthProvider";
+import { SessionProvider } from "@/components/layout/SessionProvider";
 import "./globals.css";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://cruise-connect-hub.vercel.app";
@@ -108,6 +109,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-[#0a0a0a] text-white min-h-screen overflow-x-hidden antialiased">
         <AuthProvider>
+          <SessionProvider>
           {/* Safe area wrapper */}
           <div
             className="min-h-screen flex flex-col"
@@ -123,6 +125,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
           {/* Mobile bottom tab bar */}
           <BottomNav />
+                  </SessionProvider>
         </AuthProvider>
         {/* Service worker */}
         <Script id="sw-register" strategy="afterInteractive">{`
