@@ -1,3 +1,6 @@
+# Keep Android for Capacitor/PWA
+!android/
+
 # Vercel deploy should only include the web app source + public assets.
 # Exclude local build artifacts and native app folders that can easily exceed Vercel's upload limits.
 
