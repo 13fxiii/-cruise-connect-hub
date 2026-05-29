@@ -41,7 +41,7 @@ export default function AfterDarkGamePage() {
         <div className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4">
           <div className="flex items-center gap-2 text-rose-300 font-black">
             <Flame className="w-4 h-4" />
-            After Dark 18+
+            Cruise After Dark 18+
           </div>
           <p className="text-zinc-200 text-sm mt-2">
             Adult party game for consenting adults only. Keep it respectful, no pressure, no harassment.

@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getAdminAllowlist, isAdminAllowlisted } from '@/lib/authz';
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from './config';
 
 function parseHandleAllowlist(input: string | undefined) {
   return new Set(
@@ -12,20 +13,10 @@ function parseHandleAllowlist(input: string | undefined) {
   );
 }
 
-const SUPABASE_URL =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  process.env.SUPABASE_URL ||
-  'https://xiyjgcoeljquryixmfut.supabase.co';
-
-const SUPABASE_ANON =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_ANON_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeWpnY29lbGpxdXJ5aXhtZnV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1NTMzNjAsImV4cCI6MjA4NTEyOTM2MH0.BnVAwvmor0JnjmFn0t4t5lTZU_fIoE3FNl1RYOK1_Hk';
-
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON, {
+  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       get(name: string) { return request.cookies.get(name)?.value; },
       set(name: string, value: string, options: Record<string, unknown>) {

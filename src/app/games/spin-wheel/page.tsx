@@ -160,7 +160,7 @@ export default function SpinWheelPage() {
       <main className="max-w-lg mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <Link href="/games" className="text-zinc-400 hover:text-white text-sm">← Games</Link>
-          <h1 className="text-xl font-black text-white">Spin the Wheel 🎡</h1>
+          <h1 className="text-xl font-black text-white">Cruise Spin 🎡</h1>
           <div className="w-16"/>
         </div>
 
