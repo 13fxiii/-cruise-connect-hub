@@ -122,6 +122,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {/* PWA install nudge (iOS/Android/Windows) */}
             <InstallBanner />
             {children}
+            <LiveSessionDock />
           </div>
           {/* Mobile bottom tab bar */}
           <BottomNav />
