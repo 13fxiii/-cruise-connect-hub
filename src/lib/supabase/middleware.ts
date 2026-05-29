@@ -1,21 +1,22 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getAdminAllowlist, isAdminAllowlisted } from '@/lib/authz';
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from './config';
 
-const SUPABASE_URL =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  process.env.SUPABASE_URL ||
-  'https://xiyjgcoeljquryixmfut.supabase.co';
-
-const SUPABASE_ANON =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_ANON_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeWpnY29lbGpxdXJ5aXhtZnV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1NTMzNjAsImV4cCI6MjA4NTEyOTM2MH0.BnVAwvmor0JnjmFn0t4t5lTZU_fIoE3FNl1RYOK1_Hk';
+function parseHandleAllowlist(input: string | undefined) {
+  return new Set(
+    (input || '@TheCruiseCH,@13fxiii_')
+      .split(/[,\n]/g)
+      .map((v) => v.trim().toLowerCase())
+      .filter(Boolean)
+      .map((v) => (v.startsWith('@') ? v : `@${v}`))
+  );
+}
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON, {
+  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       get(name: string) { return request.cookies.get(name)?.value; },
       set(name: string, value: string, options: Record<string, unknown>) {
@@ -44,13 +45,17 @@ export async function updateSession(request: NextRequest) {
     if (allow.configured) {
       isAdmin = isAdminAllowlisted(user);
     } else {
+      const adminHandles = parseHandleAllowlist(process.env.ADMIN_X_HANDLES);
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('is_admin, role')
+        .select('is_admin, role, twitter_handle')
         .eq('id', user.id)
         .maybeSingle();
       if (!error) {
-        isAdmin = Boolean(profile?.is_admin) || profile?.role === 'admin';
+        const handle = (profile?.twitter_handle || '').trim().toLowerCase();
+        isAdmin = adminHandles.size > 0
+          ? adminHandles.has(handle)
+          : (Boolean(profile?.is_admin) || profile?.role === 'admin');
       }
     }
 

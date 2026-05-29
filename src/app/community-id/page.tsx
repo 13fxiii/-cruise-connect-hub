@@ -64,6 +64,62 @@ export default function CommunityIDPage() {
     } else copyLink();
   };
 
+  const downloadXBanner = async () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1500;
+    canvas.height = 500;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Background
+    const grad = ctx.createLinearGradient(0, 0, 1500, 500);
+    grad.addColorStop(0, '#171717');
+    grad.addColorStop(1, '#0a0a0a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 1500, 500);
+
+    // Accent
+    ctx.fillStyle = 'rgba(250, 204, 21, 0.12)';
+    ctx.fillRect(0, 0, 1500, 10);
+
+    // Avatar
+    if (profile.avatar_url) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = profile.avatar_url;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      }).catch(() => null);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(180, 250, 100, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(img, 80, 150, 200, 200);
+      ctx.restore();
+    }
+
+    ctx.fillStyle = '#facc15';
+    ctx.font = 'bold 54px Inter, Arial';
+    ctx.fillText('CRUISE CONNECT ID', 340, 180);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 44px Inter, Arial';
+    ctx.fillText(displayName, 340, 245);
+
+    ctx.fillStyle = '#a1a1aa';
+    ctx.font = '28px Inter, Arial';
+    ctx.fillText(`@${username}  •  ${refCode}  •  ${level}`, 340, 295);
+    ctx.fillText('@TheCruiseCH  •  cruise-connect-hub.vercel.app', 340, 345);
+
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `cch-id-banner-${username}.png`;
+    a.click();
+  };
+
   return (
     <div className="min-h-screen bg-[#050505] pb-24">
       
@@ -279,6 +335,14 @@ export default function CommunityIDPage() {
             <Share2 className="w-4 h-4" /> Share Card
           </button>
         </div>
+
+        <button
+          onClick={downloadXBanner}
+          className="mt-3 w-full flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-800 text-white font-bold text-sm py-3 rounded-2xl hover:border-zinc-600 transition-all"
+        >
+          <Download className="w-4 h-4" />
+          Download X Header/Banner
+        </button>
 
         {/* X share */}
         <a

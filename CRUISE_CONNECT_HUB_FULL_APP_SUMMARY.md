@@ -10,7 +10,7 @@
 **Secondary CTA:** Cruise. Connect. Grow.  
 **Founded by:** FX〽️ (Augustine Ajibola Fagbohun)  
 **Community X Handle:** @TheCruiseCH  
-**Website (live):** https://cruise-connect-hub.vercel.app  
+**Website (live):** https://cruise-connect-hub.vercel.app/  
 **GitHub Repo:** https://github.com/13fxiii/-cruise-connect-hub  
 **Supabase Project:** xiyjgcoeljquryixmfut.supabase.co  
 

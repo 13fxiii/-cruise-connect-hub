@@ -155,7 +155,7 @@ export default function WalletPage() {
 
   if (loading) return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-      <AppHeader title="Wallet" back />
+      <AppHeader title="Cruise Connect Wallet" back />
       <Loader2 className="w-8 h-8 text-yellow-400 animate-spin" />
     </div>
   );

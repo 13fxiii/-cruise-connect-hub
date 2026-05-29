@@ -51,7 +51,7 @@ export default function AdsPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-cch-black">
-      <AppHeader title="PR & Ads" back />
+      <AppHeader title="Cruise Connect PR/ADs" back />
         
         <div className="max-w-lg mx-auto px-4 py-20 text-center">
           <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">

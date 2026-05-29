@@ -96,7 +96,7 @@ export default function MarketplacePage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-24">
-      <AppHeader title="Marketplace" showSearch />
+      <AppHeader title="Cruise Connect Store" showSearch />
       
       <main className="max-w-2xl mx-auto px-4 py-6">
 
@@ -104,9 +104,9 @@ export default function MarketplacePage() {
         <div className="flex items-center justify-between mb-5">
           <div>
             <h1 className="text-2xl font-black text-white flex items-center gap-2">
-              <ShoppingBag className="text-yellow-400" /> CC Hub Store〽️
+              <ShoppingBag className="text-yellow-400" /> Cruise Connect Store〽️
             </h1>
-            <p className="text-zinc-500 text-xs mt-0.5">Digital services · Merch · Vendors · Artists</p>
+            <p className="text-zinc-500 text-xs mt-0.5">Merch · PR/Ads · Vendors · Artists · Shop</p>
           </div>
           {tab === 'digital' && (
             <Link href="/marketplace/sell"
