@@ -1,12 +1,80 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
+import Image from "next/image";
 
 import {
   Shirt, Palette, Type, Download, ShoppingCart, Wand2,
   ChevronLeft, ChevronRight, Loader2, CheckCircle, RotateCcw,
   ZoomIn, ZoomOut, AlignCenter, Bold, Star, Package, ArrowRight,
-  Minus, Plus, X, Upload, Sparkles
+  Minus, Plus, X, Upload, Sparkles, Store
 } from "lucide-react";
+
+/* ─── Community Collections ─────────────────────────────────────── */
+const COLLECTIONS = [
+  {
+    id: "dominion-state",
+    name: "Dominion State",
+    img: "/merch/dominion-state.jpeg",
+    tag: "Limited Edition",
+    desc: "Walk in authority. Limited run.",
+  },
+  {
+    id: "too-lit-to-stress",
+    name: "Too Lit To Stress",
+    img: "/merch/too-lit-to-stress.png",
+    tag: "Fan Favourite",
+    desc: "Good vibes only. No stress allowed.",
+  },
+  {
+    id: "she-moves-different",
+    name: "She Moves Different",
+    img: "/merch/she-moves-different.png",
+    tag: "Women's Cut",
+    desc: "For the women who move different.",
+  },
+  {
+    id: "back-when-it-was-real",
+    name: "Back When It Was Real",
+    img: "/merch/back-when-it-was-real.png",
+    tag: "Nostalgia Drop",
+    desc: "Celebrating the culture's roots.",
+  },
+  {
+    id: "new-music-friday",
+    name: "New Music Friday",
+    img: "/merch/new-music-friday.png",
+    tag: "Fresh Heat",
+    desc: "Every Friday hits different in this.",
+  },
+  {
+    id: "play-your-vibe",
+    name: "Play Your Vibe",
+    img: "/merch/play-your-vibe.png",
+    tag: "Statement Piece",
+    desc: "Your frequency, your rules.",
+  },
+  {
+    id: "sound-of-the-culture",
+    name: "The Sound of the Culture",
+    img: "/merch/sound-of-the-culture.png",
+    tag: "Signature Series",
+    desc: "We are the sound. We are the culture.",
+  },
+  {
+    id: "no-rules-today",
+    name: "No Rules Today",
+    img: "/merch/no-rules-today.png",
+    tag: "Party Drop",
+    desc: "Live your best life, no permission needed.",
+  },
+  {
+    id: "read-between-the-lines",
+    name: "Read Between The Lines",
+    img: "/merch/read-between-the-lines.jpeg",
+    tag: "Art Series",
+    desc: "Deep cuts for deep thinkers.",
+  },
+];
 
 /* ─── Product catalogue ─────────────────────────────────────── */
 const PRODUCTS = [
@@ -37,6 +105,8 @@ const LOGO_TEXTS = [
 ];
 
 export default function MerchPage() {
+  const [activeSection, setActiveSection] = useState<"collections"|"designer">("collections");
+  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const canvasRef  = useRef<HTMLCanvasElement>(null);
   const logoImgRef = useRef<HTMLImageElement | null>(null);
 
@@ -212,20 +282,14 @@ export default function MerchPage() {
   const generateWithAI = async () => {
     setGenerating(true);
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const prompt = `You are a Naija streetwear designer for Cruise Connect Hub (CC Hub), a 3000+ member Nigerian community. Suggest ONE short, punchy text for a ${product.label} merch design. It must feel authentic Naija, hype, and community-proud. Max 4 words. Return ONLY the text string, nothing else. Examples: "WE CRUISE 🚌", "NAIJA PLUG 〽️", "CC HUB FOREVER"`;
+      const res = await fetch("/api/ai/generate-post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 300,
-          messages: [{
-            role: "user",
-            content: `You are a Naija streetwear designer for Cruise Connect Hub (CC Hub), a 3000+ member Nigerian community. Suggest ONE short, punchy text for a ${product.label} merch design. It must feel authentic Naija, hype, and community-proud. Max 4 words. Return ONLY the text string, nothing else. Examples: "WE CRUISE 🚌", "NAIJA PLUG 〽️", "CC HUB FOREVER"`
-          }]
-        })
+        body: JSON.stringify({ prompt }),
       });
       const data = await res.json();
-      const text = data.content?.[0]?.text?.trim();
+      const text = data.text?.trim();
       if (text) setCustomText(text);
     } catch {}
     setGenerating(false);
@@ -239,12 +303,97 @@ export default function MerchPage() {
       <main className="max-w-5xl mx-auto px-4 pt-6">
 
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-5">
           <h1 className="text-xl font-black text-white flex items-center gap-2">
-            <Shirt size={20} className="text-yellow-400" /> Merch Designer
+            <Store size={20} className="text-yellow-400" /> CC Hub Merch
           </h1>
-          <p className="text-zinc-500 text-xs mt-0.5">Design your own custom CC Hub merch · Learn to design · Order your piece</p>
+          <p className="text-zinc-500 text-xs mt-0.5">Community collections · Design your own · Order custom pieces</p>
         </div>
+
+        {/* Section tabs */}
+        <div className="flex gap-2 mb-6 p-1 bg-zinc-900 border border-zinc-800 rounded-xl w-fit">
+          <button onClick={() => setActiveSection("collections")}
+            className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${
+              activeSection === "collections" ? "bg-yellow-400 text-black" : "text-zinc-400 hover:text-white"
+            }`}>
+            🛍️ Collections
+          </button>
+          <button onClick={() => setActiveSection("designer")}
+            className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${
+              activeSection === "designer" ? "bg-yellow-400 text-black" : "text-zinc-400 hover:text-white"
+            }`}>
+            🎨 Designer
+          </button>
+        </div>
+
+        {/* ── COMMUNITY COLLECTIONS ── */}
+        {activeSection === "collections" && (
+          <div>
+            <div className="mb-4">
+              <p className="text-zinc-400 text-xs">Official CC Hub drops — limited runs, community-made designs.</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {COLLECTIONS.map(col => (
+                <div key={col.id}
+                  onClick={() => setSelectedCollection(selectedCollection === col.id ? null : col.id)}
+                  className="group cursor-pointer bg-zinc-900 border border-zinc-800 hover:border-yellow-400/40 rounded-2xl overflow-hidden transition-all hover:shadow-lg hover:shadow-yellow-400/5">
+                  <div className="relative aspect-square overflow-hidden bg-zinc-800">
+                    <Image
+                      src={col.img}
+                      alt={col.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 640px) 50vw, 33vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <span className="absolute top-2 left-2 bg-yellow-400 text-black text-[9px] font-black px-2 py-0.5 rounded-full">
+                      {col.tag}
+                    </span>
+                  </div>
+                  <div className="p-3">
+                    <p className="text-white font-black text-xs leading-tight">{col.name}</p>
+                    <p className="text-zinc-500 text-[10px] mt-0.5 leading-snug">{col.desc}</p>
+                    {selectedCollection === col.id && (
+                      <div className="mt-3 pt-3 border-t border-zinc-700 space-y-2">
+                        <p className="text-zinc-400 text-[10px]">Interested in this collection?</p>
+                        <a
+                          href="https://twitter.com/TheCruiseCH"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-1.5 w-full bg-yellow-400 text-black font-black text-[10px] py-2 rounded-xl hover:bg-yellow-300 transition-colors"
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <ShoppingCart size={10} /> DM to Order
+                        </a>
+                        <button
+                          onClick={e => { e.stopPropagation(); setActiveSection("designer"); }}
+                          className="w-full text-zinc-400 text-[10px] font-bold border border-zinc-700 hover:border-zinc-500 py-2 rounded-xl transition-colors"
+                        >
+                          Design Your Own →
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 bg-gradient-to-r from-yellow-400/10 to-transparent border border-yellow-400/20 rounded-2xl p-4 flex items-center gap-4">
+              <div className="text-2xl">🎨</div>
+              <div className="flex-1">
+                <p className="text-white font-black text-sm">Want your own design?</p>
+                <p className="text-zinc-400 text-xs mt-0.5">Use the designer to build your custom CC Hub piece or order a custom design from FX〽️</p>
+              </div>
+              <button onClick={() => setActiveSection("designer")}
+                className="bg-yellow-400 text-black font-black text-xs px-4 py-2 rounded-xl hover:bg-yellow-300 transition-colors whitespace-nowrap">
+                Open Designer
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── DESIGNER MODE ── */}
+        {activeSection === "designer" && (<>
 
         {/* Mode toggle */}
         <div className="flex gap-2 mb-6 p-1 bg-zinc-900 border border-zinc-800 rounded-xl w-fit">
@@ -582,6 +731,7 @@ export default function MerchPage() {
             )}
           </div>
         )}
+        </>)}
       </main>
     </div>
   );
