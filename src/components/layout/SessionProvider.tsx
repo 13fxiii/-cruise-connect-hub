@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useMemo, useReducer } from "react";
-import { usePathname } from "next/navigation";
+import { createContext, useCallback, useContext, useMemo, useReducer } from "react";
+import LiveSessionDock from "@/components/live/LiveSessionDock";
 
 type SessionEventMeta = {
   timestamp: string;
@@ -41,8 +41,10 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
       };
     case "SESSION_RESET":
       return initialState;
-    default:
-      return state;
+    default: {
+      const exhaustiveCheck: never = action;
+      return exhaustiveCheck;
+    }
   }
 }
 
@@ -55,29 +57,22 @@ type SessionContextValue = {
 
 const SessionContext = createContext<SessionContextValue | null>(null);
 
-function LiveSessionDock() {
-  const pathname = usePathname();
-  const isHiddenRoute =
-    pathname === "/" ||
-    pathname.startsWith("/auth") ||
-    pathname.startsWith("/onboarding") ||
-    pathname.startsWith("/rules");
-
-  if (isHiddenRoute) return null;
-  return null;
-}
-
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(sessionReducer, initialState);
 
+  const startSession = useCallback(
+    (timestamp: string) => dispatch({ type: "SESSION_STARTED", meta: { timestamp } }),
+    [],
+  );
+  const endSession = useCallback(
+    (timestamp: string) => dispatch({ type: "SESSION_ENDED", meta: { timestamp } }),
+    [],
+  );
+  const resetSession = useCallback(() => dispatch({ type: "SESSION_RESET" }), []);
+
   const value = useMemo<SessionContextValue>(
-    () => ({
-      state,
-      startSession: (timestamp: string) => dispatch({ type: "SESSION_STARTED", meta: { timestamp } }),
-      endSession: (timestamp: string) => dispatch({ type: "SESSION_ENDED", meta: { timestamp } }),
-      resetSession: () => dispatch({ type: "SESSION_RESET" }),
-    }),
-    [state],
+    () => ({ state, startSession, endSession, resetSession }),
+    [endSession, resetSession, startSession, state],
   );
 
   return (
