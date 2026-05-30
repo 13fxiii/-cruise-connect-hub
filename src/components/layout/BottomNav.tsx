@@ -63,7 +63,6 @@ export default function BottomNav() {
           );
         })}
 
-        {/* Post button */}
         <Link href="/feed?compose=1" className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl">
           <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg shadow-yellow-400/20">
             <Plus className="w-4 h-4 text-black" strokeWidth={2.5} />
