@@ -32,7 +32,6 @@ export const metadata: Metadata = {
   creator: "@TheCruiseCH",
   publisher: "Cruise Connect Hub",
 
-  // PWA
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -44,7 +43,6 @@ export const metadata: Metadata = {
   formatDetection: { telephone: false },
   manifest: "/manifest.json",
 
-  // Icons
   icons: {
     icon: [
       { url: "/icons/icon-16x16.png",  sizes: "16x16",  type: "image/png" },
@@ -59,7 +57,6 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico",
   },
 
-  // Social
   openGraph: {
     title: "Cruise Connect Hub〽️",
     description: "The home of Naija culture. Spaces · Games · Music · Movies · Wallet",
@@ -78,7 +75,6 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
 
-  // Windows / MS
   other: {
     "mobile-web-app-capable":    "yes",
     "msapplication-TileColor":   "#EAB308",
@@ -93,24 +89,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <head>
-        {/* iOS PWA meta */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-touch-fullscreen" content="yes" />
-        {/* Android Chrome */}
         <meta name="mobile-web-app-capable" content="yes" />
-        {/* Windows */}
         <meta name="msapplication-navbutton-color" content="#EAB308" />
         <meta name="msapplication-starturl" content="/" />
         <meta name="msapplication-tap-highlight" content="no" />
-        {/* Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="bg-[#0a0a0a] text-white min-h-screen overflow-x-hidden antialiased">
         <AuthProvider>
           <SessionProvider>
-            {/* Safe area wrapper */}
             <div
               className="min-h-screen flex flex-col"
               style={{
@@ -119,15 +110,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 paddingRight: "env(safe-area-inset-right)",
               }}
             >
-              {/* PWA install nudge (iOS/Android/Windows) */}
               <InstallBanner />
               {children}
             </div>
-            {/* Mobile bottom tab bar */}
             <BottomNav />
           </SessionProvider>
         </AuthProvider>
-        {/* Service worker */}
         <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
