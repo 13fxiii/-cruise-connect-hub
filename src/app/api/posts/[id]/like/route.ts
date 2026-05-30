@@ -15,13 +15,9 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
 
   if (error?.code === '23505') return NextResponse.json({ liked: true, message: 'Already liked' });
   if (error) {
-    // Fallback: increment likes_count directly
-    await supabaseAdmin.rpc('increment_likes' as any, { row_id: params.id }).catch(() => {});
+    console.error('Post like error:', error);
     return NextResponse.json({ liked: true });
   }
-
-  // Increment posts.likes_count
-  await supabaseAdmin.from('posts').update({ likes_count: supabaseAdmin.rpc('coalesce' as any) }).eq('id', params.id).catch(() => {});
 
   return NextResponse.json({ liked: true });
 }
