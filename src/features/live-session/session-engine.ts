@@ -1,16 +1,22 @@
 import type { LiveSessionEvent, LiveSessionState } from "./types";
 
-export const createEmptySession = (sessionId: string, hostId: string): LiveSessionState => ({
-  sessionId,
-  hostId,
-  experiences: ["chat", "vote"],
-  updatedAt: new Date().toISOString(),
-});
+export function createEmptySession(
+  sessionId: string,
+  hostId: string,
+  timestamp = new Date().toISOString(),
+): LiveSessionState {
+  return {
+    sessionId,
+    hostId,
+    experiences: ["chat", "vote"],
+    updatedAt: timestamp,
+  };
+}
 
-export const reduceSessionState = (
+export function reduceSessionState(
   current: LiveSessionState,
   event: LiveSessionEvent,
-): LiveSessionState => {
+): LiveSessionState {
   switch (event.type) {
     case "session:hydrate":
       return event.payload;
@@ -26,32 +32,34 @@ export const reduceSessionState = (
           minimized: false,
           connected: true,
         },
-        updatedAt: new Date().toISOString(),
+        updatedAt: event.meta.timestamp,
       };
     case "space:toggle-mute":
       if (!current.spaceAudio) return current;
       return {
         ...current,
         spaceAudio: { ...current.spaceAudio, muted: !current.spaceAudio.muted },
-        updatedAt: new Date().toISOString(),
+        updatedAt: event.meta.timestamp,
       };
     case "space:toggle-minimize":
       if (!current.spaceAudio) return current;
       return {
         ...current,
         spaceAudio: { ...current.spaceAudio, minimized: !current.spaceAudio.minimized },
-        updatedAt: new Date().toISOString(),
+        updatedAt: event.meta.timestamp,
       };
     case "space:disconnect":
       return {
         ...current,
-        experiences: current.experiences.filter((x) => x !== "space"),
+        experiences: current.experiences.filter((experience) => experience !== "space"),
         spaceAudio: current.spaceAudio
           ? { ...current.spaceAudio, connected: false }
           : undefined,
-        updatedAt: new Date().toISOString(),
+        updatedAt: event.meta.timestamp,
       };
-    default:
-      return current;
+    default: {
+      const exhaustiveCheck: never = event;
+      return exhaustiveCheck;
+    }
   }
-};
+}
