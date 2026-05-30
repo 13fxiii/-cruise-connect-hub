@@ -1,0 +1,41 @@
+# Repository-level Codex defaults for Cruise Connect Hub
+
+# Use inherited/default model from the active Codex environment.
+# Keep this file focused on execution policy and project workflow.
+
+approval_policy = "on-request"
+
+# Keep sandboxing enabled for safety in normal runs.
+sandbox_mode = "workspace-write"
+
+# Encourage deterministic repo workflows.
+[env]
+NODE_ENV = "development"
+
+# Project conventions for automated agents.
+[project]
+name = "cruise-connect-hub"
+primary_branch = "work"
+
+# Always bootstrap dependencies before project checks.
+[setup]
+commands = [
+  "npm ci"
+]
+
+[checks]
+commands = [
+  "bash .codex/guards/preinstall.sh",
+  "bash .codex/guards/prebuild.sh",
+  "bash .codex/intelligence/risk-score.sh",
+  "npm run build",
+  "npm run lint",
+  "bash .codex/engine/monitor.sh"
+]
+
+[pr]
+commit_message_style = "conventional"
+require_summary = true
+require_test_results = true
+
+model_instructions_file = ".codex/rules/ship.md"
