@@ -1,21 +1,15 @@
-// Pure Supabase SSR auth - no NextAuth dependency
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-
-const SUPABASE_URL =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  process.env.SUPABASE_URL ||
-  'https://xiyjgcoeljquryixmfut.supabase.co';
-
-const SUPABASE_ANON_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_ANON_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeWpnY29lbGpxdXJ5aXhtZnV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1NTMzNjAsImV4cCI6MjA4NTEyOTM2MH0.BnVAwvmor0JnjmFn0t4t5lTZU_fIoE3FNl1RYOK1_Hk';
+// Pure Supabase SSR auth - X/Twitter OAuth via Supabase
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 export async function auth() {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseAnonKey) return null;
+
     const cookieStore = await cookies();
-    const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         getAll() { return cookieStore.getAll(); },
         setAll(cookiesToSet: any[]) {
@@ -25,20 +19,18 @@ export async function auth() {
     });
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
-    const normalizedUser = {
+    const meta = user.user_metadata || {};
+    const normalized = {
       id: user.id,
       email: user.email,
-      name: user.user_metadata?.full_name || user.user_metadata?.name,
-      image: user.user_metadata?.avatar_url,
-      role: user.user_metadata?.role || 'member',
-      twitterHandle: user.user_metadata?.preferred_username,
+      name: meta.full_name || meta.name || meta.preferred_username,
+      image: meta.avatar_url || meta.profile_image_url,
+      role: meta.role || 'member',
+      twitterHandle: meta.preferred_username || meta.screen_name,
+      twitterId: meta.provider_id || meta.sub,
+      twitterFollowers: meta.public_metrics?.followers_count,
     };
-    return {
-      ...normalizedUser,
-      user: {
-        ...normalizedUser,
-      },
-    };
+    return { ...normalized, user: { ...normalized } };
   } catch {
     return null;
   }
@@ -47,7 +39,6 @@ export async function auth() {
 export async function signIn() {}
 export async function signOut() {}
 
-// Stub handlers for API route compatibility
 export const handlers = {
   GET: async () => new Response('{}', { status: 200 }),
   POST: async () => new Response('{}', { status: 200 }),
