@@ -1,22 +1,18 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getAdminAllowlist, isAdminAllowlisted } from '@/lib/authz';
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from './config';
 
-function parseHandleAllowlist(input: string | undefined) {
-  return new Set(
-    (input || '@TheCruiseCH,@13fxiii_')
-      .split(/[,\n]/g)
-      .map((v) => v.trim().toLowerCase())
-      .filter(Boolean)
-      .map((v) => (v.startsWith('@') ? v : `@${v}`))
-  );
-}
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
 export async function updateSession(request: NextRequest) {
+  if (!SUPABASE_URL || !SUPABASE_ANON) {
+    console.error('[middleware] NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY is not set');
+    return NextResponse.next({ request });
+  }
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON, {
     cookies: {
       get(name: string) { return request.cookies.get(name)?.value; },
       set(name: string, value: string, options: Record<string, unknown>) {
@@ -45,17 +41,13 @@ export async function updateSession(request: NextRequest) {
     if (allow.configured) {
       isAdmin = isAdminAllowlisted(user);
     } else {
-      const adminHandles = parseHandleAllowlist(process.env.ADMIN_X_HANDLES);
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('is_admin, role, twitter_handle')
+        .select('is_admin, role')
         .eq('id', user.id)
         .maybeSingle();
       if (!error) {
-        const handle = (profile?.twitter_handle || '').trim().toLowerCase();
-        isAdmin = adminHandles.size > 0
-          ? adminHandles.has(handle)
-          : (Boolean(profile?.is_admin) || profile?.role === 'admin');
+        isAdmin = Boolean(profile?.is_admin) || profile?.role === 'admin';
       }
     }
 
