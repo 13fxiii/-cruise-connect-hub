@@ -110,23 +110,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-[#0a0a0a] text-white min-h-screen overflow-x-hidden antialiased">
         <AuthProvider>
           <SessionProvider>
-          {/* Safe area wrapper */}
-          <div
-            className="min-h-screen flex flex-col"
-            style={{
-              paddingTop: "env(safe-area-inset-top)",
-              paddingLeft: "env(safe-area-inset-left)",
-              paddingRight: "env(safe-area-inset-right)",
-            }}
-          >
-            {/* PWA install nudge (iOS/Android/Windows) */}
-            <InstallBanner />
-            {children}
-            <LiveSessionDock />
-          </div>
-          {/* Mobile bottom tab bar */}
-          <BottomNav />
-                  </SessionProvider>
+            {/* Safe area wrapper */}
+            <div
+              className="min-h-screen flex flex-col"
+              style={{
+                paddingTop: "env(safe-area-inset-top)",
+                paddingLeft: "env(safe-area-inset-left)",
+                paddingRight: "env(safe-area-inset-right)",
+              }}
+            >
+              {/* PWA install nudge (iOS/Android/Windows) */}
+              <InstallBanner />
+              {children}
+            </div>
+            {/* Mobile bottom tab bar */}
+            <BottomNav />
+          </SessionProvider>
         </AuthProvider>
         {/* Service worker */}
         <Script id="sw-register" strategy="afterInteractive">{`
