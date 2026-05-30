@@ -1,5 +1,9 @@
 export type SessionExperience = "space" | "game" | "music" | "movie" | "chat" | "vote";
 
+export type SessionEventMeta = {
+  timestamp: string;
+};
+
 export interface SpaceAudioState {
   spaceId: string;
   title: string;
@@ -20,9 +24,11 @@ export interface LiveSessionState {
   updatedAt: string;
 }
 
+export type SpaceAudioInput = Omit<SpaceAudioState, "muted" | "minimized" | "connected">;
+
 export type LiveSessionEvent =
-  | { type: "session:hydrate"; payload: LiveSessionState }
-  | { type: "space:join"; payload: Omit<SpaceAudioState, "muted" | "minimized" | "connected"> }
-  | { type: "space:toggle-mute" }
-  | { type: "space:toggle-minimize" }
-  | { type: "space:disconnect" };
+  | { type: "session:hydrate"; payload: LiveSessionState; meta: SessionEventMeta }
+  | { type: "space:join"; payload: SpaceAudioInput; meta: SessionEventMeta }
+  | { type: "space:toggle-mute"; meta: SessionEventMeta }
+  | { type: "space:toggle-minimize"; meta: SessionEventMeta }
+  | { type: "space:disconnect"; meta: SessionEventMeta };
