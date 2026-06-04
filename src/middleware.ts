@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
   // getUser() before exchangeCodeForSession() the verifier gets consumed
   // and the code exchange fails silently.
   // This includes both standard Supabase callback and custom X OAuth callback
-  if (pathname.startsWith('/auth/callback') || pathname.startsWith('/api/auth/')) {
+  if (pathname.startsWith('/auth/callback') || pathname === '/api/auth/x/callback') {
     return NextResponse.next();
   }
 

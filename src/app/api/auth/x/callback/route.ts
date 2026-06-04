@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
           x_id: xUser.id,
           x_username: xUser.username,
           provider: 'x',
-          onboarding_done: false, // Explicitly set to false for new users
+          onboarding_done: false,
         },
       });
 
@@ -159,18 +159,54 @@ export async function GET(request: NextRequest) {
       { onConflict: 'user_id' }
     );
 
-    const { data: sessionData, error: sessionErr } = await supabase.auth.admin.generateLink({
-      type: 'magiclink',
-      email: proxyEmail,
-      options: { redirectTo: `${appUrl}${isNewUser ? '/onboarding' : redirectTo}` },
+    // NEW: Use admin.createSession to establish a direct session instead of magic link
+    const { data: sessionData, error: sessionErr } = await supabase.auth.admin.createSession({
+      user_id: userId,
     });
 
-    if (sessionErr || !sessionData?.properties?.action_link) {
-      console.error('Session generation error:', sessionErr);
-      return NextResponse.redirect(`${appUrl}/auth/login?error=x_session_failed`);
+    if (sessionErr || !sessionData?.session) {
+      console.error('Session creation error:', sessionErr);
+      // Fallback to magic link if direct session fails
+      const { data: linkData, error: linkErr } = await supabase.auth.admin.generateLink({
+        type: 'magiclink',
+        email: proxyEmail,
+        options: { redirectTo: `${appUrl}${isNewUser ? '/onboarding' : redirectTo}` },
+      });
+
+      if (linkErr || !linkData?.properties?.action_link) {
+        console.error('Fallback magic link generation error:', linkErr);
+        return NextResponse.redirect(`${appUrl}/auth/login?error=x_session_failed`);
+      }
+
+      const response = NextResponse.redirect(linkData.properties.action_link);
+      response.cookies.delete('x_code_verifier');
+      response.cookies.delete('x_oauth_state');
+      response.cookies.delete('x_oauth_redirect_to');
+      return response;
     }
 
-    const response = NextResponse.redirect(sessionData.properties.action_link);
+    // Set the session cookies directly
+    const response = NextResponse.redirect(
+      `${appUrl}${isNewUser ? '/onboarding' : redirectTo}`
+    );
+
+    // Set Supabase session cookies
+    const { access_token, refresh_token } = sessionData.session;
+    response.cookies.set('sb-access-token', access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+      path: '/',
+    });
+    response.cookies.set('sb-refresh-token', refresh_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+      path: '/',
+    });
+
     response.cookies.delete('x_code_verifier');
     response.cookies.delete('x_oauth_state');
     response.cookies.delete('x_oauth_redirect_to');
