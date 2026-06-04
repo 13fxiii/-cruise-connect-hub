@@ -110,15 +110,39 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Minimal profile update for first-time sign-in
-    if (isNewUser) {
+    // Ensure profile exists with onboarding_done set correctly
+    // This handles both new users and returning users who haven't completed onboarding
+    try {
+      await supabase.from('profiles').upsert(
+        {
+          id: userId,
+          username: xUser.username,
+          display_name: displayName,
+          avatar_url: avatarUrl,
+          x_username: xUser.username,
+          x_display_name: displayName,
+          x_avatar_url: avatarUrl,
+          twitter_handle: `@${xUser.username}`,
+          onboarding_done: false,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'id' }
+      );
+    } catch (profileErr) {
+      console.warn('Profile upsert error (may be schema mismatch):', profileErr);
+      // Fallback: try with minimal columns
+      try {
         await supabase.from('profiles').upsert(
-            {
-                id: userId,
-                onboarding_done: false,
-            },
-            { onConflict: 'id' }
+          {
+            id: userId,
+            onboarding_done: false,
+          },
+          { onConflict: 'id' }
         );
+      } catch (fallbackErr) {
+        console.error('Fallback profile upsert failed:', fallbackErr);
+        // Continue anyway - the profile may have been auto-created by trigger
+      }
     }
 
     const expiresAt = tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000).toISOString() : null;

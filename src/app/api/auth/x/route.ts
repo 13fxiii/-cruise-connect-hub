@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     code_challenge_method: 'S256',
   });
 
-  const authUrl = `https://twitter.com/i/oauth2/authorize?${params.toString()}`;
+  const authUrl = `https://x.com/i/oauth2/authorize?${params.toString()}`; // Updated to x.com per X rebranding
   const response = NextResponse.redirect(authUrl);
 
   const cookieOptions = {

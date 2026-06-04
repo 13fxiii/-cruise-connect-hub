@@ -124,6 +124,7 @@ export async function POST(req: NextRequest) {
         display_name: displayName,
         avatar_url: avatar || null,
         twitter_handle: xUsername ? `@${xUsername}` : null,
+        onboarding_done: true, // CRITICAL: Ensure this is set even in fallback
         updated_at: new Date().toISOString(),
       };
 
