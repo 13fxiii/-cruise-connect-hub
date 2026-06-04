@@ -136,28 +136,28 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const cardNumber = `CCH-${new Date().getFullYear()}-${user.id.replace(/-/g, '').slice(0, 8).toUpperCase()}`;
-    const qrPayload = JSON.stringify({ user_id: user.id, username, card_number: cardNumber });
+    // Hardened community_id_cards creation: don't block on failure
+    try {
+        const cardNumber = `CCH-${new Date().getFullYear()}-${user.id.replace(/-/g, '').slice(0, 8).toUpperCase()}`;
+        const qrPayload = JSON.stringify({ user_id: user.id, username, card_number: cardNumber });
 
-    const { error: cardError } = await supabase.from('community_id_cards').upsert(
-      {
-        user_id: user.id,
-        card_number: cardNumber,
-        qr_data: qrPayload,
-        is_active: true,
-      },
-      { onConflict: 'user_id' }
-    );
-
-    if (cardError) {
-      return NextResponse.json({ error: cardError.message }, { status: 500 });
+        await supabase.from('community_id_cards').upsert(
+        {
+            user_id: user.id,
+            card_number: cardNumber,
+            qr_data: qrPayload,
+            is_active: true,
+        },
+        { onConflict: 'user_id' }
+        );
+    } catch (cardError) {
+        console.warn('Community ID card creation failed, but onboarding continues:', cardError);
     }
 
     return NextResponse.json({
       success: true,
       username,
       display_name: displayName,
-      card_number: cardNumber,
       redirect_to: safeInternalPath(body?.redirect_to),
     });
   } catch (error: any) {

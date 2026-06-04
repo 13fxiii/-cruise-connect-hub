@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, Twitter, RefreshCcw } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 type OnboardingState = {
@@ -22,6 +22,7 @@ export default function OnboardingPage() {
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+  const [xData, setXData] = useState<any>(null);
   const [state, setState] = useState<OnboardingState>({
     display_name: '',
     username: '',
@@ -35,8 +36,7 @@ export default function OnboardingPage() {
     let active = true;
 
     (async () => {
-      const { data } = await supabase.auth.getUser();
-      const user = data.user;
+      const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
         router.replace('/auth/login');
@@ -44,10 +44,7 @@ export default function OnboardingPage() {
       }
 
       const meta = user.user_metadata || {};
-      const fallbackUsername = String(meta.preferred_username || meta.user_name || meta.username || '')
-        .toLowerCase()
-        .replace(/[^a-z0-9_]/g, '')
-        .slice(0, 30);
+      setXData(meta.x_username ? meta : null);
 
       const profileRes = await fetch('/api/onboarding', { cache: 'no-store' });
       const profileJson = await profileRes.json();
@@ -59,6 +56,11 @@ export default function OnboardingPage() {
         router.replace('/feed');
         return;
       }
+
+      const fallbackUsername = String(meta.x_username || meta.preferred_username || meta.user_name || meta.username || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, '')
+        .slice(0, 30);
 
       setState({
         display_name: profile?.display_name || meta.full_name || meta.name || '',
@@ -84,6 +86,16 @@ export default function OnboardingPage() {
     () => state.username.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 30),
     [state.username]
   );
+
+  const refreshFromX = () => {
+    if (!xData) return;
+    setState(s => ({
+      ...s,
+      display_name: xData.full_name || s.display_name,
+      username: xData.x_username || s.username,
+      avatar_url: xData.avatar_url || s.avatar_url,
+    }));
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,6 +145,22 @@ export default function OnboardingPage() {
           </p>
         </div>
 
+        {xData && (
+          <div className="mb-4 p-3 rounded-xl border border-blue-400/30 bg-blue-400/10 flex items-center justify-between text-blue-300 text-xs">
+            <div className="flex items-center gap-2">
+              <Twitter className="w-4 h-4" />
+              <span>Auto-fetched from X (@{xData.x_username})</span>
+            </div>
+            <button 
+              onClick={refreshFromX}
+              className="flex items-center gap-1 hover:text-white transition-colors"
+            >
+              <RefreshCcw className="w-3 h-3" />
+              <span>Refresh</span>
+            </button>
+          </div>
+        )}
+
         {error && (
           <div className="mb-4 p-3 rounded-xl border border-red-400/30 bg-red-400/10 flex gap-2 text-red-300 text-sm">
             <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
@@ -148,6 +176,16 @@ export default function OnboardingPage() {
         )}
 
         <form onSubmit={onSubmit} className="space-y-3 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+          <div className="flex justify-center mb-4">
+            <div className="relative">
+              <img 
+                src={state.avatar_url || 'https://via.placeholder.com/150'} 
+                alt="Avatar Preview" 
+                className="w-20 h-20 rounded-full border-2 border-yellow-400 object-cover"
+              />
+            </div>
+          </div>
+
           <Field
             label="Display name"
             value={state.display_name}

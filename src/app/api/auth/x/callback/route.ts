@@ -70,10 +70,14 @@ export async function GET(request: NextRequest) {
     const avatarRaw = xUser.profileImageUrl || xUser.profile_image_url || '';
     const avatarUrl = String(avatarRaw).replace('_normal', '_400x400');
 
-    const { data: existingByEmail } = await (supabase.auth.admin as any).getUserByEmail(proxyEmail);
-    let userId = existingByEmail?.user?.id;
+    // Use listUsers instead of getUserByEmail as per Genspark's advice
+    const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
+    const existingUser = users?.find(u => u.email === proxyEmail);
+    let userId = existingUser?.id;
 
+    let isNewUser = false;
     if (!userId) {
+      isNewUser = true;
       const { data: created, error: createErr } = await supabase.auth.admin.createUser({
         email: proxyEmail,
         email_confirm: true,
@@ -84,6 +88,7 @@ export async function GET(request: NextRequest) {
           x_id: xUser.id,
           x_username: xUser.username,
           provider: 'x',
+          onboarding_done: false, // Explicitly set to false for new users
         },
       });
 
@@ -92,19 +97,29 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${appUrl}/auth/login?error=x_create_failed`);
       }
       userId = created.user.id;
+    } else {
+      // For existing users, check if they finished onboarding
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarding_done')
+        .eq('id', userId)
+        .maybeSingle();
+      
+      if (!profile?.onboarding_done) {
+        isNewUser = true;
+      }
     }
 
-    await supabase.from('profiles').upsert(
-      {
-        id: userId,
-        username: xUser.username,
-        display_name: displayName,
-        avatar_url: avatarUrl,
-        twitter_handle: `@${xUser.username}`,
-        referral_code: `CCH-${userId.slice(0, 6).toUpperCase()}`,
-      },
-      { onConflict: 'id' }
-    );
+    // Minimal profile update for first-time sign-in
+    if (isNewUser) {
+        await supabase.from('profiles').upsert(
+            {
+                id: userId,
+                onboarding_done: false,
+            },
+            { onConflict: 'id' }
+        );
+    }
 
     const expiresAt = tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000).toISOString() : null;
     await supabase.from('x_oauth_tokens').upsert(
@@ -123,7 +138,7 @@ export async function GET(request: NextRequest) {
     const { data: sessionData, error: sessionErr } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email: proxyEmail,
-      options: { redirectTo: `${appUrl}${redirectTo}` },
+      options: { redirectTo: `${appUrl}${isNewUser ? '/onboarding' : redirectTo}` },
     });
 
     if (sessionErr || !sessionData?.properties?.action_link) {

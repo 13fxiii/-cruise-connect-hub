@@ -31,11 +31,11 @@ export async function GET(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('display_name, username')
+    .select('onboarding_done')
     .eq('id', data.user.id)
     .maybeSingle();
 
-  const isNewUser = !profile || !profile.display_name || !profile.username;
+  const isNewUser = !profile?.onboarding_done;
   const safeRedirect =
     redirectToParam && redirectToParam.startsWith('/') && !redirectToParam.startsWith('//')
       ? redirectToParam

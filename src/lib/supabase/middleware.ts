@@ -31,7 +31,7 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const { pathname } = request.nextUrl;
 
-  // Admin-only routes. Prefer env allowlist when configured; otherwise fall back to profile flags.
+  // Admin-only routes.
   const adminOnlyPrefixes = ['/admin', '/moderator', '/api/admin'];
   const isAdminOnly = adminOnlyPrefixes.some((p) => pathname.startsWith(p));
   if (user && isAdminOnly) {
@@ -88,22 +88,19 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Logged-in on protected route — check onboarding completion
-  // Only check feed/messages/games/spaces/earn (not onboarding itself or profile)
   const needsOnboardingCheck = ['/feed', '/messages', '/games', '/spaces', '/earn', '/music', '/dao', '/leaderboard', '/wallet', '/community-id', '/settings', '/analytics', '/ai-tools', '/marketplace'];
   const shouldCheck = user && needsOnboardingCheck.some(p => pathname.startsWith(p));
 
   if (shouldCheck) {
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('display_name, username')
+      .select('onboarding_done')
       .eq('id', user.id)
       .maybeSingle();
 
-    // If the DB schema is misconfigured (or any other error), never hard-block the user.
     if (error) return response;
 
-    const incompleteProfile = !profile || !profile.display_name || !profile.username;
-    if (incompleteProfile) {
+    if (!profile?.onboarding_done) {
       const url = request.nextUrl.clone();
       url.pathname = '/onboarding';
       return NextResponse.redirect(url);
