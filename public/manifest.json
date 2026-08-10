@@ -1,7 +1,7 @@
 {
-  "name": "Cruise Connect Hub〽️",
-  "short_name": "CC Hub",
-  "description": "The home of Naija culture. Spaces, Games, Music, Jobs & more.",
+  "name": "BIG CRUISE〽️",
+  "short_name": "BCH〽️",
+  "description": "BIG CRUISE〽️ community, Play, music, entertainment and more.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
@@ -10,8 +10,8 @@
   "categories": ["social", "entertainment", "lifestyle"],
   "lang": "en",
   "icons": [
-    { "src": "/icons/icon-72x72.png",   "sizes": "72x72",   "type": "image/png", "purpose": "maskable any" },
-    { "src": "/icons/icon-96x96.png",   "sizes": "96x96",   "type": "image/png", "purpose": "maskable any" },
+    { "src": "/icons/icon-72x72.png", "sizes": "72x72", "type": "image/png", "purpose": "maskable any" },
+    { "src": "/icons/icon-96x96.png", "sizes": "96x96", "type": "image/png", "purpose": "maskable any" },
     { "src": "/icons/icon-128x128.png", "sizes": "128x128", "type": "image/png", "purpose": "maskable any" },
     { "src": "/icons/icon-144x144.png", "sizes": "144x144", "type": "image/png", "purpose": "maskable any" },
     { "src": "/icons/icon-152x152.png", "sizes": "152x152", "type": "image/png", "purpose": "maskable any" },
@@ -21,23 +21,23 @@
   ],
   "shortcuts": [
     {
-      "name": "Games",
-      "short_name": "Games",
-      "description": "Play games and win prizes",
+      "name": "Play",
+      "short_name": "Play",
+      "description": "Play BCH games and compete",
       "url": "/games",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "Live Spaces",
       "short_name": "Spaces",
-      "description": "Join live audio rooms",
+      "description": "Join BIG CRUISE live audio rooms",
       "url": "/spaces",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "Wallet",
       "short_name": "Wallet",
-      "description": "Check your balance",
+      "description": "Check your BCH balance",
       "url": "/wallet",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     }
@@ -48,7 +48,7 @@
       "sizes": "1200x630",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Cruise Connect Hub home screen"
+      "label": "BIG CRUISE〽️ home screen"
     }
   ]
 }
