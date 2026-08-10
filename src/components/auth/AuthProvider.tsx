@@ -1,27 +1,47 @@
 'use client';
+
 import { createContext, useContext, useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import type { User, Session } from '@supabase/supabase-js';
+import { auth } from '@appdeploy/client';
+import type { AuthUser } from '@appdeploy/client';
 
-interface AuthState { user: User | null; session: Session | null; loading: boolean; }
-const AuthContext = createContext<AuthState>({ user: null, session: null, loading: true });
-export function useAuth() { return useContext(AuthContext); }
+interface AuthState {
+  user: AuthUser | null;
+  loading: boolean;
+  refresh: () => Promise<void>;
+}
 
-// Create once per module so auth state doesn't flap between renders.
-const supabase = createClient();
+const AuthContext = createContext<AuthState>({
+  user: null,
+  loading: true,
+  refresh: async () => {},
+});
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>({ user: null, session: null, loading: true });
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = async () => {
+    try {
+      const currentUser = await auth.getUser();
+      setUser(currentUser);
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setState({ user: session?.user ?? null, session, loading: false });
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setState({ user: session?.user ?? null, session, loading: false });
-    });
-    return () => subscription.unsubscribe();
+    void refresh();
   }, []);
 
-  return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, loading, refresh }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
