@@ -1,156 +1,132 @@
-# Cruise Connect Hub Deployment Guide (Vercel + Supabase Auth)
+# BCH〽️ Deployment & Development
 
-## Stack
-- **Web App**: Next.js 14 (App Router + Route Handlers)
-- **Auth**: Supabase Auth (Twitter/X OAuth)
-- **Database**: Supabase Postgres
-- **Hosting**: Vercel
+BCH is now **AppDeploy-first**.
 
----
+## Canonical architecture
 
-## 1) Supabase Setup
+- **Frontend:** Next.js App Router + React + Tailwind
+- **Auth:** AppDeploy Auth
+- **Backend API:** AppDeploy API/router
+- **Database:** AppDeploy Database
+- **Realtime:** AppDeploy Realtime
+- **Secrets:** AppDeploy Secrets
+- **Production:** AppDeploy
+- **Source:** GitHub `13fxiii/BCH`
+- **Community X:** `@BCHub_`
 
-1. Create a new project on [Supabase](https://supabase.com).
-2. In **Settings → API**, copy:
-   - Project URL
-   - `anon` key
-   - `service_role` key (keep private)
-3. In **SQL Editor**, run the migration(s) in order:
-   - `supabase/migrations/001_initial_schema.sql`
-   - Any newer migrations in `supabase/migrations/` as needed
-4. For common manual profile fixes (for example updating `display_name` / `twitter_handle`), run snippets from:
-   - `supabase/sql/profile_updates.sql`
-5. For a controlled fresh-data reset (content wipe + onboarding reset), use:
-   - `supabase/sql/reset_app_data.sql`
-6. To clear stale login state in browsers before retesting auth:
-   - **Edge (Windows):** Site settings → Cookies and site data → remove `cruise-connect-hub.vercel.app`.
-   - **Safari (iPhone):** Settings → Safari → Advanced → Website Data → remove `cruise-connect-hub.vercel.app`.
+Vercel and Supabase are legacy CCH infrastructure. Do not create new dependencies on either platform. Existing Supabase modules are being migrated feature-by-feature and should be deleted only after their AppDeploy replacement is verified.
 
----
-
-## 2) Twitter/X OAuth (via Supabase)
-
-### A) X Developer Portal
-1. Create or open your X app in [developer.twitter.com](https://developer.twitter.com/en/portal/dashboard).
-2. Enable **OAuth 2.0** for a **Web App**.
-3. Set callback URL based on your flow:
-   - **App-managed PKCE (`/api/auth/x`, default in this repo):**
-     - `https://YOUR_APP_DOMAIN/api/auth/x/callback`
-   - **Supabase-managed callback flow:**
-     - `https://YOUR_SUPABASE_PROJECT.supabase.co/auth/v1/callback`
-4. Set website + policy URLs (required by X for many apps):
-   - Website: `https://cruise-connect-hub.vercel.app`
-   - Terms of Service: `https://cruise-connect-hub.vercel.app/terms`
-   - Privacy Policy: `https://cruise-connect-hub.vercel.app/privacy`
-5. Copy your **Client ID** + **Client Secret**.
-
-### B) Supabase Dashboard
-1. Go to **Authentication → Providers → Twitter**.
-2. Enable it and paste the X **Client ID** + **Client Secret**.
-3. Go to **Authentication → URL Configuration**:
-   - Site URL: `https://cruise-connect-hub.vercel.app`
-   - Additional Redirect URLs (add both):
-     - `https://cruise-connect-hub.vercel.app/auth/callback`
-     - `http://localhost:3000/auth/callback`
-   - Remove stale preview/branch URLs you no longer use to avoid redirect confusion.
-
----
-
-## 3) Vercel Environment Variables
-
-Set these in Vercel for **Production** (and Preview, if you use preview deploys):
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` (supports both legacy JWT `eyJ...` and new `sb_publishable_...`)
-- `SUPABASE_SERVICE_ROLE_KEY` (required only for server-side admin actions)
-- `NEXT_PUBLIC_APP_URL` (recommended for canonical URLs/metadata; set to your production domain)
-
-Recommended auth + sync vars (if you use X integrations):
-- `TWITTER_CLIENT_ID`
-- `TWITTER_CLIENT_SECRET`
-- `X_CLIENT_ID` / `X_CLIENT_SECRET` (accepted aliases)
-- `TWITTER_BEARER_TOKEN` (required for `/api/spaces/sync`)
-- `COMMUNITY_X_HANDLE` (defaults to `TheCruiseCH`)
-- `CRON_SECRET` (protects cron/sync routes)
-- `ADMIN_X_HANDLES` (optional; defaults to `@TheCruiseCH,@13fxiii_` for admin-only pages)
-
-Optional AI community ingest route (`/api/community/seed-xai`):
-- `XAI_API_KEY`
-- `XAI_MODEL` (default: `grok-3-mini`)
-- `COMMUNITY_X_URL` (default: `https://x.com/i/communities/1897164314764579242`)
-- `COMMUNITY_SEED_AUTHOR_ID` (Supabase `profiles.id` UUID used as importer account)
-- `COMMUNITY_SEED_AUTHOR_HANDLE` (alternative to UUID; resolve by `twitter_handle`/`username`)
-  - Do **not** set this to a full `https://x.com/...` profile URL.
-
-Schema note:
-- If you set `NEXT_PUBLIC_SUPABASE_SCHEMA`, use only a non-`public` exposed schema name (for example `api`) and never a URL/path value.
-- If your app uses default `public`, leave `NEXT_PUBLIC_SUPABASE_SCHEMA` unset.
-
-### Fast launch profile (CRUISE CONNECT HUB defaults)
-Use these exact values to get a first production launch working quickly:
-- `NEXT_PUBLIC_APP_URL=https://cruise-connect-hub.vercel.app`
-- `COMMUNITY_X_HANDLE=TheCruiseCH`
-- `COMMUNITY_SEED_AUTHOR_HANDLE=@TheCruiseCH` (or set `COMMUNITY_SEED_AUTHOR_ID` to a real profiles UUID)
-- `NEXT_PUBLIC_CRUISE_CINEMA_URL=/cinema` (if using in-app cinema page route)
-
-And ensure these are set with your real secrets/keys:
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `TWITTER_CLIENT_ID`
-- `TWITTER_CLIENT_SECRET` (or public-client flow config)
-- `CRON_SECRET`
-- `XAI_API_KEY` (only if using `/api/community/seed-xai`)
-
-Private CCHP group controls:
-- `CCHP_MEMBER_IDS` (comma-separated Supabase user UUIDs)
-- `CCHP_MEMBER_HANDLES` (optional comma-separated X handles, with or without `@`)
-
-Variables that are typically **not needed** in this app unless added by custom code:
-- `NEXTAUTH_SECRET`
-- `NEXTAUTH_URL`
-- `DATABASE_URL`
-
-### X actions now available in-app
-After X OAuth connect, authenticated users can call:
-- `POST /api/x/post` (post directly to X)
-- `POST /api/x/poll` (create X polls)
-- `POST /api/x/dm` (send DMs on X)
-
-These routes use stored user OAuth tokens from `x_oauth_tokens` and auto-refresh expired access tokens using refresh tokens.
-
----
-
-## 4) Deploy to Vercel
+## Local development
 
 ```bash
-npm i -g vercel
-vercel login
-
-# link + first deploy
-vercel
-
-# Follow prompts, then add env vars:
-vercel env add NEXTAUTH_SECRET
-vercel env add NEXTAUTH_URL
-vercel env add TWITTER_CLIENT_ID
-vercel env add TWITTER_CLIENT_SECRET
-vercel env add NEXT_PUBLIC_SUPABASE_URL
-vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
-vercel env add SUPABASE_SERVICE_ROLE_KEY
-vercel env add NEXT_PUBLIC_TERMS_OF_SERVICE_URL
-vercel env add NEXT_PUBLIC_PRIVACY_POLICY_URL
-vercel env add RESEND_API_KEY
-vercel env add EMAIL_FROM
-
-# Deploy to production
-vercel --prod
+npm install
+npm run dev
 ```
 
----
+Use `http://localhost:3000` for local development. Never use the production domain as a local fallback.
 
-## 5) Quick Verification Checklist
+## Production secrets
 
-1. Open `/auth/login` and sign in with X.
-2. Confirm you land on `/feed` and a hard refresh keeps you logged in.
-3. If onboarding appears, complete it once and confirm it does not loop back after refresh.
-4. Confirm `/privacy` and `/terms` load successfully.
+Put production credentials in AppDeploy Secrets. Never commit them to GitHub.
+
+Typical server-only secrets include:
+
+- X/Twitter OAuth credentials
+- X API bearer token
+- XAI/Grok API key
+- Paystack/Flutterwave secret keys
+- payment webhook secrets
+- admin secrets
+- cron/scheduled-task secrets
+- email provider credentials
+
+Safe local placeholders belong in `.env.example`.
+
+## X integration
+
+The BCH community identity is:
+
+- Handle: `@BCHub_`
+- Community URL: `https://x.com/BCHub_`
+- Email: `cruiseconnecthub@gmail.com`
+
+X publishing, polls, Space detection and community synchronization must run through authenticated server-side routes. Never expose X client secrets or bearer tokens to the browser.
+
+## AppDeploy auth
+
+Frontend authentication uses `@appdeploy/client`:
+
+- `auth.signIn()` for login
+- `auth.getUser()` for the current session
+- `auth.isSignedIn()` for synchronous UI checks
+- `auth.signOut()` for logout
+
+Protected backend endpoints must use AppDeploy authentication middleware and scope user-owned records to the authenticated AppDeploy `userId`.
+
+## AppDeploy database
+
+Use `@appdeploy/sdk` database tables for persistent application records.
+
+Supported operations are `db.add`, `db.get`, `db.list`, `db.update` and `db.delete`.
+
+Do not invent `db.set` or client-side database access. Database IDs are generated by the platform and must be reused after creation.
+
+## Realtime games
+
+Play multiplayer rooms use AppDeploy Realtime as the authoritative synchronization layer.
+
+A game room should synchronize:
+
+- room membership
+- player readiness
+- player count
+- current round
+- active player
+- turn state
+- scores
+- votes/guesses
+- game phase
+- winner/results
+
+Local React state is presentation state only; it must not be treated as the authoritative multiplayer state.
+
+## Deployment verification
+
+Before declaring a release shipped:
+
+1. Install dependencies successfully.
+2. Run the production build.
+3. Verify AppDeploy backend routes.
+4. Verify authentication.
+5. Verify realtime multiplayer flows where changed.
+6. Run available E2E/QA checks.
+7. Inspect frontend and backend errors.
+8. Confirm the deployed AppDeploy URL reflects the new commit.
+
+## Migration policy
+
+### Safe to remove now
+
+- Vercel deployment configuration
+- Vercel deployment triggers
+- Vercel-only deployment instructions
+- Vercel production URLs from development defaults
+
+### Remove after replacement verification
+
+- Supabase client/server helpers
+- Supabase middleware
+- Supabase auth adapters
+- Supabase database migrations/schema files
+- Supabase-specific environment variables
+- Supabase-only route implementations
+
+This staged removal is intentional: deleting Supabase imports before their AppDeploy replacements exist would break BCH rather than clean it up.
+
+## Four primary navigation destinations
+
+The mobile shell should expose only four major bottom destinations:
+
+**Home · Play · FM · Profile**
+
+Other features remain accessible from their relevant screens without crowding the primary navigation.
