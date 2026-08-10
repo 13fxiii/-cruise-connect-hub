@@ -14,6 +14,7 @@ const fillBots = (room: any, target = 3) => {
 };
 
 export const handler = router({
+  ...realtimeSubscriptionRoutes,
   'GET /api/_healthcheck': [async () => json({ message: 'Success', service: 'BCH', backend: 'AppDeploy' })],
   'GET /api/profile': [requireAuth(), async (ctx) => {
     const { items } = await db.list<any>('profiles', { limit: 1000 });
@@ -110,5 +111,3 @@ export const handler = router({
     return json({ role, teammates: ids.map(id => ({ userId: id, name: room.playerNames?.[room.playerIds?.indexOf(id)] || 'Cruiser', role: 'LIAR' })) });
   }]
 });
-
-Object.assign(handler.routes, realtimeSubscriptionRoutes);
