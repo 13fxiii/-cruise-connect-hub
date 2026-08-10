@@ -7,22 +7,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'pbs.twimg.com' },
       { protocol: 'https', hostname: '*.twimg.com' },
-      { protocol: 'https', hostname: '*.supabase.co' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'i.scdn.co' },
     ],
-  },
-  experimental: {
-    serverActions: {
-      allowedOrigins: [
-        'localhost:3000',
-        'localhost:5000',
-        '*.replit.dev',
-        '*.repl.co',
-        'cruise-connect-hub.vercel.app',
-        '*.vercel.app',
-      ],
-    },
   },
   async headers() {
     return [

@@ -1,37 +1,24 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Rss, Gamepad2, Wallet, Mic, User } from "lucide-react";
+import { Home, Gamepad2, Radio, User } from "lucide-react";
 
 const TABS = [
-  { href: "/feed",    label: "Feed",   icon: Rss },
-  { href: "/spaces",  label: "Spaces", icon: Mic },
-  { href: "/games",   label: "Games",  icon: Gamepad2 },
-  { href: "/wallet",  label: "Wallet", icon: Wallet },
-  { href: "/profile", label: "Profile",icon: User },
+  { href: "/", label: "Home", icon: Home },
+  { href: "/games", label: "Play", icon: Gamepad2 },
+  { href: "/music", label: "FM", icon: Radio },
+  { href: "/profile", label: "Profile", icon: User },
 ];
 
 export default function MobileBottomNav() {
   const path = usePathname();
-
-  // Hide on landing page and auth pages
-  if (path === "/" || path.startsWith("/auth") || path.startsWith("/onboarding")) return null;
-
+  if (path.startsWith("/auth") || path.startsWith("/onboarding") || path.startsWith("/rules")) return null;
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-t border-zinc-800"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-      <div className="flex items-center justify-around px-2 h-14">
+    <nav aria-label="BCH navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-xl border-t border-zinc-800/70" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <div className="flex items-center justify-around px-2 h-16">
         {TABS.map(({ href, label, icon: Icon }) => {
-          const active = path === href || (href !== "/" && path.startsWith(href));
-          return (
-            <Link key={href} href={href}
-              className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl transition-colors ${
-                active ? "text-yellow-400" : "text-zinc-500 hover:text-zinc-300"
-              }`}>
-              <Icon size={20} strokeWidth={active ? 2.5 : 1.8} />
-              <span className="text-[10px] font-semibold leading-none">{label}</span>
-            </Link>
-          );
+          const active = href === "/" ? path === "/" : path === href || path.startsWith(href + "/");
+          return <Link key={href} href={href} aria-label={label} className={`flex flex-1 flex-col items-center justify-center gap-1 min-h-12 rounded-xl transition-colors ${active ? "text-yellow-400 bg-yellow-400/10" : "text-zinc-400 hover:text-zinc-200"}`}><Icon size={24} strokeWidth={active ? 2.5 : 1.9} /><span className="text-xs font-semibold leading-none">{label}</span></Link>;
         })}
       </div>
     </nav>
