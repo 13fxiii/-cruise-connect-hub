@@ -1,23 +1,12 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { updateSession } from '@/lib/supabase/middleware';
 
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // NEVER run auth middleware on the OAuth callback routes.
-  // The PKCE code verifier is stored in cookies — if middleware calls
-  // getUser() before exchangeCodeForSession() the verifier gets consumed
-  // and the code exchange fails silently.
-  // This includes both standard Supabase callback and custom X OAuth callback
-  if (pathname.startsWith('/auth/callback') || pathname === '/api/auth/x/callback') {
-    return NextResponse.next();
-  }
-
-  return await updateSession(request);
+// BCH authentication is handled by AppDeploy's auth client/server middleware.
+// Keep Next.js middleware lightweight so legacy Supabase session refresh logic
+// cannot consume OAuth cookies or interfere with AppDeploy persistent sessions.
+export function middleware(_request: NextRequest) {
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };
