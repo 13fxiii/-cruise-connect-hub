@@ -2,8 +2,8 @@
 
 ## Source of truth
 
-- Repository: `13fxiii/-cruise-connect-hub`
-- Working branch: `bch-migration`
+- Repository: `13fxiii/BCH`
+- Working branch: `bch-live-reconciliation`
 - Target production app: `big-cruise-hub-m93cdn`
 - Target deployment: AppDeploy
 - Official X: `@BCHub_`
@@ -16,14 +16,9 @@
 
 Supabase and Vercel are legacy CCH infrastructure. They must not remain required by the final BCH runtime. Legacy code should be removed only after equivalent AppDeploy functionality is implemented and verified.
 
-## Existing CCH systems identified
-
-The repository already contains social routes, messages, notifications, profiles, wallet, spaces, games, leaderboard, merch, music, movies, admin/moderator tools, community ID, and numerous API routes. See `FEATURES_INVENTORY.md` for the current route inventory.
-
 ## Migration phases
 
 ### Phase 1 — Core
-
 - X-only authentication
 - BCH profile
 - X avatar/profile identity
@@ -32,7 +27,6 @@ The repository already contains social routes, messages, notifications, profiles
 - persistent sessions
 
 ### Phase 2 — Social
-
 - Feed
 - posts
 - comments
@@ -43,7 +37,6 @@ The repository already contains social routes, messages, notifications, profiles
 - X synchronization
 
 ### Phase 3 — Play
-
 - Draw Am
 - Who Dey Lie? (Mafia/Werewolf modes)
 - Cruise Cards
@@ -61,7 +54,6 @@ The repository already contains social routes, messages, notifications, profiles
 - configurable lobby size
 
 ### Phase 4 — Entertainment
-
 - BIG CRUISE FM
 - Music Room
 - Spaces
@@ -69,7 +61,6 @@ The repository already contains social routes, messages, notifications, profiles
 - Movies with legal in-app playback
 
 ### Phase 5 — Money
-
 - Wallet
 - gifts
 - merch
@@ -79,7 +70,6 @@ The repository already contains social routes, messages, notifications, profiles
 - remove Marketplace
 
 ### Phase 6 — Community
-
 - daily themes
 - MCM/WCW
 - Throwback Thursday
@@ -90,27 +80,26 @@ The repository already contains social routes, messages, notifications, profiles
 - X group-chat prompts
 - community notifications
 
-## Completed on bch-migration so far
+## Reconciliation completed on `bch-live-reconciliation`
 
-- Created `bch-migration` from `main`.
-- Updated root metadata/layout identity to BIG CRUISE〽️ / BCH〽️.
-- Removed the Vercel Speed Insights runtime import from the root layout.
-- Changed the default app URL fallback to the AppDeploy BCH URL.
-- Updated PWA manifest identity to BIG CRUISE〽️ / BCH〽️.
-- Changed the PWA Games shortcut label to Play.
-- Added AppDeploy client/SDK dependencies for the migration.
-- Added `appdeploy.auth-login.json` configured for X-only authentication.
-- Reworked bottom navigation into a compact icon-first mobile navigation while retaining accessible labels through `aria-label`/`title`.
+- Reconciled AppDeploy-native profile creation and X identity sync.
+- Added AppDeploy-native game room creation/joining.
+- Added solo/bot/player room modes and configurable target player counts.
+- Added Cruise Bot lobby filling and ready-state synchronization.
+- Added realtime game-room subscriptions and game-room comments.
+- Added Who Dey Lie? role/team lookup endpoints.
+- Added AppDeploy social backend parity routes for feed, posts, likes, comments, follows, notifications and messages.
+- Added realtime feed/comment/message notifications through the AppDeploy subscription bridge.
+- Migrated the Play hub page away from the legacy Supabase profile lookup.
+- Removed long game descriptions from the Play hub to keep the BCH compact UI dense and scannable.
+- Preserved the CCH-derived game implementations already present in BCH, including drawing, Ludo, cards, trivia, karaoke, word guess, codenames, mafia, werewolf and tournaments.
+- Legacy Supabase/Vercel code remains intentionally in place until the corresponding UI and backend paths are migrated and verified.
 
 ## Important legacy dependencies still present
 
-The current code still contains Supabase authentication and data access. In particular, the existing auth helper and X-token helper use Supabase. These must be migrated before Supabase can be removed safely.
+The existing CCH UI may still contain legacy infrastructure files even when no active feature imports the Supabase client. These should be removed only after a full build/typecheck/deployment verification confirms they are unused.
 
 Do not run or apply legacy Supabase migrations as part of the BCH production migration.
-
-## Repository rename
-
-The connected GitHub tool currently does not expose a repository-settings rename operation. The repository can therefore be renamed manually in GitHub Settings without changing the code migration branch. After the rename, all future GitHub operations should use the new `owner/name`.
 
 ## Safety rules
 
