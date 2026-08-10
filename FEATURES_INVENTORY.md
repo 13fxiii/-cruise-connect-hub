@@ -1,146 +1,78 @@
-# Cruise Connect Hub: Features Inventory (Routes + APIs)
+# BCH〽️ Feature Inventory
 
-This is a quick, concrete inventory of what exists in the codebase today, based on `src/app/*` and `src/app/api/*`.
+This inventory describes the BCH product surface after the current cleanup. It is intentionally focused on features users should see; protected server infrastructure may exist without exposing an Admin product area.
 
-## App Routes (`src/app`)
+## Core
+- `/auth/login`
+- `/profile`
+- `/profile/edit`
+- `/profile/[id]`
+- `/community-id`
+- `/settings`
+- `/notifications`
+- `/search`
 
-- **Auth**
-  - `/auth/login` (email/password, X via Supabase OAuth)
-  - `/auth/signup` (email signup, X via Supabase OAuth)
-  - `/auth/callback` (Supabase code exchange -> redirects to onboarding/feed)
-  - `/auth/reset-password`
-- **Onboarding**
-  - `/onboarding` (rules -> profile -> interests)
-- **Feed**
-  - `/feed` (posts timeline, create post, realtime updates)
-- **Messages**
-  - `/messages` (DM inbox)
-  - `/messages/[id]` (DM thread)
-- **Notifications**
-  - `/notifications` (notifications list, realtime)
-- **Profile**
-  - `/profile` (my profile)
-  - `/profile/edit` (edit profile)
-  - `/profile/[id]` (public profile)
-- **Wallet**
-  - `/wallet` (balance cards, transactions, deposit via Flutterwave, withdraw via Flutterwave)
-- **Spaces**
-  - `/spaces` (spaces hub)
-  - `/spaces/video` (video room)
-- **Games**
-  - `/games` (games hub)
-  - `/games/uno`
-  - `/games/trivia`
-  - `/games/drawing`
-  - `/games/word-guess`
-  - `/games/karaoke`
-  - `/games/mafia`
-- **Earn**
-  - `/earn` (daily check-in, streak, rewards)
-- **Leaderboard**
-  - `/leaderboard` (seasons, rank)
-- **DAO**
-  - `/dao` (community proposals/votes)
-- **Marketplace / Shop / Merch**
-  - `/marketplace` (unified marketplace)
-  - `/shop` (shop landing)
-  - `/merch` (merch)
-- **Music**
-  - `/music` (artists + radio + submit)
-  - `/music/room` (music room)
-- **Movies**
-  - `/movies` (movie hub)
-- **Jobs**
-  - `/jobs` (jobs board)
-- **Ads / Sponsors**
-  - `/ads` (ads submissions)
-  - `/sponsors` (sponsor portal)
-- **AI Tools / Analytics**
-  - `/ai-tools` (creator tools)
-  - `/analytics` (creator analytics)
-- **Search**
-  - `/search` (global search)
-- **Settings / Privacy**
-  - `/settings`
-  - `/privacy`
-- **Admin / Moderator**
-  - `/admin` (admin dashboard)
-  - `/moderator` (moderation UI)
-- **Community ID**
-  - `/community-id` (shareable ID card)
-- **Offline**
-  - `/offline` (PWA offline fallback)
+## Social
+- `/feed`
+- posts
+- comments
+- likes
+- follows
+- notifications
+- X synchronization
 
-## API Routes (`src/app/api`)
+Direct messages are intentionally removed from BCH.
 
-- **Auth**
-  - `/api/auth/*` (includes legacy custom X routes; frontend now uses Supabase OAuth)
-- **Onboarding**
-  - `/api/onboarding` (create/update profile + onboarding flags)
-- **Feed / Posts / Comments**
-  - `/api/posts`
-  - `/api/posts/[id]/like`
-  - `/api/comments`
-- **Messages**
-  - `/api/messages`
-  - `/api/messages/[id]`
-- **Notifications / Push**
-  - `/api/notifications`
-  - `/api/push` (web push subscription)
-- **Follow / Social**
-  - `/api/follow`
-- **Search**
-  - `/api/search`
-- **Spaces**
-  - `/api/spaces`
-  - `/api/spaces/sync`
-- **Games**
-  - `/api/games`
-- **Wallet**
-  - `/api/wallet` (wallet + tx list)
-  - `/api/wallet/flutterwave` (initialize, verify, withdraw, banks, resolve)
-  - `/api/flutterwave/webhook` (Flutterwave webhook handler)
-- **Gifts**
-  - `/api/gifts`
-- **DAO**
-  - `/api/dao`
-  - `/api/dao/vote`
-- **Earn / Check-in**
-  - `/api/checkin`
-- **Leaderboard**
-  - `/api/leaderboard`
-- **Marketplace / Orders / Shop**
-  - `/api/marketplace`
-  - `/api/marketplace/purchase`
-  - `/api/orders`
-  - `/api/shop`
-- **Music / Artists / Tracks**
-  - `/api/music`
-  - `/api/music/play`
-  - `/api/artists`
-  - `/api/artists/[id]`
-  - `/api/tracks`
-- **Jobs**
-  - `/api/jobs`
-- **Ads / Sponsors**
-  - `/api/ads`
-  - `/api/sponsors`
-- **Analytics / AI**
-  - `/api/analytics`
-  - `/api/ai`
-- **Admin**
-  - `/api/admin`
-  - `/api/admin/members`
-  - `/api/admin/revenue`
-- **Other**
-  - `/api/daily-theme`
-  - `/api/polls`
+## Play
+- `/games`
+- Draw Am
+- Who Dey Lie? (Mafia/Werewolf modes)
+- Cruise Cards
+- Ludo
+- Trivia
+- Spin Am
+- Karaoke
+- Word Guess
+- Codenames
+- Tournaments
+- Big Cruise Talent Hunt
+- solo play
+- Cruise Bot
+- multiplayer
+- configurable lobby size
 
-## What To Decide Next (Remove / Merge / Adjust)
+## Entertainment
+- BIG CRUISE FM
+- Music Room
+- Spaces
+- Artistes
+- Movies with legal in-app playback
 
-- Merge: `/marketplace`, `/shop`, `/merch` (keep 1 primary entry point?)
-- Keep/Remove: multiple games (UNO/trivia/drawing/word-guess/karaoke/mafia) vs 1–2 flagship games
-- Merge: `/music` + `/movies` into a single “Entertainment” hub?
-- Keep/Remove: DAO vs a simpler “polls + proposals” board
-- Admin/Moderator: decide whether moderation is needed in v1 launch
+## Money
+- Wallet
+- gifts
+- merch
+- tournaments
+- sponsorships / Support Big Cruise
+- artiste applications
 
+Marketplace is intentionally removed.
+
+## Community
+- daily themes
+- MCM/WCW
+- Throwback Thursday
+- leaderboard
+- awards
+- polls
+- X publishing through protected server-side official-account tooling
+- X Space detection
+- X group-chat prompts
+
+## Removed product surfaces
+- Admin dashboard
+- Marketplace
+- Jobs board
+- Direct messages / DM inbox and threads
+
+Moderator functionality is retained separately from the removed Admin product surface where required for community safety.

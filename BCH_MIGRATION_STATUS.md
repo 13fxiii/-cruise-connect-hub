@@ -1,7 +1,6 @@
 # BCH〽️ Migration Status
 
 ## Source of truth
-
 - Repository: `13fxiii/BCH`
 - Working branch: `bch-sane-development`
 - Target production app: `big-cruise-hub-m93cdn`
@@ -11,35 +10,30 @@
 - Email: `cruiseconnecthub@gmail.com`
 
 ## Target architecture
-
 `GitHub BCH source → AppDeploy runtime → live BCH〽️`
 
-Supabase and Vercel are legacy CCH infrastructure. They must not remain required by the final BCH runtime. Legacy code is removed only after equivalent AppDeploy functionality exists and has been verified.
+Supabase and Vercel are legacy CCH infrastructure and must not remain required by the final BCH runtime. Legacy code is removed only after equivalent AppDeploy functionality exists and has been verified.
 
-## Migration phases
+## Product phases
 
 ### Phase 1 — Core
-
 - X-only authentication
-- BCH profile
-- X avatar/profile identity
+- BCH profile and X avatar identity
 - CRUISE ID
 - onboarding removal
 - persistent sessions
 
 ### Phase 2 — Social
-
 - Feed
 - posts
 - comments
 - likes
 - follows
 - notifications
-- messages
 - X synchronization
+- Direct messages intentionally removed
 
 ### Phase 3 — Play
-
 - Draw Am
 - Who Dey Lie? (Mafia/Werewolf modes)
 - Cruise Cards
@@ -57,7 +51,6 @@ Supabase and Vercel are legacy CCH infrastructure. They must not remain required
 - configurable lobby size
 
 ### Phase 4 — Entertainment
-
 - BIG CRUISE FM
 - Music Room
 - Spaces
@@ -65,63 +58,39 @@ Supabase and Vercel are legacy CCH infrastructure. They must not remain required
 - Movies with legal in-app playback
 
 ### Phase 5 — Money
-
 - Wallet
 - gifts
 - merch
 - tournaments
 - sponsorships / Support Big Cruise
 - artiste applications
-- remove Marketplace
+- Marketplace intentionally removed
 
 ### Phase 6 — Community
-
 - daily themes
 - MCM/WCW
 - Throwback Thursday
 - leaderboard
 - awards
-- X publishing
+- polls
+- protected official X publishing
 - X Space detection
 - X group-chat prompts
-- community notifications
 
-## Current migration state
+## Product-surface cleanup completed
+- Removed Admin dashboard product surface.
+- Removed Marketplace pages and API routes.
+- Removed Jobs board pages and API route.
+- Removed direct-message pages, message API routes and BCH X-DM route.
+- Primary mobile navigation is now exactly four destinations: Home, Play, FM, Profile.
 
-### AppDeploy runtime
+## Runtime security boundary
+Official X publishing remains protected server-side. Removing the Admin UI does not remove the authorization boundary or official-account secret handling required to safely publish announcements.
 
-The AppDeploy BCH runtime already uses AppDeploy Auth, Database, Realtime, Notifications, Storage, Secrets and AI. Social feeds, profiles, messages, notifications, games, Music Room, tournaments, artiste applications, X sync and official-admin publishing are implemented against the AppDeploy backend.
-
-### Security
-
-- Official X publishing is admin-only and uses `X_OFFICIAL_ACCESS_TOKEN` from AppDeploy Secrets.
-- Normal BCH posts use the normal authenticated social-post endpoint and cannot publish through the official X account.
-- Sensitive admin responses are not cached.
-- OAuth state/PKCE cookies are host-only, HttpOnly and short-lived.
-- No secret values are committed to the repository.
-
-### Legacy source cleanup completed on `bch-sane-development`
-
-- Removed the legacy `src/lib/supabase.ts` client/admin layer.
-- Removed `src/lib/supabase/client.ts`.
-- Removed `src/lib/supabase/server.ts`.
-- Removed `src/lib/supabase/config.ts`.
-- Removed `src/lib/supabase/middleware.ts`.
-- Removed `src/lib/supabase/utils.ts` and `src/lib/supabase/schema.ts`.
-- Removed the legacy Supabase auth callback at `src/app/auth/callback/route.ts`.
-- Removed the legacy Supabase X OAuth callback at `src/app/api/auth/x/callback/route.ts`.
-- Removed unused Supabase/NextAuth dependency declarations from `package.json`.
-
-### Lockfile follow-up
-
-`package-lock.json` still contains historical dependency entries from the pre-migration install. It must be regenerated with the current `package.json` by the repository's normal package-manager workflow before treating the source migration as dependency-clean. Do not manually delete arbitrary lockfile transitive entries.
-
-### Legacy SQL/archive material
-
-Historical `supabase/` SQL files and `supabase-schema.sql` remain as migration reference material for now. They are not part of the AppDeploy runtime. They should be archived or removed only after confirming no operational workflow still depends on them.
+## Migration state
+AppDeploy is the runtime target for Auth, Database, Realtime, Notifications, Storage, Secrets and AI. Historical Supabase SQL remains reference material until the final dependency audit confirms it can be archived safely.
 
 ## Safety rules
-
 - Never commit `.env` or secret values.
 - Never print secret values.
 - Never expose service keys or OAuth secrets to the browser.
