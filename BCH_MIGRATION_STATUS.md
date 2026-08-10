@@ -90,11 +90,14 @@ Supabase and Vercel are legacy CCH infrastructure. They must not remain required
 - Added Who Dey Lie? role/team lookup endpoints.
 - Added AppDeploy social backend parity routes for feed, posts, likes, comments, follows, notifications and messages.
 - Added realtime feed/comment/message notifications through the AppDeploy subscription bridge.
+- Migrated the Play hub page away from the legacy Supabase profile lookup.
+- Removed long game descriptions from the Play hub to keep the BCH compact UI dense and scannable.
+- Preserved the CCH-derived game implementations already present in BCH, including drawing, Ludo, cards, trivia, karaoke, word guess, codenames, mafia, werewolf and tournaments.
 - Legacy Supabase/Vercel code remains intentionally in place until the corresponding UI and backend paths are migrated and verified.
 
 ## Important legacy dependencies still present
 
-The existing CCH UI still contains Supabase imports in some feature pages. These must be migrated to the AppDeploy API/client before the Supabase package and client/server helpers can be removed safely.
+The existing CCH UI may still contain legacy infrastructure files even when no active feature imports the Supabase client. These should be removed only after a full build/typecheck/deployment verification confirms they are unused.
 
 Do not run or apply legacy Supabase migrations as part of the BCH production migration.
 
