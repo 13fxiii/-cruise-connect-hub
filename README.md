@@ -1,147 +1,157 @@
-# 🚌 Cruise & Connect Hub〽️ — Deploy Guide
+# 🚌 BIG CRUISE〽️ — BCH
 
-## Stack
-- **Frontend**: Next.js 14 (App Router)
-- **Backend/DB**: Supabase (Auth + Postgres + Storage + Realtime)
-- **Hosting**: Vercel
-- **Styling**: Tailwind CSS
+The home of Naija culture online: community, Play, BIG CRUISE FM, entertainment, money features and X-connected community activities.
 
----
+## Source of truth
 
-## Phase 1 Checklist: Auth + Feed + PR/ADS
+- **Repository:** `13fxiii/BCH`
+- **Default branch:** `main`
+- **Production platform:** AppDeploy
+- **Primary identity:** BIG CRUISE〽️ / BCH〽️
+- **Community X handle:** `@BCHub_`
+- **Community email:** `cruiseconnecthub@gmail.com`
 
-### Step 1: Supabase Setup
+GitHub is the source repository. AppDeploy is the application runtime, backend and production deployment. Do not reintroduce Vercel or Supabase as parallel application infrastructure.
 
-1. Create a new project at https://supabase.com
-2. Go to **SQL Editor** → Run `/supabase/schema.sql`
-3. Go to **Authentication → Providers**:
-   - Enable **Twitter/X** provider
-   - Add Twitter API Key + Secret from https://developer.twitter.com
-   - Set callback URL: `https://YOUR_DOMAIN.com/auth/callback`
-4. Go to **Storage** → Create 3 buckets:
-   - `avatars` (Public, 2MB max)
-   - `post-media` (Public, 10MB max)
-   - `pr-assets` (Public, 50MB max)
-5. Copy your **Project URL** and **Anon Key** from Settings → API
+## Architecture
 
-### Step 2: Environment Variables
+### Frontend
+- Next.js App Router
+- React
+- Tailwind CSS
+- Lucide icons
+- Mobile-first responsive UI
 
-Create `.env.local`:
-```
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5...
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5...
-NEXT_PUBLIC_APP_URL=https://cruise-connect-hub.vercel.app
-NEXT_PUBLIC_TERMS_OF_SERVICE_URL=https://cruise-connect-hub.vercel.app/terms
-NEXT_PUBLIC_PRIVACY_POLICY_URL=https://cruise-connect-hub.vercel.app/privacy
-```
+### Platform backend
+AppDeploy is the canonical backend layer:
 
+- AppDeploy Auth for user sessions and identity
+- AppDeploy API/router for server endpoints
+- AppDeploy Database for persistent application records
+- AppDeploy Realtime for multiplayer rooms, live state and synchronized community events
+- AppDeploy Storage for application assets/uploads where required
+- AppDeploy Secrets for server-side credentials
 
-### ✅ Vercel + Supabase (important)
+### External integrations
+External services are integrations, not application infrastructure. Current examples include X, Paystack/Flutterwave and approved media providers. Their credentials must live in AppDeploy Secrets or the appropriate provider connection — never in committed source.
 
-Use **one Supabase project per Vercel environment**.
+## Development rules
 
-Do **not** keep mixed values from two projects in the same environment.
+1. Work from `main` or a clearly named feature branch.
+2. Keep GitHub as the source repository and AppDeploy as the deployment target.
+3. Do not add Vercel configuration, Vercel environment variables or Vercel deployment triggers.
+4. Do not add new Supabase dependencies, clients, migrations or tables.
+5. Existing Supabase code is legacy migration work. Remove it only after the corresponding AppDeploy API/database/auth replacement is verified.
+6. Never commit `.env.local`, API tokens, OAuth secrets, payment secrets or service keys.
+7. Frontend calls to BCH backend endpoints should use the AppDeploy client rather than direct `fetch`/axios calls where the AppDeploy SDK is available.
+8. Protected backend routes must authenticate users and scope user-owned data by the authenticated AppDeploy user ID.
+9. Realtime game state must be authoritative on the backend; never rely on local React state as the multiplayer source of truth.
+10. Every production-facing change must pass build/QA checks before being treated as shipped.
 
-For each Vercel environment (Production / Preview / Development), set only one consistent set:
+## Environment
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
+Use AppDeploy's environment/secrets system for production credentials. Keep only safe placeholders in `.env.example` for local development.
 
-Optional integration vars can exist, but must point to the **same** project ref as `NEXT_PUBLIC_SUPABASE_URL`.
+Core application settings:
 
-If `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_URL` conflict, app startup will now fail in production with a clear error so bad deployments are caught early.
-
-### Step 3: Local Development
-```bash
-npm install
-npm run dev
-# Open http://localhost:3000
-```
-
-### Step 4: Deploy to Vercel
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel
-
-# Set env vars
-vercel env add NEXT_PUBLIC_SUPABASE_URL
-vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
-vercel env add SUPABASE_SERVICE_ROLE_KEY
-vercel env add NEXT_PUBLIC_APP_URL
-vercel env add NEXT_PUBLIC_TERMS_OF_SERVICE_URL
-vercel env add NEXT_PUBLIC_PRIVACY_POLICY_URL
-
-# Deploy to production
-vercel --prod
+```text
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_TERMS_OF_SERVICE_URL=/terms
+NEXT_PUBLIC_PRIVACY_POLICY_URL=/privacy
+COMMUNITY_X_HANDLE=BCHub_
+COMMUNITY_X_URL=https://x.com/BCHub_
 ```
 
-If you also build from GitHub Actions, mirror these in GitHub Actions secrets:
-```bash
-gh secret set NEXT_PUBLIC_TERMS_OF_SERVICE_URL --body "https://cruise-connect-hub.vercel.app/terms"
-gh secret set NEXT_PUBLIC_PRIVACY_POLICY_URL --body "https://cruise-connect-hub.vercel.app/privacy"
-```
+Server credentials such as X OAuth credentials, X API bearer tokens, Paystack/Flutterwave secrets, AI keys, cron secrets and admin secrets belong in AppDeploy Secrets.
 
-### Step 5: Twitter/X OAuth Final Config
-1. In Twitter Developer Console, add:
-   - Website: `https://yourdomain.vercel.app`
-   - Callback URL: `https://YOUR_SUPABASE_PROJECT.supabase.co/auth/v1/callback`
-2. In Supabase → Auth → Providers → Twitter:
-   - Enable & paste API Key + Secret
+## Product structure
 
----
+### Phase 1 — Core
+- X authentication
+- BCH profile
+- Cruise ID
+- Persistent sessions
+- Onboarding removed
 
-## Folder Structure
+### Phase 2 — Social
+- Feed
+- Posts
+- Comments
+- Likes
+- Follows
+- Notifications
+- Messages
+- X synchronization
 
-```
-cruise-connect/
-├── src/
-│   ├── app/
-│   │   ├── (app)/          # App routes (with sidebar)
-│   │   │   ├── feed/       # Community feed
-│   │   │   ├── pr-ads/     # PR/ADS listing + submit
-│   │   │   └── layout.tsx  # Sidebar layout
-│   │   ├── auth/           # Auth pages
-│   │   │   ├── login/
-│   │   │   ├── signup/
-│   │   │   └── callback/   # OAuth callback
-│   │   ├── layout.tsx      # Root layout
-│   │   └── page.tsx        # Landing page
-│   ├── components/
-│   │   ├── layout/         # Sidebar, MobileNav
-│   │   └── ui/             # PostCard, ComposePost
-│   ├── lib/
-│   │   └── supabase/       # Client, Server, Middleware
-│   ├── middleware.ts        # Route protection
-│   └── types/
-│       └── database.ts     # TypeScript types
-├── supabase/
-│   └── schema.sql          # Full DB schema with RLS
-└── .env.example            # Environment template
-```
+### Phase 3 — Play
+- Draw Am
+- Who Dey Lie?
+- Cruise Cards
+- Ludo
+- Trivia
+- Word Guess
+- Codenames
+- Karaoke
+- Spin Am
+- Solo
+- Cruise Bot
+- Multiplayer lobbies
+- Realtime rooms
+- Tournaments
+- BIG CRUISE Talent Hunt
 
----
+### Phase 4 — Entertainment
+- BIG CRUISE FM
+- Artistes
+- Music Room
+- Spaces
+- Movies
 
-## Revenue: PR/ADS Module
+### Phase 5 — Money
+- Wallet
+- Gifts
+- Merch
+- Tournaments
+- Sponsorships / Support Big Cruise
+- Artiste applications
 
-Campaigns submitted → stored in `pr_ads` table → you review in Supabase dashboard → approve/reject.
+### Phase 6 — Community
+- Daily themes
+- MCM / WCW
+- Throwback Thursday
+- Polls
+- Leaderboard
+- Awards
+- X publishing
+- X Space detection
+- Group-chat prompts
 
-**Pricing auto-set by campaign type:**
-| Type | Price (₦) |
-|------|-----------|
-| 1 Day | 20,000 |
-| 1 Day Dual | 40,000 |
-| Weekly | 140,000 |
-| Monthly | 350,000 |
-| 3-Month Ambassador | 750,000 |
-| 6-Month Ambassador | 1,500,000 |
+## UI direction
 
----
+BCH should preserve the visual language of Cruise Connect Hub while evolving it into the BIG CRUISE〽️ identity:
 
-## Phase 2 (Next): Spaces + Wallet + Leaderboard
-## Phase 3: Games + Mobile App (React Native)
+- Matte black base
+- Metallic/luxury gold community branding
+- Supporting accent colours per feature
+- Readable, compact typography — compact does not mean microscopic
+- Four major bottom navigation destinations: **Home, Play, FM, Profile**
+- Feature-specific screens stay isolated from unrelated feature content
+- Home is the primary place for cross-feature suggestions and updates
+
+## Legacy migration
+
+Supabase and Vercel were part of the original Cruise Connect Hub architecture. They are being retired from BCH incrementally rather than deleted blindly. Any legacy module must first be replaced with its AppDeploy equivalent, verified, and then removed.
+
+This repository should never return to a mixed Vercel/Supabase/AppDeploy production architecture.
+
+## Security
+
+- Never paste secrets into source files or commits.
+- Never expose service-role credentials to the browser.
+- Use AppDeploy Secrets for server-only credentials.
+- Use authenticated backend routes for protected operations.
+- Validate and authorize every admin/moderator action server-side.
+
+## License
+
+Private product code for BIG CRUISE〽️. All rights reserved.
