@@ -2,8 +2,8 @@
 
 ## Source of truth
 
-- Repository: `13fxiii/-cruise-connect-hub`
-- Working branch: `bch-migration`
+- Repository: `13fxiii/BCH`
+- Working branch: `bch-sane-development`
 - Target production app: `big-cruise-hub-m93cdn`
 - Target deployment: AppDeploy
 - Official X: `@BCHub_`
@@ -14,11 +14,7 @@
 
 `GitHub BCH source → AppDeploy runtime → live BCH〽️`
 
-Supabase and Vercel are legacy CCH infrastructure. They must not remain required by the final BCH runtime. Legacy code should be removed only after equivalent AppDeploy functionality is implemented and verified.
-
-## Existing CCH systems identified
-
-The repository already contains social routes, messages, notifications, profiles, wallet, spaces, games, leaderboard, merch, music, movies, admin/moderator tools, community ID, and numerous API routes. See `FEATURES_INVENTORY.md` for the current route inventory.
+Supabase and Vercel are legacy CCH infrastructure. They must not remain required by the final BCH runtime. Legacy code is removed only after equivalent AppDeploy functionality exists and has been verified.
 
 ## Migration phases
 
@@ -90,27 +86,39 @@ The repository already contains social routes, messages, notifications, profiles
 - X group-chat prompts
 - community notifications
 
-## Completed on bch-migration so far
+## Current migration state
 
-- Created `bch-migration` from `main`.
-- Updated root metadata/layout identity to BIG CRUISE〽️ / BCH〽️.
-- Removed the Vercel Speed Insights runtime import from the root layout.
-- Changed the default app URL fallback to the AppDeploy BCH URL.
-- Updated PWA manifest identity to BIG CRUISE〽️ / BCH〽️.
-- Changed the PWA Games shortcut label to Play.
-- Added AppDeploy client/SDK dependencies for the migration.
-- Added `appdeploy.auth-login.json` configured for X-only authentication.
-- Reworked bottom navigation into a compact icon-first mobile navigation while retaining accessible labels through `aria-label`/`title`.
+### AppDeploy runtime
 
-## Important legacy dependencies still present
+The AppDeploy BCH runtime already uses AppDeploy Auth, Database, Realtime, Notifications, Storage, Secrets and AI. Social feeds, profiles, messages, notifications, games, Music Room, tournaments, artiste applications, X sync and official-admin publishing are implemented against the AppDeploy backend.
 
-The current code still contains Supabase authentication and data access. In particular, the existing auth helper and X-token helper use Supabase. These must be migrated before Supabase can be removed safely.
+### Security
 
-Do not run or apply legacy Supabase migrations as part of the BCH production migration.
+- Official X publishing is admin-only and uses `X_OFFICIAL_ACCESS_TOKEN` from AppDeploy Secrets.
+- Normal BCH posts use the normal authenticated social-post endpoint and cannot publish through the official X account.
+- Sensitive admin responses are not cached.
+- OAuth state/PKCE cookies are host-only, HttpOnly and short-lived.
+- No secret values are committed to the repository.
 
-## Repository rename
+### Legacy source cleanup completed on `bch-sane-development`
 
-The connected GitHub tool currently does not expose a repository-settings rename operation. The repository can therefore be renamed manually in GitHub Settings without changing the code migration branch. After the rename, all future GitHub operations should use the new `owner/name`.
+- Removed the legacy `src/lib/supabase.ts` client/admin layer.
+- Removed `src/lib/supabase/client.ts`.
+- Removed `src/lib/supabase/server.ts`.
+- Removed `src/lib/supabase/config.ts`.
+- Removed `src/lib/supabase/middleware.ts`.
+- Removed `src/lib/supabase/utils.ts` and `src/lib/supabase/schema.ts`.
+- Removed the legacy Supabase auth callback at `src/app/auth/callback/route.ts`.
+- Removed the legacy Supabase X OAuth callback at `src/app/api/auth/x/callback/route.ts`.
+- Removed unused Supabase/NextAuth dependency declarations from `package.json`.
+
+### Lockfile follow-up
+
+`package-lock.json` still contains historical dependency entries from the pre-migration install. It must be regenerated with the current `package.json` by the repository's normal package-manager workflow before treating the source migration as dependency-clean. Do not manually delete arbitrary lockfile transitive entries.
+
+### Legacy SQL/archive material
+
+Historical `supabase/` SQL files and `supabase-schema.sql` remain as migration reference material for now. They are not part of the AppDeploy runtime. They should be archived or removed only after confirming no operational workflow still depends on them.
 
 ## Safety rules
 
@@ -119,3 +127,4 @@ The connected GitHub tool currently does not expose a repository-settings rename
 - Never expose service keys or OAuth secrets to the browser.
 - Never execute destructive database migrations without an explicit migration plan and verification.
 - Never claim X synchronization or AppDeploy deployment is working without testing it.
+- Never reintroduce Supabase or Vercel as a runtime dependency for a BCH feature.
