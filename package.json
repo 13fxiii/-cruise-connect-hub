@@ -18,6 +18,8 @@
     "mobile:build": "npm run build:static && npx cap sync"
   },
   "dependencies": {
+    "@appdeploy/client": "latest",
+    "@appdeploy/sdk": "latest",
     "@auth/supabase-adapter": "^1.11.1",
     "@capacitor/android": "^8.2.0",
     "@capacitor/app": "^8.0.1",
