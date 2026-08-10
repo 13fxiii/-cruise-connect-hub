@@ -6,7 +6,7 @@ import AuthProvider from "@/components/auth/AuthProvider";
 import { SessionProvider } from "@/components/layout/SessionProvider";
 import "./globals.css";
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://big-cruise-hub-m93cdn.v2.appdeploy.ai";
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === "production" ? "https://big-cruise-hub-m93cdn.v2.appdeploy.ai" : "http://localhost:3000");
 
 export const viewport: Viewport = {
   themeColor: [
@@ -107,7 +107,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             window.addEventListener('load', () => {
               navigator.serviceWorker.register('/sw.js')
                 .then(r => console.log('BCH SW:', r.scope))
-                .catch(() => {});
+                .catch((err) => {
+                  console.error('BCH SW registration failed:', err);
+                });
             });
           }
         `}</Script>
