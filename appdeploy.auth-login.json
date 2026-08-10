@@ -1,0 +1,15 @@
+{
+  "methods": ["x"],
+  "headline": "Welcome to BIG CRUISE〽️",
+  "subtitle": "Sign in with X to enter BCH〽️",
+  "icon": "/icons/icon-512x512.png",
+  "style": {
+    "mode": "dark",
+    "accentColor": "#EAB308",
+    "backgroundColor": "#050505",
+    "panelColor": "#0a0a0a",
+    "textColor": "#ffffff",
+    "fontFamily": "Inter, system-ui, sans-serif",
+    "borderRadius": 16
+  }
+}
