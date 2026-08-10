@@ -4,13 +4,13 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { shouldHideAppChrome } from '@/lib/routeVisibility';
-import { Rss, Radio, Gamepad2, MessageCircle, Plus } from 'lucide-react';
+import { Home, Gamepad2, Radio, UserRound } from 'lucide-react';
 
 const TABS = [
-  { href: '/feed', icon: Rss, label: 'Feed' },
-  { href: '/spaces', icon: Radio, label: 'Live' },
+  { href: '/', icon: Home, label: 'Home' },
   { href: '/games', icon: Gamepad2, label: 'Play' },
-  { href: '/messages', icon: MessageCircle, label: 'DMs' },
+  { href: '/music', icon: Radio, label: 'FM' },
+  { href: '/profile', icon: UserRound, label: 'Profile' },
 ];
 
 export default function BottomNav() {
@@ -37,25 +37,23 @@ export default function BottomNav() {
   const isActive = (href: string) => href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/');
 
   return (
-    <nav aria-label="BCH navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-xl border-t border-zinc-800/70 pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-around px-1 py-1">
+    <nav aria-label="BCH navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-xl border-t border-yellow-400/20 pb-[env(safe-area-inset-bottom)]">
+      <div className="grid grid-cols-4 items-stretch px-2 py-1.5 gap-1 max-w-xl mx-auto">
         {TABS.map(({ href, icon: Icon, label }) => {
           const active = isActive(href);
-          const badge = href === '/messages' ? unreadDMs : 0;
+          const badge = href === '/profile' ? unreadDMs : 0;
           return (
             <Link key={href} href={href} aria-label={label} title={label}
-              className={`flex items-center justify-center w-11 h-10 rounded-xl transition-all relative ${active ? 'text-yellow-400 bg-yellow-400/10' : 'text-zinc-500 hover:text-zinc-300'}`}>
+              className={`relative min-h-[58px] rounded-2xl flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${active ? 'text-yellow-400 bg-yellow-400/12' : 'text-zinc-400 hover:text-zinc-100'}`}>
               <div className="relative">
-                <Icon className="w-[18px] h-[18px]" strokeWidth={active ? 2.5 : 1.8} />
-                {badge > 0 && <div className="absolute -top-2 -right-2 min-w-4 h-4 px-1 bg-yellow-400 text-black text-[9px] font-black rounded-full flex items-center justify-center">{badge > 9 ? '9+' : badge}</div>}
+                <Icon className="w-6 h-6" strokeWidth={active ? 2.6 : 2} />
+                {badge > 0 && <div className="absolute -top-2 -right-3 min-w-5 h-5 px-1 bg-yellow-400 text-black text-[10px] font-black rounded-full flex items-center justify-center">{badge > 9 ? '9+' : badge}</div>}
               </div>
-              {active && <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-yellow-400 rounded-full" />}
+              <span className={`text-xs font-semibold tracking-wide ${active ? 'text-yellow-400' : 'text-zinc-400'}`}>{label}</span>
+              {active && <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-yellow-400 rounded-full" />}
             </Link>
           );
         })}
-        <Link href="/feed?compose=1" aria-label="Create post" title="Create post" className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-400 text-black shadow-lg shadow-yellow-400/20">
-          <Plus className="w-[18px] h-[18px]" strokeWidth={2.5} />
-        </Link>
       </div>
     </nav>
   );
